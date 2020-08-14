@@ -90,6 +90,7 @@ public:
 	fs::path scen_file; // transient
 	vector2d<cOutdoors*> outdoors;
 	std::vector<cTown*> towns;
+public:
 	void addTown(size_t dim) {
 		towns.push_back(new cTown(*this, dim));
 	}

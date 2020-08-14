@@ -25,6 +25,7 @@
 #include "monster.hpp"
 #include "living.hpp"
 #include "quest.hpp"
+#include "stuffdone.hpp"
 
 namespace legacy {
 	struct party_record_type;
@@ -53,6 +54,7 @@ enum eEncNoteType {
 };
 
 class cUniverse;
+class cScenario;
 class cItem;
 
 class cParty : public iLiving {
@@ -82,12 +84,17 @@ public:
 	unsigned long age;
 	unsigned short gold;
 	unsigned short food;
-	unsigned char stuff_done[350][50];
+	StuffDone::type& getSdf(int x, int y) {return stuffDone_.sdf(x,y);}
+	void enterScenario(const cScenario& scenario, const std::string& name);
+	StuffDone& getStuffDone() {return stuffDone_;}
+private:
+	StuffDone stuffDone_;
+public:
 	// These used to be stored as magic SDFs
 	unsigned char hostiles_present;
 	bool easy_mode = false, less_wm = false;
 	// End former magic SDFs
-	std::array<unsigned char,90> magic_ptrs;
+	std::array<StuffDone::type,90> magic_ptrs;
 	short light_level;
 	location outdoor_corner;
 	location i_w_c;
@@ -133,15 +140,15 @@ public:
 	std::map<std::string,campaign_flag_type> campaign_flags;
 private:
 	std::map<unsigned short,std::pair<unsigned short,unsigned char>> pointers;
-	using sd_array = decltype(stuff_done);
+	//using sd_array = decltype(stuff_done);
 public:
-	static const int sdx_max = std::extent<sd_array, 0>::value - 1;
-	static const int sdy_max = std::extent<sd_array, 1>::value - 1;
+	//static const int sdx_max = std::extent<sd_array, 0>::value - 1;
+	//static const int sdy_max = std::extent<sd_array, 1>::value - 1;
 	
 	void set_ptr(unsigned short p, unsigned short sdfx, unsigned short sdfy);
 	void force_ptr(unsigned short p, unsigned short val);
 	void clear_ptr(unsigned short p);
-	unsigned char get_ptr(unsigned short p);
+	StuffDone::type get_ptr(unsigned short p);
 	
 	void import_legacy(legacy::party_record_type& old, cUniverse& univ);
 	void import_legacy(legacy::big_tr_type& old);
@@ -205,7 +212,7 @@ public:
 	iLiving& pc_present() const; // If only one pc is present, returns that pc. Otherwise returns party.
 	void swap_pcs(size_t a, size_t b);
 	
-	bool sd_legit(short a, short b);
+	bool sd_legit(short a, short b) {return a >= 0 && b >= 0;}
 	
 	auto begin() -> boost::indirect_iterator<decltype(adven)::iterator> {
 		return boost::make_indirect_iterator(adven.begin());

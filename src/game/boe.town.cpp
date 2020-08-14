@@ -93,7 +93,7 @@ void start_town_mode(short which_town, short entry_dir) {
 	for(const auto& mod : univ.scenario.town_mods)
 		if(mod.spec >= 0 && mod.spec < 200 && town_number == mod.spec && univ.party.sd_legit(mod.x, mod.y)) {
 			former_town = town_number;
-			town_number += PSD[mod.x][mod.y];
+			town_number += univ.party.getSdf(mod.x,mod.y);
 			// Now update horses & boats
 			for(auto& horse : univ.party.horses)
 				if(horse.exists && horse.which_town == former_town)
@@ -440,7 +440,7 @@ void start_town_mode(short which_town, short entry_dir) {
 	// Clean out unwanted monsters
 	for(auto& monst : univ.town.monst)
 		if(univ.party.sd_legit(monst.spec1, monst.spec2)) {
-			if(PSD[monst.spec1][monst.spec2] > 0)
+			if(univ.party.getSdf(monst.spec1,monst.spec2) > 0)
 				monst.active = 0;
 		}
 	
@@ -1107,7 +1107,7 @@ void create_out_combat_terrain(short ter_type,short num_walls,bool is_road) {
 void elim_monst(unsigned short which,short spec_a,short spec_b) {
 	if(!univ.party.sd_legit(spec_a,spec_b))
 		return;
-	if(PSD[spec_a][spec_b] > 0) {
+	if(univ.party.getSdf(spec_a,spec_b) > 0) {
 		for(short i = 0; i < univ.town.monst.size(); i++)
 			if(univ.town.monst[i].number == which) {
 				univ.town.monst[i].active = 0;
@@ -1270,7 +1270,7 @@ void erase_completed_specials(cArea& sector, std::function<void(location)> clear
 			continue;
 
 		auto sn = sector.specials[sector.special_locs[tile_index].spec];
-		if(univ.party.sd_legit(sn.sd1, sn.sd2) && PSD[sn.sd1][sn.sd2] == SDF_COMPLETE) {
+		if(univ.party.sd_legit(sn.sd1, sn.sd2) && univ.party.getSdf(sn.sd1,sn.sd2) == SDF_COMPLETE) {
 			auto completed_special = sector.special_locs[tile_index];
 			if(!sector.is_on_map(completed_special)) {
 				beep();

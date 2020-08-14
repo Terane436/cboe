@@ -13,6 +13,7 @@
 #include <map>
 #include <sstream>
 #include <stdexcept>
+#include <stack>
 
 #include "scenario.hpp"
 #include "universe.hpp"
@@ -106,7 +107,7 @@ cParty::cParty(const cParty& other)
 	, campaign_flags(other.campaign_flags)
 	, pointers(other.pointers)
 {
-	memcpy(stuff_done, other.stuff_done, sizeof(stuff_done));
+	stuffDone_ = other.stuffDone_;
 	memcpy(setup, other.setup, sizeof(setup));
 	for(int i = 0; i < 6; i++) {
 		adven[i] = new cPlayer(*other.adven[i]);
@@ -176,10 +177,7 @@ void cParty::swap(cParty& other) {
 	std::swap(scen_played, other.scen_played);
 	std::swap(campaign_flags, other.campaign_flags);
 	std::swap(pointers, other.pointers);
-	unsigned char temp_sdf[350][50];
-	memcpy(temp_sdf, stuff_done, sizeof(stuff_done));
-	memcpy(stuff_done, other.stuff_done, sizeof(stuff_done));
-	memcpy(other.stuff_done, temp_sdf, sizeof(stuff_done));
+	std::swap(stuffDone_,other.stuffDone_);
 	unsigned short temp_setup[4][64][64];
 	memcpy(temp_setup, setup, sizeof(setup));
 	memcpy(setup, other.setup, sizeof(setup));
@@ -200,16 +198,16 @@ void cParty::import_legacy(legacy::party_record_type& old, cUniverse& univ){
 	food = old.food;
 	for(short i = 0; i < 310; i++)
 		for(short j = 0; j < 10; j++)
-			stuff_done[i][j] = old.stuff_done[i][j];
+			stuffDone_.sdf(i,j) = old.stuff_done[i][j];
 	light_level = old.light_level;
-	if(stuff_done[305][0] > 0)
-		status[ePartyStatus::STEALTH] = stuff_done[305][0];
-	if(stuff_done[305][1] > 0)
-		status[ePartyStatus::FLIGHT] = stuff_done[305][1];
-	if(stuff_done[305][2] > 0)
-		status[ePartyStatus::DETECT_LIFE] = stuff_done[305][2];
-	if(stuff_done[305][3] > 0)
-		status[ePartyStatus::FIREWALK] = stuff_done[305][3];
+	if(stuffDone_.sdf(305,0) > 0)
+		status[ePartyStatus::STEALTH] = stuffDone_.sdf(305,0);
+	if(stuffDone_.sdf(305,1) > 0)
+		status[ePartyStatus::FLIGHT] = stuffDone_.sdf(305,1);
+	if(stuffDone_.sdf(305,2) > 0)
+		status[ePartyStatus::DETECT_LIFE] = stuffDone_.sdf(305,2);
+	if(stuffDone_.sdf(305,3) > 0)
+		status[ePartyStatus::FIREWALK] = stuffDone_.sdf(305,3);
 	outdoor_corner.x = old.outdoor_corner.x;
 	outdoor_corner.y = old.outdoor_corner.y;
 	i_w_c.x = old.i_w_c.x;
@@ -218,8 +216,8 @@ void cParty::import_legacy(legacy::party_record_type& old, cUniverse& univ){
 	out_loc.y = old.p_loc.y;
 	loc_in_sec.x = old.loc_in_sec.x;
 	loc_in_sec.y = old.loc_in_sec.y;
-	if(stuff_done[304][0]) {
-		left_at = loc(stuff_done[304][1], stuff_done[304][2]);
+	if(stuffDone_.sdf(304,0)) {
+		left_at = loc(stuffDone_.sdf(304,1), stuffDone_.sdf(304,2));
 		left_in = -1;
 	}
 	party_event_timers.reserve(30);
@@ -678,10 +676,7 @@ void cParty::writeTo(std::ostream& file) const {
 	file << "HOSTILES " << int(hostiles_present)  << '\n';
 	file << "EASY " << int(easy_mode) << '\n';
 	file << "LESSWM " << int(less_wm) << '\n';
-	for(int i = 0; i < 310; i++)
-		for(int j = 0; j < 50; j++)
-			if(stuff_done[i][j] > 0)
-				file << "SDF " << i << ' ' << j << ' ' << unsigned(stuff_done[i][j]) << '\n';
+	stuffDone_.writeTo(file);
 	for(auto iter = pointers.begin(); iter != pointers.end(); iter++)
 		file << "POINTER " << iter->first << ' ' << iter->second.first << ' ' << iter->second.second << '\n';
 	for(int i = 0; i < magic_ptrs.size(); i++)
@@ -868,7 +863,7 @@ void cParty::readFrom(std::istream& file){
 			int i,j;
 			unsigned int n;
 			sin >> i >> j >> n;
-			stuff_done[i][j] = n;
+			stuffDone_.sdf(i,j) = n;
 		} else if(cur == "HOSTILES") {
 			int n;
 			sin >> n;
@@ -1146,14 +1141,14 @@ void cParty::force_ptr(unsigned short p, unsigned short val){
 	magic_ptrs[p-10] = val;
 }
 
-unsigned char cParty::get_ptr(unsigned short p){
+StuffDone::type cParty::get_ptr(unsigned short p){
 	if(p < 10 || p >= 200)
 		throw std::range_error("Attempted to access a nonexistent pointer (10..199)");
 	if(p < 100)
 		return magic_ptrs[p-10];
 	auto iter = pointers.find(p);
 	if(iter == pointers.end()) return 0;
-	return stuff_done[iter->second.first][iter->second.second];
+	return stuffDone_.sdf(iter->second.first,iter->second.second);
 }
 
 bool cParty::is_split() const {
@@ -1211,11 +1206,55 @@ iLiving& cParty::pc_present() const {
 	return *adven[ret];
 }
 
-// stuff done legit, i.e. flags are within proper ranges for stuff done flag
-bool cParty::sd_legit(short a, short b) {
-	if((minmax(0,sdx_max,a) == a) && (minmax(0,sdy_max,b) == b))
-		return true;
-	return false;
+void cParty::enterScenario(const cScenario& scenario, const std::string& name)
+{
+	stuffDone_.clear();
+	age = 0;
+	light_level = 0;
+	outdoor_corner = scenario.out_sec_start;
+	i_w_c = {0, 0};
+	loc_in_sec = scenario.out_start;
+	out_loc = scenario.out_start;
+	boats.clear();
+	horses.clear();
+	std::copy_if(scenario.boats.begin(), scenario.boats.end(), std::back_inserter(boats), std::bind(&cVehicle::exists, std::placeholders::_1));
+	std::copy_if(scenario.horses.begin(), scenario.horses.end(), std::back_inserter(horses), std::bind(&cVehicle::exists, std::placeholders::_1));
+	for(auto& pc : *this) {
+		pc.status.clear();
+		if(isSplit(pc.main_status))
+			pc.main_status -= eMainStatus::SPLIT;
+		pc.cur_health = pc.max_health;
+		pc.cur_sp = pc.max_sp;
+	}
+	in_boat = -1;
+	in_horse = -1;
+	for(auto& pop : creature_save)
+		pop.which_town = 200;
+	for(short i = 0; i < 10; i++)
+		out_c[i].exists = false;
+	magic_store_items.clear();
+	// TODO: Now uncertain if the journal should really persist
+//	journal.clear();
+	special_notes.clear();
+	talk_save.clear();
+	
+	direction = DIR_N;
+	at_which_save_slot = 0;
+	key_times.clear();
+	party_event_timers.clear();
+	spec_items.clear();
+	for(short i = 0; i < scenario.special_items.size(); i++) {
+		if(scenario.special_items[i].flags >= 10)
+			spec_items.insert(i);
+	}
+	for(short i = 0; i < scenario.quests.size(); i++) {
+		if(scenario.quests[i].flags >= 10) {
+			active_quests[i] = cJob(1);
+		}
+	}
+	for(short i = 0; i < 3; i++)
+		stored_items[i].clear();
+        scen_name = name;
 }
 
 bool operator==(const cParty::cConvers& one, const cParty::cConvers& two) {

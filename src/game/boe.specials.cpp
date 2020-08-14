@@ -1497,8 +1497,6 @@ short damage_monst(cCreature& victim, short who_hit, short how_much, eDamageType
 			draw_terrain(2);
 			play_sound(2);
 		}
-//		sprintf ((char *) create_line, "  No damage.              ");
-//		add_string_to_buf((char *) create_line);
 		return false;
 	}
 	
@@ -1595,7 +1593,7 @@ void kill_monst(cCreature& which_m,short who_killed,eMainStatus type) {
 	
 	// Special killing effects
 	if(univ.party.sd_legit(which_m.spec1,which_m.spec2))
-		PSD[which_m.spec1][which_m.spec2] = 1;
+		univ.party.getSdf(which_m.spec1,which_m.spec2) = 1;
 	
 	if(which_m.special_on_kill >= 0)
 		run_special(eSpecCtx::KILL_MONST, eSpecCtxType::TOWN, which_m.special_on_kill, which_m.cur_loc);
@@ -2107,7 +2105,7 @@ void general_spec(const runtime_state& ctx) {
 			break;
 		case eSpecType::INC_SDF:
 			check_mess = true;
-			setsd(cur_node.sd1, cur_node.sd2, PSD[cur_node.sd1][cur_node.sd2] + ((cur_node.ex1b == 0) ? 1 : -1) * cur_node.ex1a);
+			setsd(cur_node.sd1, cur_node.sd2, univ.party.getSdf(cur_node.sd1,cur_node.sd2) + ((cur_node.ex1b == 0) ? 1 : -1) * cur_node.ex1a);
 			break;
 		case eSpecType::DISPLAY_MSG:
 			check_mess = true;
@@ -2125,7 +2123,7 @@ void general_spec(const runtime_state& ctx) {
 			break;
 		case eSpecType::FLIP_SDF:
 			setsd(cur_node.sd1,cur_node.sd2,
-				  ((PSD[cur_node.sd1][cur_node.sd2] == 0) ? 1 : 0) );
+				  ((univ.party.getSdf(cur_node.sd1,cur_node.sd2) == 0) ? 1 : 0) );
 			check_mess = true;
 			break;
 		case eSpecType::CANT_ENTER:
@@ -2205,12 +2203,12 @@ void general_spec(const runtime_state& ctx) {
 		case eSpecType::SET_SDF_ROW:
 			if(spec.sd1 != minmax(0,299,spec.sd1))
 				showError("Stuff Done flag out of range.");
-			else for(short i = 0; i < 50; i++) PSD[spec.sd1][i] = spec.ex1a;
+			else for(short i = 0; i < 50; i++) univ.party.getSdf(spec.sd1,i) = spec.ex1a;
 			break;
 		case eSpecType::COPY_SDF:
 			if(!univ.party.sd_legit(spec.sd1,spec.sd2) || !univ.party.sd_legit(spec.ex1a,spec.ex1b))
 				showError("Stuff Done flag out of range.");
-			else PSD[spec.sd1][spec.sd2] = PSD[spec.ex1a][spec.ex1b];
+			else univ.party.getSdf(spec.sd1,spec.sd2) = univ.party.getSdf(spec.ex1a,spec.ex1b);
 			break;
 		case eSpecType::REST:
 			check_mess = true;
@@ -2270,8 +2268,8 @@ void general_spec(const runtime_state& ctx) {
 		case eSpecType::SDF_TIMES: case eSpecType::SDF_POWER:
 		case eSpecType::SDF_DIVIDE: {
 			check_mess = true;
-			int i = spec.ex1b == -1 ? spec.ex1a : PSD[spec.ex1a][spec.ex1b];
-			int j = spec.ex2b == -1 ? spec.ex2a : PSD[spec.ex2a][spec.ex2b];
+			int i = spec.ex1b == -1 ? spec.ex1a : univ.party.getSdf(spec.ex1a,spec.ex1b);
+			int j = spec.ex2b == -1 ? spec.ex2a : univ.party.getSdf(spec.ex2a,spec.ex2b);
 			switch(spec.type) {
 				case eSpecType::SDF_ADD: setsd(spec.sd1, spec.sd2, i + j); break;
 				case eSpecType::SDF_DIFF: setsd(spec.sd1, spec.sd2, i - j); break;
@@ -2302,7 +2300,7 @@ void general_spec(const runtime_state& ctx) {
 			// TODO: Give more options?
 			switch(spec.pic) {
 				case 0: // Print SDF contents
-					print_nums(spec.sd1, spec.sd2, univ.party.stuff_done[spec.sd1][spec.sd2]);
+					print_nums(spec.sd1, spec.sd2, univ.party.getSdf(spec.sd1,spec.sd2));
 					break;
 				case 1: // Print three literal values (which might be pointers!)
 					print_nums(spec.ex1a, spec.ex1b, spec.ex1c);
@@ -2460,7 +2458,7 @@ void oneshot_spec(const runtime_state& ctx) {
 	int dlg_res;
 	
 	ctx.next_spec = cur_node.jumpto;
-	if((univ.party.sd_legit(spec.sd1,spec.sd2)) && (PSD[spec.sd1][spec.sd2] == 250)) {
+	if((univ.party.sd_legit(spec.sd1,spec.sd2)) && (univ.party.getSdf(spec.sd1,spec.sd2) == 250)) {
 		ctx.next_spec = -1;
 		return;
 	}
@@ -2613,8 +2611,9 @@ void oneshot_spec(const runtime_state& ctx) {
 		handle_message(ctx);
 	}
 	if((set_sd) && (univ.party.sd_legit(spec.sd1,spec.sd2)))
-		PSD[spec.sd1][spec.sd2] = 250;
-	
+        {
+		univ.party.getSdf(spec.sd1,spec.sd2) = 250;
+        }	
 }
 
 void affect_spec(const runtime_state& ctx) {
@@ -3158,12 +3157,12 @@ void affect_spec(const runtime_state& ctx) {
 			univ.party[pc_num].skills[eSkill::INTELLIGENCE] = spec.ex2c;
 			ctx.cur_target = &univ.get_target(pc_num);
 			if(univ.party.sd_legit(spec.sd1, spec.sd2))
-				univ.party.stuff_done[spec.sd1][spec.sd2] = univ.party[pc_num].unique_id - 1000;
+				univ.party.getSdf(spec.sd1,spec.sd2) = univ.party[pc_num].unique_id - 1000;
 			break;
 		case eSpecType::STORE_PC:
 			if(cPlayer* who = dynamic_cast<cPlayer*>(&pc)) {
 				if(univ.party.sd_legit(spec.sd1, spec.sd2))
-					univ.party.stuff_done[spec.sd1][spec.sd2] = univ.party[pc_num].unique_id - 1000;
+					univ.party.getSdf(spec.sd1,spec.sd2) = univ.party[pc_num].unique_id - 1000;
 				if(spec.ex1a == 1) break;
 				who->main_status += eMainStatus::SPLIT;
 				univ.stored_pcs[who->unique_id] = who->leave_party();
@@ -3256,9 +3255,9 @@ void ifthen_spec(const runtime_state& ctx) {
 	switch(cur_node.type) {
 		case eSpecType::IF_SDF:
 			if(univ.party.sd_legit(spec.sd1,spec.sd2)) {
-				if((spec.ex1a >= 0) && (PSD[spec.sd1][spec.sd2] >= spec.ex1a))
+				if((spec.ex1a >= 0) && (univ.party.getSdf(spec.sd1,spec.sd2) >= spec.ex1a))
 					ctx.next_spec = spec.ex1b;
-				else if((spec.ex2a >= 0) && (PSD[spec.sd1][spec.sd2] < spec.ex2a))
+				else if((spec.ex2a >= 0) && (univ.party.getSdf(spec.sd1,spec.sd2) < spec.ex2a))
 					ctx.next_spec = spec.ex2b;
 			}
 			break;
@@ -3279,7 +3278,7 @@ void ifthen_spec(const runtime_state& ctx) {
 			break;
 		case eSpecType::IF_SDF_COMPARE:
 			if((univ.party.sd_legit(spec.sd1,spec.sd2)) && (univ.party.sd_legit(spec.ex1a,spec.ex1b))) {
-				if(PSD[spec.ex1a][spec.ex1b] < PSD[spec.sd1][spec.sd2])
+				if(univ.party.getSdf(spec.ex1a,spec.ex1b) < univ.party.getSdf(spec.sd1,spec.sd2))
 					ctx.next_spec = spec.ex2b;
 			}
 			else showError("A Stuff Done flag is out of range.");
@@ -3519,7 +3518,7 @@ void ifthen_spec(const runtime_state& ctx) {
 		}
 		case eSpecType::IF_SDF_EQ:
 			if(univ.party.sd_legit(spec.sd1,spec.sd2)) {
-				if(PSD[spec.sd1][spec.sd2] == spec.ex1a)
+				if(univ.party.getSdf(spec.sd1,spec.sd2) == spec.ex1a)
 					ctx.next_spec = spec.ex1b;
 			}
 			break;
@@ -4499,7 +4498,7 @@ void setsd(short a, short b, short val) {
 		showError("The scenario attempted to change an out of range Stuff Done flag.");
 		return;
 	}
-	PSD[a][b] = val;
+	univ.party.getSdf(a,b) = val;
 }
 
 void handle_message(const runtime_state& ctx, const std::string& title, pic_num_t pic, ePicType pt) {
@@ -4590,14 +4589,14 @@ void set_campaign_flag(short sdf_a, short sdf_b, short cpf_a, short cpf_b, short
 		if(str >= 0 && str < univ.scenario.spec_strs.size()) {
 			std::string cp_id = univ.scenario.spec_strs[str];
 			if(get_send)
-				univ.party.stuff_done[sdf_a][sdf_b] = univ.cpn_flag(cpf_a, cpf_b, cp_id);
+				univ.party.getSdf(sdf_a,sdf_b) = univ.cpn_flag(cpf_a, cpf_b, cp_id);
 			else
-				univ.cpn_flag(cpf_a, cpf_b, cp_id) = univ.party.stuff_done[sdf_a][sdf_b];
+				univ.cpn_flag(cpf_a, cpf_b, cp_id) = univ.party.getSdf(sdf_a,sdf_b);
 		} else {
 			if(get_send)
-				univ.party.stuff_done[sdf_a][sdf_b] = univ.cpn_flag(cpf_a, cpf_b);
+				univ.party.getSdf(sdf_a,sdf_b) = univ.cpn_flag(cpf_a, cpf_b);
 			else
-				univ.cpn_flag(cpf_a, cpf_b) = univ.party.stuff_done[sdf_a][sdf_b];
+				univ.cpn_flag(cpf_a, cpf_b) = univ.party.getSdf(sdf_a,sdf_b);
 		}
 	} catch(std::range_error x) {
 		showError(x.what());
@@ -4655,4 +4654,5 @@ iLiving& current_pc_picked_in_spec_enc(const runtime_state& ctx) {
 				return *targ;
 			else return univ.party;
 	}
+	return univ.party;
 }

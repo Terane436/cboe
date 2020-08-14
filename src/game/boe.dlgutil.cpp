@@ -526,7 +526,7 @@ void set_up_shop_array() {
 				}
 				break;
 			case eShopItemType::CALL_SPECIAL:
-				if(PSD[entry.item.abil_data[0]][entry.item.abil_data[1]])
+				if(univ.party.getSdf(entry.item.abil_data[0],entry.item.abil_data[1]))
 					shop_array.push_back(j);
 				break;
 			case eShopItemType::OPT_ITEM:
@@ -784,13 +784,13 @@ void handle_talk_event(location p) {
 		case eTalkNode::REGULAR:
 			break;
 		case eTalkNode::DEP_ON_SDF:
-			if(PSD[a][b] > c) {
+			if(univ.party.getSdf(a,b) > c) {
 				save_talk_str1 = save_talk_str2;
 			}
 			save_talk_str2 = "";
 			break;
 		case eTalkNode::SET_SDF:
-			PSD[a][b] = c;
+			univ.party.getSdf(a,b) = c;
 			break;
 		case eTalkNode::INN:
 			if(univ.party.gold < a) {
@@ -887,7 +887,7 @@ void handle_talk_event(location p) {
 			save_talk_str2 = "";
 			break;
 		case eTalkNode::BUY_SDF:
-			if((univ.party.sd_legit(b,c)) && (PSD[b][c] == d)) {
+			if((univ.party.sd_legit(b,c)) && (univ.party.getSdf(b,c) == d)) {
 				save_talk_str1 = "You've already learned that.";
 				can_save_talk = false;
 			}
@@ -898,7 +898,7 @@ void handle_talk_event(location p) {
 				univ.party.gold -= a;
 				put_pc_screen();
 				if(univ.party.sd_legit(b,c))
-					PSD[b][c] = d;
+					univ.party.getSdf(b,c) = d;
 				else showError("Invalid Stuff Done flag called in conversation.");
 			}
 			save_talk_str2 = "";
@@ -1018,7 +1018,7 @@ void handle_talk_event(location p) {
 				univ.town.monst[store_m_num].active = 0;
 				// Special killing effects
 				if(univ.party.sd_legit(univ.town.monst[store_m_num].spec1,univ.town.monst[store_m_num].spec2))
-					PSD[univ.town.monst[store_m_num].spec1][univ.town.monst[store_m_num].spec2] = 1;
+					univ.party.getSdf(univ.town.monst[store_m_num].spec1,univ.town.monst[store_m_num].spec2) = 1;
 			}
 			talk_end_forced = true;
 			break;
@@ -1120,12 +1120,6 @@ static bool prefs_event_filter (cDialog& me, std::string id, eKeyMod) {
 		set_pref("DrawTerrainShoreFrills", dynamic_cast<cLed&>(me["noshore"]).getState() == led_off);
 		set_pref("ShowStartupSplash", dynamic_cast<cLed&>(me["skipsplash"]).getState() == led_off);
 		std::string speed = dynamic_cast<cLedGroup&>(me["speed"]).getSelected();
-		/* TODO: Should I add these additional preferences from Windows?
-		party.stuff_done[SDF_NO_TARGET_LINE] = cd_get_led(1099,50);
-		party.stuff_done[SDF_LESS_SOUND] = cd_get_led(1099,52);
-		party.stuff_done[SDF_FASTER_BOOM_SPACES] = cd_get_led(1099,56);
-		party.stuff_done[SDF_ASK_ABOUT_TEXT_BOX] = cd_get_led(1099,60);
-		*/
 		if(speed == "fast")
 			set_pref("GameSpeed", 0);
 		else if(speed == "med")

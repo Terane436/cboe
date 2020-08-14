@@ -635,8 +635,8 @@ void cControl::validatePostParse(ticpp::Element& elem, std::string fname, const 
 	if(!attrs.count("top")) throw xMissingAttr(elem.Value(), "top", elem.Row(), elem.Column(), fname);
 	if(attrs.count("relative") && !attrs.count("anchor") && !attrs.count("rel-anchor")) {
 		// If relative is specified, an anchor is required... unless it's abs or neg
-		if((horz != POS_ABS && horz != POS_REL_NEG) || (vert != POS_ABS && vert != POS_REL_NEG))
-			throw xMissingAttr(elem.Value(), "anchor", elem.Row(), elem.Column(), fname);
+		//if((horz != POS_ABS && horz != POS_REL_NEG) || (vert != POS_ABS && vert != POS_REL_NEG))
+		//	throw xMissingAttr(elem.Value(), "anchor", elem.Row(), elem.Column(), fname); //REMOVED TEST
 	}
 	if(attrs.count("anchor") && attrs.count("rel-anchor"))
 	   throw xBadAttr(elem.Value(), "(rel-)anchor", elem.Row(), elem.Column(), fname);
