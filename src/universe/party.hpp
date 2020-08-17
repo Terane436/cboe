@@ -163,7 +163,11 @@ public:
 	int get_shared_dmg(int base_dmg) const;
 	location get_loc() const;
 	
-	void apply_status(eStatus which, int how_much);
+	virtual void apply_status(eStatus which, int how_much) override;
+	template<eStatus Which> void apply_status(int how_much)
+        {
+            for(auto& pc : adven) pc->apply_status<Which>(how_much);
+        }
 	void heal(int how_much);
 	void poison(int how_much);
 	void cure(int how_much);

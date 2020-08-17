@@ -14,6 +14,16 @@
 
 #include "location.hpp"
 #include "damage.hpp"
+#include "utility/templateutil.hpp"
+#include "mathutil.hpp"
+
+template<eStatus Which> struct StatusHighValue { static constexpr int val = 8;};
+template<> struct StatusHighValue<eStatus::BLESS_CURSE> {static constexpr int val = 10;};
+template<> struct StatusHighValue<eStatus::PARALYZED> {static constexpr int val = 5000;};
+template<> struct StatusHighValue<eStatus::FORCECAGE> {static constexpr int val = 1000;};
+template<> struct StatusHighValue<eStatus::ACID> {static constexpr int val = 1000;};//Added to make behavior more consistent
+typedef util::TestInSet<eStatus,eStatus::BLESS_CURSE, eStatus::HASTE_SLOW, eStatus::POISONED_WEAPON, eStatus::POISON, eStatus::ASLEEP, eStatus::MAGIC_RESISTANCE, eStatus::DUMB> AllowedNegativeStatuses;
+typedef util::TestInSet<eStatus,eStatus::ASLEEP,eStatus::DUMB> NoWrapStatuses;
 
 class iLiving {
 public:
@@ -28,7 +38,19 @@ public:
 	virtual bool is_friendly(const iLiving& other) const = 0; // Return true if friendly to living entity
 	virtual bool is_shielded() const = 0; // Checks for martyr's shield in any form - status, monster abil, item abil
 	virtual int get_shared_dmg(int base_dmg) const = 0; // And this goes with the above.
-	
+        template<eStatus Which> void apply_status(int how_much)
+        {
+            if(!is_alive()) return;
+            int hi = StatusHighValue<Which>::val;
+            int lo = AllowedNegativeStatuses::template test<Which>() ? -hi : 0;
+            if(NoWrapStatuses::template test<Which>())
+            {
+                if(status[Which] < 0) hi = 0;
+                else if(status[Which] > 0) lo = 0;
+            }
+            status[Which] = minmax(lo,hi,status[Which] + how_much);
+       }
+
 	virtual void apply_status(eStatus which, int how_much);
 	virtual void clear_brief_status();
 	virtual void clear_bad_status();

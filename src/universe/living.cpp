@@ -12,6 +12,7 @@
 #include <algorithm>
 #include "mathutil.hpp"
 
+
 void iLiving::apply_status(eStatus which, int how_much) {
 	if(!is_alive()) return;
 	

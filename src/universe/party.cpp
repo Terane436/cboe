@@ -504,8 +504,7 @@ void cParty::cure(int how_much) {
 }
 
 void cParty::acid(int how_much) {
-	for(int i = 0; i < 6; i++)
-		adven[i]->acid(how_much);
+    for(auto& pc : adven) pc->acid(how_much);
 }
 
 void cParty::curse(int how_much) {

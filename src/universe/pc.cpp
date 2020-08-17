@@ -142,7 +142,7 @@ void cPlayer::curse(int how_much) {
 	if(!is_alive()) return;
 	if(how_much > 0)
 		how_much -= get_prot_level(eItemAbil::STATUS_PROTECTION,int(eStatus::BLESS_CURSE)) / 2;
-	apply_status(eStatus::BLESS_CURSE, -how_much);
+	this->template apply_status<eStatus::BLESS_CURSE>(-how_much);
 	if(print_result) {
 		if(how_much < 0)
 			print_result("  " + name + " blessed.");
@@ -173,7 +173,7 @@ void cPlayer::dumbfound(int how_much) {
 			print_result("  " + name + " saved.");
 		return;
 	}
-	apply_status(eStatus::DUMB, how_much);
+	this->template apply_status<eStatus::DUMB>(how_much);
 	if(print_result)
 		print_result("  " + name + " dumbfounded.");
 	one_sound(67);
@@ -196,7 +196,7 @@ void cPlayer::disease(int how_much) {
 		how_much++;
 	if(traits[eTrait::FRAIL] && how_much == 1 && get_ran(1,0,1) == 0)
 		how_much++;
-	apply_status(eStatus::DISEASE, how_much);
+	apply_status<eStatus::DISEASE>(how_much);
 	if(print_result)
 		print_result("  " + name + " diseased.");
 	one_sound(66);
@@ -262,7 +262,7 @@ void cPlayer::slow(int how_much) {
 	if(!is_alive()) return;
 	if(how_much > 0)
 		how_much -= get_prot_level(eItemAbil::STATUS_PROTECTION,int(eStatus::HASTE_SLOW)) / 2;
-	apply_status(eStatus::HASTE_SLOW, -how_much);
+	apply_status<eStatus::HASTE_SLOW>(-how_much);
 	if(print_result) {
 		if(how_much < 0)
 			print_result("  " + name + " hasted.");
@@ -277,7 +277,7 @@ void cPlayer::web(int how_much) {
 	if(!is_alive()) return;
 	if(how_much > 0)
 		how_much -= get_prot_level(eItemAbil::STATUS_PROTECTION,int(eStatus::WEBS)) / 2;
-	apply_status(eStatus::WEBS, how_much);
+	apply_status<eStatus::WEBS>(how_much);
 	if(print_result)
 		print_result("  " + name + " webbed.");
 	one_sound(17);
@@ -291,7 +291,7 @@ void cPlayer::acid(int how_much) {
 			print_result("  " + name + " resists acid.");
 		return;
 	}
-	status[eStatus::ACID] += how_much;
+	apply_status<eStatus::ACID>(how_much);
 	if(print_result)
 		print_result("  " + name + " covered with acid!");
 	one_sound(42);
@@ -318,7 +318,7 @@ void cPlayer::poison(int how_much) {
 		how_much++;
 	
 	if(how_much > 0) {
-		apply_status(eStatus::POISON, how_much);
+		apply_status<eStatus::POISON>(how_much);
 		if(print_result)
 			print_result("  " + name + " poisoned.");
 		one_sound(17);

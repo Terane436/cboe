@@ -128,7 +128,7 @@ void cCreature::poison(int how_much) {
 		how_much *= resist[eDamageType::POISON];
 		how_much /= 100;
 	}
-	apply_status(eStatus::POISON, how_much);
+	apply_status<eStatus::POISON>(how_much);
 	if(how_much >= 0)
 		spell_note((how_much == 0) ? 10 : 4);
 	else
@@ -138,7 +138,7 @@ void cCreature::poison(int how_much) {
 
 void cCreature::acid(int how_much) {
 	how_much = magic_adjust(how_much);
-	apply_status(eStatus::ACID, how_much);
+	apply_status<eStatus::ACID>(how_much);
 	if(how_much >= 0)
 		spell_note(31);
 	else
@@ -147,7 +147,7 @@ void cCreature::acid(int how_much) {
 
 void cCreature::slow(int how_much) {
 	how_much = magic_adjust(how_much);
-	apply_status(eStatus::HASTE_SLOW, -how_much);
+	apply_status<eStatus::HASTE_SLOW>(-how_much);
 	if(how_much >= 0)
 		spell_note((how_much == 0) ? 10 : 2);
 	else
@@ -157,7 +157,7 @@ void cCreature::slow(int how_much) {
 
 void cCreature::curse(int how_much) {
 	how_much = magic_adjust(how_much);
-	apply_status(eStatus::BLESS_CURSE, -how_much);
+	apply_status<eStatus::BLESS_CURSE>(-how_much);
 	if(how_much >= 0)
 		spell_note((how_much == 0) ? 10 : 5);
 	else
@@ -167,7 +167,7 @@ void cCreature::curse(int how_much) {
 
 void cCreature::web(int how_much) {
 	how_much = magic_adjust(how_much);
-	apply_status(eStatus::WEBS, how_much);
+	apply_status<eStatus::WEBS>(how_much);
 	if(how_much >= 0)
 		spell_note((how_much == 0) ? 10 : 19);
 	else
@@ -187,7 +187,7 @@ void cCreature::scare(int how_much) {
 
 void cCreature::disease(int how_much) {
 	how_much = magic_adjust(how_much);
-	apply_status(eStatus::DISEASE, how_much);
+	apply_status<eStatus::DISEASE>(how_much);
 	if(how_much >= 0)
 		spell_note((how_much == 0) ? 10 : 25);
 	else
@@ -197,7 +197,7 @@ void cCreature::disease(int how_much) {
 
 void cCreature::dumbfound(int how_much) {
 	how_much = magic_adjust(how_much);
-	apply_status(eStatus::DUMB, how_much);
+	apply_status<eStatus::DUMB>(how_much);
 	if(how_much >= 0)
 		spell_note((how_much == 0) ? 10 : 22);
 	else

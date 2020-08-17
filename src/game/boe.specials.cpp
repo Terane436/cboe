@@ -410,10 +410,10 @@ bool check_special_terrain(location where_check,eSpecCtx mode,cPlayer& which_pc,
 								univ.party[i].slow(ter_flag1);
 								break;
 							case eStatus::INVULNERABLE: // Should say "You feel odd." / "You feel protected."?
-								univ.party[i].apply_status(eStatus::INVULNERABLE,ter_flag1);
+								univ.party[i].apply_status<eStatus::INVULNERABLE>(ter_flag1);
 								break;
 							case eStatus::MAGIC_RESISTANCE: // Should say "You feel odd." / "You feel protected."?
-								univ.party[i].apply_status(eStatus::MAGIC_RESISTANCE,ter_flag1);
+								univ.party[i].apply_status<eStatus::MAGIC_RESISTANCE>(ter_flag1);
 								break;
 							case eStatus::WEBS: // Should say "You feel sticky." / "Your skin tingles."?
 								univ.party[i].web(ter_flag1);
@@ -424,13 +424,13 @@ bool check_special_terrain(location where_check,eSpecCtx mode,cPlayer& which_pc,
 							case eStatus::INVISIBLE:
 								if(ter_flag1 < 0) add_string_to_buf("You feel obscure.");
 								else add_string_to_buf("You feel exposed.");
-								univ.party[i].apply_status(eStatus::INVISIBLE,ter_flag1);
+								univ.party[i].apply_status<eStatus::INVISIBLE>(ter_flag1);
 								break;
 							case eStatus::DUMB: // Should say "You feel clearheaded." / "You feel confused."?
 								univ.party[i].dumbfound(ter_flag1);
 								break;
 							case eStatus::MARTYRS_SHIELD: // Should say "You feel dull." / "You start to glow slightly."?
-								univ.party[i].apply_status(eStatus::MARTYRS_SHIELD,ter_flag1);
+								univ.party[i].apply_status<eStatus::MARTYRS_SHIELD>(ter_flag1);
 								break;
 							case eStatus::ASLEEP: // Should say "You feel alert." / "You feel very tired."?
 								univ.party[i].sleep(eStatus::ASLEEP,ter_flag1,ter_flag1 / 2);
@@ -647,8 +647,8 @@ void use_item(short pc,short item) {
 						if(the_item.abil_harms()) {
 							ASB("  Weapon poison lost.");
 							if(the_item.abil_group())
-								univ.party.apply_status(eStatus::POISONED_WEAPON,-str);
-							else univ.party[pc].apply_status(eStatus::POISONED_WEAPON,-str);
+								univ.party.apply_status<eStatus::POISONED_WEAPON>(-str);
+							else univ.party[pc].apply_status<eStatus::POISONED_WEAPON>(-str);
 						} else if(the_item.abil_group()) {
 							for(short i = 0; i < 6; i++)
 								take_charge = take_charge || poison_weapon(i,str,true);
@@ -683,8 +683,8 @@ void use_item(short pc,short item) {
 							str = str * -1;
 						}else ASB("  You feel protected.");
 						if(the_item.abil_group())
-							univ.party.apply_status(status,str);
-						else univ.party[pc].apply_status(status,str);
+							univ.party.apply_status<eStatus::INVULNERABLE>(str);
+						else univ.party[pc].apply_status<eStatus::INVULNERABLE>(str);
 						break;
 					case eStatus::MAGIC_RESISTANCE:
 						// TODO: Is this the right sound?
@@ -695,8 +695,8 @@ void use_item(short pc,short item) {
 							str = str * -1;
 						}else ASB("  You feel protected.");
 						if(the_item.abil_group())
-							univ.party.apply_status(status,str);
-						else univ.party[pc].apply_status(status,str);
+							univ.party.apply_status<eStatus::MAGIC_RESISTANCE>(str);
+						else univ.party[pc].apply_status<eStatus::MAGIC_RESISTANCE>(str);
 						break;
 					case eStatus::WEBS:
 						if(the_item.abil_harms())
@@ -717,8 +717,8 @@ void use_item(short pc,short item) {
 							str = str * -1;
 						}else ASB("  You feel obscure.");
 						if(the_item.abil_group())
-							univ.party.apply_status(status,str);
-						else univ.party[pc].apply_status(status,str);
+							univ.party.apply_status<eStatus::INVISIBLE>(str);
+						else univ.party[pc].apply_status<eStatus::INVISIBLE>(str);
 						break;
 					case eStatus::MARTYRS_SHIELD:
 						// TODO: Is this the right sound?
@@ -728,8 +728,8 @@ void use_item(short pc,short item) {
 							str = str * -1;
 						}else ASB("  You start to glow slightly.");
 						if(the_item.abil_group())
-							univ.party.apply_status(status,str);
-						else univ.party[pc].apply_status(status,str);
+							univ.party.apply_status<eStatus::MARTYRS_SHIELD>(str);
+						else univ.party[pc].apply_status<eStatus::MARTYRS_SHIELD>(str);
 						break;
 					case eStatus::POISON:
 						switch(type) {
@@ -755,7 +755,7 @@ void use_item(short pc,short item) {
 						switch(type) {
 							case eItemUse::HELP_ONE:
 								ASB("  You feel healthy.");
-								univ.party[pc].apply_status(eStatus::DISEASE,-1 * str);
+								univ.party[pc].apply_status<eStatus::DISEASE>(-1 * str);
 								break;
 							case eItemUse::HARM_ONE:
 								ASB("  You feel sick.");
@@ -763,7 +763,7 @@ void use_item(short pc,short item) {
 								break;
 							case eItemUse::HELP_ALL:
 								ASB("  You all feel healthy.");
-								univ.party.apply_status(eStatus::DISEASE,-1 * str);
+								univ.party.apply_status<eStatus::DISEASE>(-1 * str);
 								break;
 							case eItemUse::HARM_ALL:
 								ASB("  You all feel sick.");
@@ -775,7 +775,7 @@ void use_item(short pc,short item) {
 						switch(type) {
 							case eItemUse::HELP_ONE:
 								ASB("  You feel clear headed.");
-								univ.party[pc].apply_status(eStatus::DUMB,-1 * str);
+								univ.party[pc].apply_status<eStatus::DUMB>(-1 * str);
 								break;
 							case eItemUse::HARM_ONE:
 								ASB("  You feel confused.");
@@ -783,7 +783,7 @@ void use_item(short pc,short item) {
 								break;
 							case eItemUse::HELP_ALL:
 								ASB("  You all feel clear headed.");
-								univ.party.apply_status(eStatus::DUMB,-1 * str);
+								univ.party.apply_status<eStatus::DUMB>(-1 * str);
 								break;
 							case eItemUse::HARM_ALL:
 								ASB("  You all feel confused.");
@@ -796,7 +796,7 @@ void use_item(short pc,short item) {
 						switch(type) {
 							case eItemUse::HELP_ONE:
 								ASB("  You feel alert.");
-								univ.party[pc].apply_status(eStatus::ASLEEP,-1 * str);
+								univ.party[pc].apply_status<eStatus::ASLEEP>(-1 * str);
 								break;
 							case eItemUse::HARM_ONE:
 								ASB("  You feel very tired.");
@@ -804,7 +804,7 @@ void use_item(short pc,short item) {
 								break;
 							case eItemUse::HELP_ALL:
 								ASB("  You all feel alert.");
-								univ.party.apply_status(eStatus::ASLEEP,-1 * str);
+								univ.party.apply_status<eStatus::ASLEEP>(-1 * str);
 								break;
 							case eItemUse::HARM_ALL:
 								ASB("  You all feel very tired.");
@@ -816,7 +816,7 @@ void use_item(short pc,short item) {
 						switch(type) {
 							case eItemUse::HELP_ONE:
 								ASB("  You find it easier to move.");
-								univ.party[pc].apply_status(eStatus::PARALYZED,-1 * str * 100);
+								univ.party[pc].apply_status<eStatus::PARALYZED>(-1 * str * 100);
 								break;
 							case eItemUse::HARM_ONE:
 								ASB("  You feel very stiff.");
@@ -824,7 +824,7 @@ void use_item(short pc,short item) {
 								break;
 							case eItemUse::HELP_ALL:
 								ASB("  You all find it easier to move.");
-								univ.party.apply_status(eStatus::PARALYZED,-1 * str * 100);
+								univ.party.apply_status<eStatus::PARALYZED>(-1 * str * 100);
 								break;
 							case eItemUse::HARM_ALL:
 								ASB("  You all feel very stiff.");
@@ -836,7 +836,7 @@ void use_item(short pc,short item) {
 						switch(type) {
 							case eItemUse::HELP_ONE:
 								ASB("  Your skin tingles pleasantly.");
-								univ.party[pc].apply_status(eStatus::ACID,-1 * str);
+								univ.party[pc].apply_status<eStatus::ACID>(-1 * str);
 								break;
 							case eItemUse::HARM_ONE:
 								ASB("  Your skin burns!");
@@ -844,7 +844,7 @@ void use_item(short pc,short item) {
 								break;
 							case eItemUse::HELP_ALL:
 								ASB("  You all tingle pleasantly.");
-								univ.party.apply_status(eStatus::ACID,-1 * str);
+								univ.party.apply_status<eStatus::ACID>(-1 * str);
 								break;
 							case eItemUse::HARM_ALL:
 								ASB("  Everyone's skin burns!");
@@ -876,7 +876,7 @@ void use_item(short pc,short item) {
 					case eItemUse::HELP_ONE:
 						ASB("  You feel wonderful!");
 						univ.party[pc].heal(str * 20);
-						univ.party[pc].apply_status(eStatus::BLESS_CURSE,str);
+						univ.party[pc].apply_status<eStatus::BLESS_CURSE>(str);
 						break;
 					case eItemUse::HARM_ONE:
 						ASB("  You feel terrible.");
@@ -888,7 +888,7 @@ void use_item(short pc,short item) {
 					case eItemUse::HELP_ALL:
 						ASB("  Everyone feels wonderful!");
 						univ.party.heal(str*20);
-						univ.party.apply_status(eStatus::BLESS_CURSE,str);
+						univ.party.apply_status<eStatus::BLESS_CURSE>(str);
 						break;
 					case eItemUse::HARM_ALL:
 						ASB("  You all feel terrible.");
