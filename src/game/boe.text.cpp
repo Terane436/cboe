@@ -1104,7 +1104,7 @@ void through_sending() {
 
 /* Draw a bitmap in the world window. hor in 0 .. 8, vert in 0 .. 8,
  object is ptr. to bitmap to be drawn, and masking is for Copybits. */
-void Draw_Some_Item(const sf::Texture& src_gworld, rectangle src_rect, sf::RenderTarget& targ_gworld,location target, char masked, short main_win) {
+void Draw_Some_Item(const sf::Texture& src_gworld, rectangle src_rect, sf::RenderTarget& targ_gworld,location target, char masked, short main_win, unsigned long colorMod) {
 	rectangle	destrec = {0,0,36,28};
 	
 	if((target.x < 0) || (target.y < 0) || (target.x > 8) || (target.y > 8))
@@ -1118,12 +1118,12 @@ void Draw_Some_Item(const sf::Texture& src_gworld, rectangle src_rect, sf::Rende
 	
 	if(main_win == 0) {
 		if(masked == 1)
-			rect_draw_some_item(src_gworld, src_rect, targ_gworld, destrec, sf::BlendAlpha);
-		else rect_draw_some_item(src_gworld, src_rect, targ_gworld, destrec, sf::BlendNone);
+			rect_draw_some_item(src_gworld, src_rect, targ_gworld, destrec, sf::BlendAlpha, colorMod);
+		else rect_draw_some_item(src_gworld, src_rect, targ_gworld, destrec, sf::BlendNone, colorMod);
 	} else {
 		if(masked == 1)
-			rect_draw_some_item(src_gworld, src_rect, targ_gworld, destrec, sf::BlendAlpha);
-		else rect_draw_some_item(src_gworld, src_rect, targ_gworld, destrec, sf::BlendNone);
+			rect_draw_some_item(src_gworld, src_rect, targ_gworld, destrec, sf::BlendAlpha, colorMod);
+		else rect_draw_some_item(src_gworld, src_rect, targ_gworld, destrec, sf::BlendNone, colorMod);
 	}
 }
 

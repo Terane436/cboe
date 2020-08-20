@@ -97,14 +97,6 @@ void cCurTown::import_legacy(unsigned char(& old_sfx)[64][64], unsigned char(& o
 		}
 }
 
-cTown* cCurTown::operator -> (){
-	return record();
-}
-
-cTown& cCurTown::operator * (){
-	return *record();
-}
-
 void cCurTown::place_preset_fields() {
 	// Initialize barriers, etc. Note non-sfx gets forgotten if this is a town recently visited.
 	for(int i = 0; i < 64; i++)
@@ -200,51 +192,6 @@ cTown*const cCurTown::record() const {
 	return univ.scenario.towns[univ.party.town_num];
 }
 
-bool cCurTown::is_explored(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & SPECIAL_EXPLORED;
-}
-
-bool cCurTown::is_force_wall(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & WALL_FORCE;
-}
-
-bool cCurTown::is_fire_wall(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & WALL_FIRE;
-}
-
-bool cCurTown::is_antimagic(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & FIELD_ANTIMAGIC;
-}
-
-bool cCurTown::is_scloud(short x, short y) const{ // stinking cloud
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & CLOUD_STINK;
-}
-
-bool cCurTown::is_ice_wall(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & WALL_ICE;
-}
-
-bool cCurTown::is_blade_wall(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & WALL_BLADES;
-}
-
-bool cCurTown::is_sleep_cloud(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & CLOUD_SLEEP;
-}
-
-bool cCurTown::is_block(short x, short y) const{ // currently unused
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & OBJECT_BLOCK;
-}
-
 bool cCurTown::is_spot(short x, short y) const{
 	return fields[x][y] & SPECIAL_SPOT;
 }
@@ -260,81 +207,6 @@ bool cCurTown::is_special(short x, short y) const{
 		if(check == record()->special_locs[i] && record()->special_locs[i].spec >= 0)
 			return true;
 	return false;
-}
-
-bool cCurTown::is_web(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & FIELD_WEB;
-}
-
-bool cCurTown::is_crate(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & OBJECT_CRATE;
-}
-
-bool cCurTown::is_barrel(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & OBJECT_BARREL;
-}
-
-bool cCurTown::is_fire_barr(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & BARRIER_FIRE;
-}
-
-bool cCurTown::is_force_barr(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & BARRIER_FORCE;
-}
-
-bool cCurTown::is_quickfire(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & FIELD_QUICKFIRE;
-}
-
-bool cCurTown::is_sm_blood(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & SFX_SMALL_BLOOD;
-}
-
-bool cCurTown::is_med_blood(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & SFX_MEDIUM_BLOOD;
-}
-
-bool cCurTown::is_lg_blood(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & SFX_LARGE_BLOOD;
-}
-
-bool cCurTown::is_sm_slime(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & SFX_SMALL_SLIME;
-}
-
-bool cCurTown::is_lg_slime(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & SFX_LARGE_SLIME;
-}
-
-bool cCurTown::is_ash(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & SFX_ASH;
-}
-
-bool cCurTown::is_bones(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & SFX_BONES;
-}
-
-bool cCurTown::is_rubble(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & SFX_RUBBLE;
-}
-
-bool cCurTown::is_force_cage(short x, short y) const{
-	if(x > record()->max_dim || y > record()->max_dim) return false;
-	return fields[x][y] & BARRIER_CAGE;
 }
 
 bool cCurTown::set_explored(short x, short y, bool b){

@@ -21,6 +21,7 @@
 #include "talking.hpp"
 #include "scenario.hpp"
 #include "pictypes.hpp"
+#include "fields.hpp"
 
 namespace legacy {
 	struct out_info_type;
@@ -37,6 +38,11 @@ class cCurTown {
 	cUniverse& univ;
 	cTown* arena;
 	cTown*const record() const;
+        template<eFieldType Field> bool testField(short x, short y) const
+        {
+            if(x > record()->max_dim || y > record()->max_dim) return false;
+            return fields[x][y] & Field;
+        }
 public:
 	bool quickfire_present = false, belt_present = false;
 	// formerly current_town_type
@@ -52,8 +58,8 @@ public:
 	void import_legacy(unsigned char(& old_sfx)[64][64], unsigned char(& old_misc_i)[64][64]);
 	void import_legacy(legacy::big_tr_type& old);
 	
-	cTown* operator -> ();
-	cTown& operator * ();
+	cTown* operator->() {return record();}
+	cTown& operator*() {return *record();}
 	explicit cCurTown(cUniverse& univ);
 	short countMonsters();
 	cSpeech& cur_talk(); // Get the currently loaded speech
@@ -61,32 +67,32 @@ public:
 	void prep_arena(); // Set up for a combat arena
 	void place_preset_fields();
 	
-	bool is_explored(short x, short y) const;
-	bool is_force_wall(short x, short y) const;
-	bool is_fire_wall(short x, short y) const;
-	bool is_antimagic(short x, short y) const;
-	bool is_scloud(short x, short y) const; // stinking cloud
-	bool is_ice_wall(short x, short y) const;
-	bool is_blade_wall(short x, short y) const;
-	bool is_sleep_cloud(short x, short y) const;
-	bool is_block(short x, short y) const; // currently unused
+	bool is_explored(short x, short y) const {return testField<SPECIAL_EXPLORED>(x,y);}
+	bool is_force_wall(short x, short y) const {return testField<WALL_FORCE>(x,y);}
+	bool is_fire_wall(short x, short y) const {return testField<WALL_FIRE>(x,y);}
+	bool is_antimagic(short x, short y) const {return testField<FIELD_ANTIMAGIC>(x,y);}
+	bool is_scloud(short x, short y) const {return testField<CLOUD_STINK>(x,y);}
+	bool is_ice_wall(short x, short y) const {return testField<WALL_ICE>(x,y);}
+	bool is_blade_wall(short x, short y) const {return testField<WALL_BLADES>(x,y);}
+	bool is_sleep_cloud(short x, short y) const {return testField<CLOUD_SLEEP>(x,y);}
+	bool is_block(short x, short y) const {return testField<OBJECT_BLOCK>(x,y);} // currently unused
 	bool is_spot(short x, short y) const;
 	bool is_special(short x, short y) const;
-	bool is_web(short x, short y) const;
-	bool is_crate(short x, short y) const;
-	bool is_barrel(short x, short y) const;
-	bool is_fire_barr(short x, short y) const;
-	bool is_force_barr(short x, short y) const;
-	bool is_quickfire(short x, short y) const;
-	bool is_sm_blood(short x, short y) const;
-	bool is_med_blood(short x, short y) const;
-	bool is_lg_blood(short x, short y) const;
-	bool is_sm_slime(short x, short y) const;
-	bool is_lg_slime(short x, short y) const;
-	bool is_ash(short x, short y) const;
-	bool is_bones(short x, short y) const;
-	bool is_rubble(short x, short y) const;
-	bool is_force_cage(short x, short y) const;
+	bool is_web(short x, short y) const {return testField<FIELD_WEB>(x,y);}
+	bool is_crate(short x, short y) const {return testField<OBJECT_CRATE>(x,y);}
+	bool is_barrel(short x, short y) const {return testField<OBJECT_BARREL>(x,y);}
+	bool is_fire_barr(short x, short y) const {return testField<BARRIER_FIRE>(x,y);}
+	bool is_force_barr(short x, short y) const {return testField<BARRIER_FORCE>(x,y);}
+	bool is_quickfire(short x, short y) const {return testField<FIELD_QUICKFIRE>(x,y);}
+	bool is_sm_blood(short x, short y) const {return testField<SFX_SMALL_BLOOD>(x,y);}
+	bool is_med_blood(short x, short y) const {return testField<SFX_MEDIUM_BLOOD>(x,y);}
+	bool is_lg_blood(short x, short y) const {return testField<SFX_LARGE_BLOOD>(x,y);}
+	bool is_sm_slime(short x, short y) const {return testField<SFX_SMALL_SLIME>(x,y);}
+	bool is_lg_slime(short x, short y) const {return testField<SFX_LARGE_SLIME>(x,y);}
+	bool is_ash(short x, short y) const {return testField<SFX_ASH>(x,y);}
+	bool is_bones(short x, short y) const {return testField<SFX_BONES>(x,y);}
+	bool is_rubble(short x, short y) const {return testField<SFX_RUBBLE>(x,y);}
+	bool is_force_cage(short x, short y) const {return testField<BARRIER_CAGE>(x,y);}
 	bool is_road(short x, short y) const;
 	bool set_explored(short x, short y, bool b);
 	bool set_force_wall(short x, short y, bool b);
