@@ -22,6 +22,7 @@
 #include "scenario.hpp"
 #include "pictypes.hpp"
 #include "fields.hpp"
+#include "utility/templateutil.hpp"
 
 namespace legacy {
 	struct out_info_type;
@@ -38,21 +39,77 @@ class cCurTown {
 	cUniverse& univ;
 	cTown* arena;
 	cTown*const record() const;
-        template<eFieldType Field> bool testField(short x, short y) const
+public:
+        unsigned long savedFields(short x, short y) {return (fields[x][y]>>8) & 0x0FF;}
+	void zeroField(short x, short y) {fields[x][y] = 0;}
+        void directSetFields(short x, short y, unsigned long mask) {fields[x][y] |= mask;}
+        template<typename Fields> bool testFields(short x, short y) const
         {
             if(x > record()->max_dim || y > record()->max_dim) return false;
-            return fields[x][y] & Field;
+            return fields[x][y] & Fields::mask;
         }
-public:
+        template<eFieldType... Fields> bool testField(short x, short y) const
+        {
+            if(x > record()->max_dim || y > record()->max_dim) return false;
+            return fields[x][y] & util::BuildMask<Fields...>::mask;
+        }
+        template<eFieldType... Fields> bool testFieldUnchecked(short x, short y) const
+        {
+            return fields[x][y] & util::BuildMask<Fields...>::mask;
+        }
+	template<eFieldType... Fields> bool testFieldAll(short x, short y) const
+        {
+            if(x > record()->max_dim || y > record()->max_dim) return false;
+            return (fields[x][y] & util::BuildMask<Fields...>::mask) == util::BuildMask<Fields...>::mask;
+        }
+	template<typename SetField, typename BlockFields, typename ClearFields, bool Checked = false, bool AvoidImpassable = true, short AntimagicChance = 0, bool IsSfx = false>
+	bool setFields(short x, short y)
+	{ //Should never be used directly for any field that has Antimagic Chance
+	  //Use this directly to set field combinations if desirable - to set a single field type always use setField below
+            if(Checked && (x > record()->max_dim || y > record()->max_dim)) return false;
+            if(AvoidImpassable && is_impassable(x,y)) return false;
+            if(fields[x][y] & BlockFields::mask) return false;
+	    if(AntimagicChance && get_ran(1,0,AntimagicChance) < AntimagicChance) return false;
+	    if(IsSfx && !free_for_sfx(x,y)) return false;
+	    fields[x][y] &= ~ClearFields::mask;	
+	    fields[x][y] |= SetField::mask;
+	    return true;
+	}
+	template<eFieldType... Fields> void clearFields(short x, short y)
+        {
+            fields[x][y] &= ~util::BuildMask<Fields...>::mask;
+        }
+	template<eFieldType Field, bool Set = true> bool setField(short x, short y)
+	{
+	    if(Set)
+            { //If really important, consider special extra check for QUICKFIRE here
+                bool r = setFields<util::BuildMask<Field>,
+		     typename FieldControls<Field>::BlockFields,
+		     typename FieldControls<Field>::ClearFields,
+		     FieldControls<Field>::Checked,
+		     FieldControls<Field>::AvoidImpassable,
+		     FieldControls<Field>::AntimagicChance,
+		     FieldControls<Field>::IsSfx>(x,y);
+		if(Field == FIELD_QUICKFIRE && r) quickfire_present = true;
+		return r;
+            }
+	    else
+	    {
+                if(x > record()->max_dim || y > record()->max_dim) return false;
+                clearFields<Field>(x,y);
+		return true;
+	    }
+	}
+
 	bool quickfire_present = false, belt_present = false;
 	// formerly current_town_type
 	short difficulty;
 	cPopulation monst;
 	
 	std::vector<cItem> items; // formerly town_item_list type
-	
+private:
 	unsigned long fields[64][64];
-	
+public:
 	void import_legacy(legacy::current_town_type& old);
 	void import_legacy(legacy::town_item_list& old);
 	void import_legacy(unsigned char(& old_sfx)[64][64], unsigned char(& old_misc_i)[64][64]);
@@ -66,7 +123,7 @@ public:
 	bool prep_talk(short which); // Prepare for loading specified speech, returning true if already loaded
 	void prep_arena(); // Set up for a combat arena
 	void place_preset_fields();
-	
+private:
 	bool is_explored(short x, short y) const {return testField<SPECIAL_EXPLORED>(x,y);}
 	bool is_force_wall(short x, short y) const {return testField<WALL_FORCE>(x,y);}
 	bool is_fire_wall(short x, short y) const {return testField<WALL_FIRE>(x,y);}
@@ -76,8 +133,7 @@ public:
 	bool is_blade_wall(short x, short y) const {return testField<WALL_BLADES>(x,y);}
 	bool is_sleep_cloud(short x, short y) const {return testField<CLOUD_SLEEP>(x,y);}
 	bool is_block(short x, short y) const {return testField<OBJECT_BLOCK>(x,y);} // currently unused
-	bool is_spot(short x, short y) const;
-	bool is_special(short x, short y) const;
+	bool is_spot(short x, short y) const {return testFieldUnchecked<SPECIAL_SPOT>(x,y);}
 	bool is_web(short x, short y) const {return testField<FIELD_WEB>(x,y);}
 	bool is_crate(short x, short y) const {return testField<OBJECT_CRATE>(x,y);}
 	bool is_barrel(short x, short y) const {return testField<OBJECT_BARREL>(x,y);}
@@ -93,7 +149,7 @@ public:
 	bool is_bones(short x, short y) const {return testField<SFX_BONES>(x,y);}
 	bool is_rubble(short x, short y) const {return testField<SFX_RUBBLE>(x,y);}
 	bool is_force_cage(short x, short y) const {return testField<BARRIER_CAGE>(x,y);}
-	bool is_road(short x, short y) const;
+	bool is_road(short x, short y) const {return testFieldUnchecked<SPECIAL_ROAD>(x,y);}
 	bool set_explored(short x, short y, bool b);
 	bool set_force_wall(short x, short y, bool b);
 	bool set_fire_wall(short x, short y, bool b);
@@ -120,6 +176,8 @@ public:
 	bool set_rubble(short x, short y, bool b);
 	bool set_force_cage(short x, short y, bool b);
 	bool set_road(short x, short y, bool b);
+public:
+	bool is_special(short x, short y) const;
 	bool is_impassable(short x, short y);
 	void writeTo(std::ostream& file) const;
 	void readFrom(std::istream& file);

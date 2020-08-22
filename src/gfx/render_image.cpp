@@ -63,6 +63,7 @@ void init_shaders() {
 static void rect_draw_some_item(const sf::Texture& src_gworld,rectangle src_rect,sf::RenderTarget& targ_gworld,rectangle targ_rect,sf::RenderStates mode, unsigned long colorMod) {
 	setActiveRenderTarget(targ_gworld);
 	sf::Sprite tile(src_gworld, src_rect);
+	if(colorMod != 0) tile.setColor(sf::Color(colorMod));
 	tile.setPosition(targ_rect.left, targ_rect.top);
 	double xScale = targ_rect.width(), yScale = targ_rect.height();
 	xScale /= src_rect.width();

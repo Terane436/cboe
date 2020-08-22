@@ -236,7 +236,7 @@ void start_town_mode(short which_town, short entry_dir) {
 					int i = std::find_if(univ.party.creature_save.begin(), univ.party.creature_save.end(), [&pop](cPopulation& p) {return &p == &pop;}) - univ.party.creature_save.begin();
 					temp = univ.party.setup[i][j][k] << 8;
 					temp &= ~(OBJECT_CRATE | OBJECT_BARREL | OBJECT_BLOCK);
-					univ.town.fields[j][k] |= temp;
+					univ.town.directSetFields(j,k,temp);
 				}
 		}
 	
@@ -297,7 +297,7 @@ void start_town_mode(short which_town, short entry_dir) {
 				
 				if(monst.active) {
 					// In forcecage?
-					if(univ.town.is_force_cage(monst.cur_loc.x, monst.cur_loc.y))
+					if(univ.town.testField<BARRIER_CAGE>(monst.cur_loc.x, monst.cur_loc.y))
 						monst.status[eStatus::FORCECAGE] = 1000;
 				}
 			}
@@ -348,14 +348,9 @@ void start_town_mode(short which_town, short entry_dir) {
 		for(short k = 0; k < univ.town->max_dim; k++) {
 			loc.x = j; loc.y = k;
 			if(is_door(loc)) {
-				univ.town.set_web(j,k,false);
-				univ.town.set_crate(j,k,false);
-				univ.town.set_barrel(j,k,false);
-				univ.town.set_fire_barr(j,k,false);
-				univ.town.set_force_barr(j,k,false);
-				univ.town.set_quickfire(j,k,false);
+				univ.town.clearFields<FIELD_WEB,OBJECT_CRATE,OBJECT_BARREL,BARRIER_FIRE,BARRIER_FORCE,FIELD_QUICKFIRE>(j,k);
 			}
-			if(univ.town.is_quickfire(j,k))
+			if(univ.town.testField<FIELD_QUICKFIRE>(j,k))
 				univ.town.quickfire_present = true;
 		}
 	
@@ -424,7 +419,7 @@ void start_town_mode(short which_town, short entry_dir) {
 				item.property = preset.property;
 			item.contained = preset.contained;
 			int x = item.item_loc.x, y = item.item_loc.y;
-			if(item.contained && (univ.town.is_barrel(x,y) || univ.town.is_crate(x,y)))
+			if(item.contained && univ.town.testField<OBJECT_BARREL,OBJECT_CRATE>(x,y))
 				item.held = true;
 			item.is_special = i + 1;
 		}
@@ -474,12 +469,7 @@ void start_town_mode(short which_town, short entry_dir) {
 	
 	
 	// clear entry space, and check exploration
-	univ.town.set_web(univ.party.town_loc.x,univ.party.town_loc.y,false);
-	univ.town.set_crate(univ.party.town_loc.x,univ.party.town_loc.y,false);
-	univ.town.set_barrel(univ.party.town_loc.x,univ.party.town_loc.y,false);
-	univ.town.set_fire_barr(univ.party.town_loc.x,univ.party.town_loc.y,false);
-	univ.town.set_force_barr(univ.party.town_loc.x,univ.party.town_loc.y,false);
-	univ.town.set_quickfire(univ.party.town_loc.x,univ.party.town_loc.y,false);
+	univ.town.clearFields<FIELD_WEB,OBJECT_CRATE,OBJECT_BARREL,BARRIER_FIRE,BARRIER_FORCE,FIELD_QUICKFIRE>(univ.party.town_loc.x,univ.party.town_loc.y);
 	update_explored(univ.party.town_loc);
 	
 	// If a PC dead, drop his items
@@ -548,14 +538,14 @@ location end_town_mode(short switching_level,location destination) { // returns 
 				int i = std::find_if(univ.party.creature_save.begin(), univ.party.creature_save.end(), [&pop](cPopulation& p) {return &p == &pop;}) - univ.party.creature_save.begin();
 				for(short j = 0; j < univ.town->max_dim; j++)
 					for(short k = 0; k < univ.town->max_dim; k++)
-						univ.party.setup[i][j][k] = (univ.town.fields[j][k] & 0xff00) >> 8;
+						univ.party.setup[i][j][k] = univ.town.savedFields(j,k);
 				data_saved = true;
 			}
 		if(!data_saved) {
 			univ.party.creature_save[univ.party.at_which_save_slot] = univ.town.monst;
 			for(short j = 0; j < univ.town->max_dim; j++)
 				for(short k = 0; k < univ.town->max_dim; k++)
-					univ.party.setup[univ.party.at_which_save_slot][j][k] = (univ.town.fields[j][k] & 0xff00) >> 8;
+					univ.party.setup[univ.party.at_which_save_slot][j][k] = univ.town.savedFields(j,k);
 			univ.party.at_which_save_slot = (univ.party.at_which_save_slot == 3) ? 0 : univ.party.at_which_save_slot + 1;
 		}
 		
@@ -929,7 +919,7 @@ void create_out_combat_terrain(short ter_type,short num_walls,bool is_road) {
 	
 	for(short i = 0; i < 48; i++)
 		for(short j = 0; j < 48; j++) {
-			univ.town.fields[i][j] = 0;
+			univ.town.zeroField(i,j);
 			if((j <= 8) || (j >= 35) || (i <= 8) || (i >= 35))
 				univ.town->terrain(i,j) = 90;
 			else univ.town->terrain(i,j) = ter_base[arena];
@@ -1223,7 +1213,7 @@ void erase_town_specials() {
 		return;
 	
 	erase_completed_specials(*univ.town, [](location where){
-		univ.town.set_spot(where.x, where.y, false);
+		univ.town.clearFields<SPECIAL_SPOT>(where.x, where.y);
 	});
 }
 
@@ -1464,7 +1454,7 @@ void draw_map(bool need_refresh) {
 						rect_draw_some_item(small_ter_gworld,ter_temp_from,map_gworld,draw_rect);
 					}
 					
-					if(is_out() ? univ.out->roads[where.x][where.y] : univ.town.is_road(where.x,where.y)) {
+					if(is_out() ? univ.out->roads[where.x][where.y] : univ.town.testFieldUnchecked<SPECIAL_ROAD>(where.x,where.y)) {
 						draw_rect.inset(1,1);
 						rect_draw_some_item(*ResMgr::graphics.get("trim"),{8,112,12,116},map_gworld,draw_rect);
 					}

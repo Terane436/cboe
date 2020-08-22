@@ -730,59 +730,51 @@ short do_look(location space) {
 	}
 	
 	if((overall_mode == MODE_LOOK_TOWN) || (overall_mode == MODE_LOOK_COMBAT)) {
-		if(univ.town.is_road(space.x,space.y))
+		if(univ.town.testFieldUnchecked<SPECIAL_ROAD>(space.x,space.y))
 			add_string_to_buf("    Track");
 		if(town_boat_there(space))
 			add_string_to_buf("    Boat");
 		if(town_horse_there(space))
 			add_string_to_buf("    Horse");
 		
-		if(univ.town.is_web(space.x,space.y))
+		if(univ.town.testField<FIELD_WEB>(space.x,space.y))
 			add_string_to_buf("    Web");
-		if(univ.town.is_crate(space.x,space.y))
+		if(univ.town.testField<OBJECT_CRATE>(space.x,space.y))
 			add_string_to_buf("    Crate");
-		if(univ.town.is_barrel(space.x,space.y))
+		if(univ.town.testField<OBJECT_BARREL>(space.x,space.y))
 			add_string_to_buf("    Barrel");
-		if(univ.town.is_block(space.x,space.y))
+		if(univ.town.testField<OBJECT_BLOCK>(space.x,space.y))
 			add_string_to_buf("    Stone Block");
-		if(univ.town.is_fire_barr(space.x,space.y))
+		if(univ.town.testField<BARRIER_FIRE,BARRIER_FORCE>(space.x,space.y))
 			add_string_to_buf("    Magic Barrier");
-		if(univ.town.is_force_barr(space.x,space.y))
-			add_string_to_buf("    Magic Barrier");
-		if(univ.town.is_quickfire(space.x,space.y))
+		if(univ.town.testField<FIELD_QUICKFIRE>(space.x,space.y))
 			add_string_to_buf("    Quickfire");
-		if(univ.town.is_fire_wall(space.x,space.y))
+		if(univ.town.testField<WALL_FIRE>(space.x,space.y))
 			add_string_to_buf("    Wall of Fire");
-		if(univ.town.is_force_wall(space.x,space.y))
+		if(univ.town.testField<WALL_FORCE>(space.x,space.y))
 			add_string_to_buf("    Wall of Force");
-		if(univ.town.is_antimagic(space.x,space.y))
+		if(univ.town.testField<FIELD_ANTIMAGIC>(space.x,space.y))
 			add_string_to_buf("    Antimagic Field");
-		if(univ.town.is_scloud(space.x,space.y))
+		if(univ.town.testField<CLOUD_STINK>(space.x,space.y))
 			add_string_to_buf("    Stinking Cloud");
-		if(univ.town.is_sleep_cloud(space.x,space.y))
+		if(univ.town.testField<CLOUD_SLEEP>(space.x,space.y))
 			add_string_to_buf("    Sleep Cloud");
-		if(univ.town.is_ice_wall(space.x,space.y))
+		if(univ.town.testField<WALL_ICE>(space.x,space.y))
 			add_string_to_buf("    Ice Wall");
-		if(univ.town.is_blade_wall(space.x,space.y))
+		if(univ.town.testField<WALL_BLADES>(space.x,space.y))
 			add_string_to_buf("    Blade Wall");
-		if(univ.town.is_force_cage(space.x,space.y))
+		if(univ.town.testField<BARRIER_CAGE>(space.x,space.y))
 			add_string_to_buf("    Force Cage");
 		
-		if(univ.town.is_sm_blood(space.x,space.y))
+		if(univ.town.testField<SFX_SMALL_BLOOD,SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD>(space.x,space.y))
 			add_string_to_buf("    Blood stain");
-		if(univ.town.is_med_blood(space.x,space.y))
-			add_string_to_buf("    Blood stain");
-		if(univ.town.is_lg_blood(space.x,space.y))
-			add_string_to_buf("    Blood stain");
-		if(univ.town.is_sm_slime(space.x,space.y))
+		if(univ.town.testField<SFX_SMALL_SLIME,SFX_LARGE_SLIME>(space.x,space.y))
 			add_string_to_buf("    Smears of slime");
-		if(univ.town.is_lg_slime(space.x,space.y))
-			add_string_to_buf("    Smears of slime");
-		if(univ.town.is_ash(space.x,space.y))
+		if(univ.town.testField<SFX_ASH>(space.x,space.y))
 			add_string_to_buf("    Ashes");
-		if(univ.town.is_bones(space.x,space.y))
+		if(univ.town.testField<SFX_BONES>(space.x,space.y))
 			add_string_to_buf("    Bones");
-		if(univ.town.is_rubble(space.x,space.y))
+		if(univ.town.testField<SFX_RUBBLE>(space.x,space.y))
 			add_string_to_buf("    Rubble");
 		
 		for(short i = 0; i < univ.town.items.size(); i++) {
@@ -810,7 +802,7 @@ short do_look(location space) {
 				add_string_to_buf((char *) msg.c_str());
 			}
 		}
-		if(univ.town.is_spot(space.x,space.y))
+		if(univ.town.testFieldUnchecked<SPECIAL_SPOT>(space.x,space.y))
 			add_string_to_buf("    Special Encounter");
 	}
 	

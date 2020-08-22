@@ -210,17 +210,17 @@ bool check_special_terrain(location where_check,eSpecCtx mode,cPlayer& which_pc,
 			}
 	}
 	
-	if((is_combat()) && (univ.town.is_spot(where_check.x, where_check.y) ||
+	if((is_combat()) && (univ.town.testFieldUnchecked<SPECIAL_SPOT>(where_check.x, where_check.y) ||
 						  (univ.scenario.ter_types[coord_to_ter(where_check.x, where_check.y)].trim_type == eTrimType::CITY))) {
 		ASB("Move: Can't trigger this special in combat.");
 		return false; // TODO: Maybe replace eTrimType::CITY check with a blockage == clear/special && is_special() check?
 	}
 	
-	if(mode != eSpecCtx::OUT_MOVE && univ.town.is_force_barr(where_check.x,where_check.y)) {
+	if(mode != eSpecCtx::OUT_MOVE && univ.town.testField<BARRIER_FORCE>(where_check.x,where_check.y)) {
 		add_string_to_buf("  Magic barrier!");
 		can_enter = false;
 	}
-	if(mode != eSpecCtx::OUT_MOVE && univ.town.is_force_cage(where_check.x,where_check.y)) {
+	if(mode != eSpecCtx::OUT_MOVE && univ.town.testField<BARRIER_CAGE>(where_check.x,where_check.y)) {
 		add_string_to_buf("  Force cage!");
 		can_enter = false;
 	}
@@ -262,7 +262,7 @@ bool check_special_terrain(location where_check,eSpecCtx mode,cPlayer& which_pc,
 	if(!is_out()) {
 		check_fields(where_check,mode,which_pc);
 		
-		if(univ.town.is_web(where_check.x,where_check.y) && univ.current_pc().race != eRace::BUG) {
+		if(univ.town.testField<FIELD_WEB>(where_check.x,where_check.y) && univ.current_pc().race != eRace::BUG) {
 			add_string_to_buf("  Webs!");
 			if(mode != eSpecCtx::COMBAT_MOVE) {
 				for(short i = 0; i < 6; i++) {
@@ -272,36 +272,36 @@ bool check_special_terrain(location where_check,eSpecCtx mode,cPlayer& which_pc,
 			}
 			else univ.current_pc().web(get_ran(1,2,3));
 			put_pc_screen();
-			univ.town.set_web(where_check.x,where_check.y,false);
+			univ.town.clearFields<FIELD_WEB>(where_check.x,where_check.y);
 		}
-		if(univ.town.is_crate(where_check.x,where_check.y)) {
+		if(univ.town.testField<OBJECT_CRATE>(where_check.x,where_check.y)) {
 			add_string_to_buf("  You push the crate.");
 			to_loc = push_loc(from_loc,where_check);
-			univ.town.set_crate(where_check.x,where_check.y,false);
+			univ.town.clearFields<OBJECT_CRATE>(where_check.x,where_check.y);
 			if(to_loc.x > 0)
-				univ.town.set_crate(to_loc.x,to_loc.y,true);
+				univ.town.setField<OBJECT_CRATE>(to_loc.x,to_loc.y);
 			for(short i = 0; i < univ.town.items.size(); i++)
 				if(univ.town.items[i].variety != eItemType::NO_ITEM && univ.town.items[i].item_loc == where_check
 				   && univ.town.items[i].contained && univ.town.items[i].held)
 					univ.town.items[i].item_loc = to_loc;
 		}
-		if(univ.town.is_barrel(where_check.x,where_check.y)) {
+		if(univ.town.testField<OBJECT_BARREL>(where_check.x,where_check.y)) {
 			add_string_to_buf("  You push the barrel.");
 			to_loc = push_loc(from_loc,where_check);
-			univ.town.set_barrel(where_check.x,where_check.y,false);
+			univ.town.clearFields<OBJECT_BARREL>(where_check.x,where_check.y);
 			if(to_loc.x > 0)
-				univ.town.set_barrel(to_loc.x,to_loc.y,true);
+				univ.town.setField<OBJECT_BARREL>(to_loc.x,to_loc.y);
 			for(short i = 0; i < univ.town.items.size(); i++)
 				if(univ.town.items[i].variety != eItemType::NO_ITEM && univ.town.items[i].item_loc == where_check
 				   && univ.town.items[i].contained && univ.town.items[i].held)
 					univ.town.items[i].item_loc = to_loc;
 		}
-		if(univ.town.is_block(where_check.x,where_check.y)) {
+		if(univ.town.testField<OBJECT_BLOCK>(where_check.x,where_check.y)) {
 			add_string_to_buf("  You push the stone block.");
 			to_loc = push_loc(from_loc,where_check);
-			univ.town.set_block(where_check.x,where_check.y,false);
+			univ.town.clearFields<OBJECT_BLOCK>(where_check.x,where_check.y);
 			if(to_loc.x > 0)
-				univ.town.set_block(to_loc.x,to_loc.y,true);
+				univ.town.setField<OBJECT_BLOCK>(to_loc.x,to_loc.y);
 		}
 	}
 	
@@ -515,19 +515,19 @@ void check_fields(location where_check,eSpecCtx mode,cPlayer& which_pc) {
 	}
 	if(is_out())
 		return;
-	if(univ.town.is_fire_wall(where_check.x,where_check.y)) {
+	if(univ.town.testField<WALL_FIRE>(where_check.x,where_check.y)) {
 		add_string_to_buf("  Fire wall!");
 		r1 = get_ran(1,1,6) + 1;
 		if(mode == eSpecCtx::COMBAT_MOVE)
 			damage_pc(which_pc,r1,eDamageType::FIRE,eRace::UNKNOWN,0);
 	}
-	if(univ.town.is_force_wall(where_check.x,where_check.y)) {
+	if(univ.town.testField<WALL_FORCE>(where_check.x,where_check.y)) {
 		add_string_to_buf("  Force wall!");
 		r1 = get_ran(2,1,6);
 		if(mode == eSpecCtx::COMBAT_MOVE)
 			damage_pc(which_pc,r1,eDamageType::MAGIC,eRace::UNKNOWN,0);
 	}
-	if(univ.town.is_ice_wall(where_check.x,where_check.y)) {
+	if(univ.town.testField<WALL_ICE>(where_check.x,where_check.y)) {
 		add_string_to_buf("  Ice wall!");
 		r1 = get_ran(2,1,6);
 		if(mode == eSpecCtx::COMBAT_MOVE)
@@ -535,27 +535,27 @@ void check_fields(location where_check,eSpecCtx mode,cPlayer& which_pc) {
 		if(!is_combat())
 			boom_space(univ.party.town_loc,overall_mode,4,r1,7);
 	}
-	if(univ.town.is_blade_wall(where_check.x,where_check.y)) {
+	if(univ.town.testField<WALL_BLADES>(where_check.x,where_check.y)) {
 		add_string_to_buf("  Blade wall!");
 		r1 = get_ran(4,1,8);
 		if(mode == eSpecCtx::COMBAT_MOVE)
 			damage_pc(which_pc,r1,eDamageType::WEAPON,eRace::UNKNOWN,0);
 	}
-	if(univ.town.is_quickfire(where_check.x,where_check.y)) {
+	if(univ.town.testField<FIELD_QUICKFIRE>(where_check.x,where_check.y)) {
 		add_string_to_buf("  Quickfire!");
 		r1 = get_ran(2,1,8);
 		if(mode == eSpecCtx::COMBAT_MOVE)
 			damage_pc(which_pc,r1,eDamageType::FIRE,eRace::UNKNOWN,0);
 	}
-	if(univ.town.is_scloud(where_check.x,where_check.y)) {
+	if(univ.town.testField<CLOUD_STINK>(where_check.x,where_check.y)) {
 		add_string_to_buf("  Stinking cloud!");
 		which_pc.curse(get_ran(1,2,3));
 	}
-	if(univ.town.is_sleep_cloud(where_check.x,where_check.y)) {
+	if(univ.town.testField<CLOUD_SLEEP>(where_check.x,where_check.y)) {
 		add_string_to_buf("  Sleep cloud!");
 		which_pc.sleep(eStatus::ASLEEP,3,0);
 	}
-	if(univ.town.is_fire_barr(where_check.x,where_check.y)) {
+	if(univ.town.testField<BARRIER_FIRE>(where_check.x,where_check.y)) {
 		add_string_to_buf("  Magic barrier!");
 		r1 = get_ran(2,1,10);
 		if(is_town()) fast_bang = 1;
@@ -1073,7 +1073,7 @@ void use_item(short pc,short item) {
 				break;
 				
 			case eItemAbil::CAST_SPELL: {
-				if(univ.town.is_antimagic(user_loc.x, user_loc.y)) {
+				if(univ.town.testField<FIELD_ANTIMAGIC>(user_loc.x, user_loc.y)) {
 					add_string_to_buf("  Not in antimagic field.");
 					take_charge = false;
 					break;
@@ -1143,7 +1143,7 @@ void use_item(short pc,short item) {
 				break;
 			case eItemAbil::QUICKFIRE:
 				add_string_to_buf("Fire pours out!");
-				univ.town.set_quickfire(user_loc.x,user_loc.y,true);
+				univ.town.setField<FIELD_QUICKFIRE>(user_loc.x,user_loc.y);
 				break;
 			case eItemAbil::MESSAGE:
 				take_charge = false;
@@ -1199,48 +1199,48 @@ bool use_space(location where) {
 	
 	add_string_to_buf("Use...");
 	
-	if(univ.town.is_web(where.x,where.y)) {
+	if(univ.town.testField<FIELD_WEB>(where.x,where.y)) {
 		add_string_to_buf("  You clear the webs.");
-		univ.town.set_web(where.x,where.y,false);
+		univ.town.clearFields<FIELD_WEB>(where.x,where.y);
 		return true;
 	}
-	if(univ.town.is_crate(where.x,where.y)) {
+	if(univ.town.testField<OBJECT_CRATE>(where.x,where.y)) {
 		to_loc = push_loc(from_loc,where);
 		if(from_loc == to_loc) {
 			add_string_to_buf("  Can't push crate.");
 			return false;
 		}
 		add_string_to_buf("  You push the crate.");
-		univ.town.set_crate(where.x,where.y,false);
-		univ.town.set_crate(to_loc.x,to_loc.y,true);
+		univ.town.clearFields<OBJECT_CRATE>(where.x,where.y);
+		univ.town.setField<OBJECT_CRATE>(to_loc.x,to_loc.y);
 		for(short i = 0; i < univ.town.items.size(); i++)
 			if(univ.town.items[i].variety != eItemType::NO_ITEM && univ.town.items[i].item_loc == where
 			   && univ.town.items[i].contained && univ.town.items[i].held)
 			 	univ.town.items[i].item_loc = to_loc;
 	}
-	if(univ.town.is_barrel(where.x,where.y)) {
+	if(univ.town.testField<OBJECT_BARREL>(where.x,where.y)) {
 		to_loc = push_loc(from_loc,where);
 		if(from_loc == to_loc) {
 			add_string_to_buf("  Can't push barrel.");
 			return false;
 		}
 		add_string_to_buf("  You push the barrel.");
-		univ.town.set_barrel(where.x, where.y,false);
-		univ.town.set_barrel(to_loc.x,to_loc.y,true);
+		univ.town.clearFields<OBJECT_BARREL>(where.x, where.y);
+		univ.town.setField<OBJECT_BARREL>(to_loc.x,to_loc.y);
 		for(short i = 0; i < univ.town.items.size(); i++)
 			if(univ.town.items[i].variety != eItemType::NO_ITEM && univ.town.items[i].item_loc == where
 			   && univ.town.items[i].contained && univ.town.items[i].held)
 			 	univ.town.items[i].item_loc = to_loc;
 	}
-	if(univ.town.is_block(where.x,where.y)) {
+	if(univ.town.testField<OBJECT_BLOCK>(where.x,where.y)) {
 		to_loc = push_loc(from_loc,where);
 		if(from_loc == to_loc) {
 			add_string_to_buf("  Can't push block.");
 			return false;
 		}
 		add_string_to_buf("  You push the block.");
-		univ.town.set_block(where.x,where.y,false);
-		univ.town.set_block(to_loc.x,to_loc.y,true);
+		univ.town.clearFields<OBJECT_BLOCK>(where.x,where.y);
+		univ.town.setField<OBJECT_BLOCK>(to_loc.x,to_loc.y);
 	}
 	
 	if(univ.scenario.ter_types[ter].special == eTerSpec::CHANGE_WHEN_USED) {
@@ -1621,25 +1621,25 @@ void kill_monst(cCreature& which_m,short who_killed,eMainStatus type) {
 	i = which_m.cur_loc.x;
 	j = which_m.cur_loc.y;
 	if(type == eMainStatus::DUST)
-		univ.town.set_ash(i,j,true);
+		univ.town.setField<SFX_ASH>(i,j);
 	else if(type == eMainStatus::ABSENT || type == eMainStatus::STONE);
 	else switch(which_m.m_type) {
 		case eRace::DEMON:
-			univ.town.set_ash(i,j,true);
+			univ.town.setField<SFX_ASH>(i,j);
 			break;
 		case eRace::UNDEAD:
 			break;
 		case eRace::SKELETAL:
-			univ.town.set_bones(i,j,true);
+			univ.town.setField<SFX_BONES>(i,j);
 			break;
 		case eRace::SLIME: case eRace::PLANT: case eRace::BUG:
-			univ.town.set_sm_slime(i,j,true);
+			univ.town.setField<SFX_SMALL_SLIME>(i,j);
 			break;
 		case eRace::STONE:
-			univ.town.set_rubble(i,j,true);
+			univ.town.setField<SFX_RUBBLE>(i,j);
 			break;
 		default:
-			univ.town.set_sm_blood(i,j,true);
+			univ.town.setField<SFX_SMALL_BLOOD>(i,j);
 			break;
 	}
 	
@@ -1718,15 +1718,15 @@ void push_things() {
 			update_explored(l);
 			ter = univ.town->terrain(univ.party.town_loc.x,univ.party.town_loc.y);
 			draw_map(true);
-			if(univ.town.is_barrel(univ.party.town_loc.x,univ.party.town_loc.y)) {
-				univ.town.set_barrel(univ.party.town_loc.x,univ.party.town_loc.y,false);
+			if(univ.town.testField<OBJECT_BARREL>(univ.party.town_loc.x,univ.party.town_loc.y)) {
+				univ.town.clearFields<OBJECT_BARREL>(univ.party.town_loc.x,univ.party.town_loc.y);
 				ASB("You smash the barrel.");
 			}
-			if(univ.town.is_crate(univ.party.town_loc.x,univ.party.town_loc.y)) {
-				univ.town.set_crate(univ.party.town_loc.x,univ.party.town_loc.y,false);
+			if(univ.town.testField<OBJECT_CRATE>(univ.party.town_loc.x,univ.party.town_loc.y)) {
+				univ.town.clearFields<OBJECT_CRATE>(univ.party.town_loc.x,univ.party.town_loc.y);
 				ASB("You smash the crate.");
 			}
-			if(univ.town.is_block(univ.party.town_loc.x,univ.party.town_loc.y)) {
+			if(univ.town.testField<OBJECT_BLOCK>(univ.party.town_loc.x,univ.party.town_loc.y)) {
 				ASB("You crash into the block.");
 				hit_party(get_ran(1, 1, 6), eDamageType::WEAPON);
 			}
@@ -1756,15 +1756,15 @@ void push_things() {
 					univ.party[i].combat_pos = l;
 					update_explored(l);
 					draw_map(true);
-					if(univ.town.is_barrel(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y)) {
-						univ.town.set_barrel(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y,false);
+					if(univ.town.testField<OBJECT_BARREL>(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y)) {
+						univ.town.clearFields<OBJECT_BARREL>(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y);
 						ASB("You smash the barrel.");
 					}
-					if(univ.town.is_crate(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y)) {
-						univ.town.set_crate(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y,false);
+					if(univ.town.testField<OBJECT_CRATE>(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y)) {
+						univ.town.clearFields<OBJECT_CRATE>(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y);
 						ASB("You smash the crate.");
 					}
-					if(univ.town.is_block(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y)) {
+					if(univ.town.testField<OBJECT_BLOCK>(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y)) {
 						ASB("You crash into the block.");
 						damage_pc(univ.party[i],get_ran(1, 1, 6), eDamageType::WEAPON,eRace::UNKNOWN,0);
 					}
@@ -3352,33 +3352,33 @@ void ifthen_spec(const runtime_state& ctx) {
 							case FIELD_DISPEL: case FIELD_SMASH:
 								break;
 							// Walls
-							case WALL_FIRE: i += univ.town.is_fire_wall(i,j); break;
-							case WALL_FORCE: i += univ.town.is_force_wall(i,j); break;
-							case WALL_ICE: i += univ.town.is_ice_wall(i,j); break;
-							case WALL_BLADES: i += univ.town.is_blade_wall(i,j); break;
+							case WALL_FIRE: i += univ.town.testField<WALL_FIRE>(i,j); break;
+							case WALL_FORCE: i += univ.town.testField<WALL_FORCE>(i,j); break;
+							case WALL_ICE: i += univ.town.testField<WALL_ICE>(i,j); break;
+							case WALL_BLADES: i += univ.town.testField<WALL_BLADES>(i,j); break;
 							// Clouds
-							case CLOUD_STINK: i += univ.town.is_scloud(i,j); break;
-							case CLOUD_SLEEP: i += univ.town.is_sleep_cloud(i,j); break;
+							case CLOUD_STINK: i += univ.town.testField<CLOUD_STINK>(i,j); break;
+							case CLOUD_SLEEP: i += univ.town.testField<CLOUD_SLEEP>(i,j); break;
 							// Advanced
-							case FIELD_QUICKFIRE: i += univ.town.is_quickfire(i,j); break;
-							case FIELD_ANTIMAGIC: i += univ.town.is_antimagic(i,j); break;
-							case BARRIER_FIRE: i += univ.town.is_fire_barr(i,j); break;
-							case BARRIER_FORCE: i += univ.town.is_force_barr(i,j); break;
-							case BARRIER_CAGE: i += univ.town.is_force_cage(i,j); break;
+							case FIELD_QUICKFIRE: i += univ.town.testField<FIELD_QUICKFIRE>(i,j); break;
+							case FIELD_ANTIMAGIC: i += univ.town.testField<FIELD_ANTIMAGIC>(i,j); break;
+							case BARRIER_FIRE: i += univ.town.testField<BARRIER_FIRE>(i,j); break;
+							case BARRIER_FORCE: i += univ.town.testField<BARRIER_FORCE>(i,j); break;
+							case BARRIER_CAGE: i += univ.town.testField<BARRIER_CAGE>(i,j); break;
 							// Objects
-							case FIELD_WEB: i += univ.town.is_web(i,j); break;
-							case OBJECT_BARREL: i += univ.town.is_barrel(i,j); break;
-							case OBJECT_CRATE: i += univ.town.is_crate(i,j); break;
-							case OBJECT_BLOCK: i += univ.town.is_block(i,j); break;
+							case FIELD_WEB: i += univ.town.testField<FIELD_WEB>(i,j); break;
+							case OBJECT_BARREL: i += univ.town.testField<OBJECT_BARREL>(i,j); break;
+							case OBJECT_CRATE: i += univ.town.testField<OBJECT_CRATE>(i,j); break;
+							case OBJECT_BLOCK: i += univ.town.testField<OBJECT_BLOCK>(i,j); break;
 							// Sfx
-							case SFX_SMALL_BLOOD: i += univ.town.is_sm_blood(i,j); break;
-							case SFX_MEDIUM_BLOOD: i += univ.town.is_med_blood(i,j); break;
-							case SFX_LARGE_BLOOD: i += univ.town.is_lg_blood(i,j); break;
-							case SFX_SMALL_SLIME: i += univ.town.is_sm_slime(i,j); break;
-							case SFX_LARGE_SLIME: i += univ.town.is_lg_slime(i,j); break;
-							case SFX_ASH: i += univ.town.is_ash(i,j); break;
-							case SFX_BONES: i += univ.town.is_bones(i,j); break;
-							case SFX_RUBBLE: i += univ.town.is_rubble(i,j); break;
+							case SFX_SMALL_BLOOD: i += univ.town.testField<SFX_SMALL_BLOOD>(i,j); break;
+							case SFX_MEDIUM_BLOOD: i += univ.town.testField<SFX_MEDIUM_BLOOD>(i,j); break;
+							case SFX_LARGE_BLOOD: i += univ.town.testField<SFX_LARGE_BLOOD>(i,j); break;
+							case SFX_SMALL_SLIME: i += univ.town.testField<SFX_SMALL_SLIME>(i,j); break;
+							case SFX_LARGE_SLIME: i += univ.town.testField<SFX_LARGE_SLIME>(i,j); break;
+							case SFX_ASH: i += univ.town.testField<SFX_ASH>(i,j); break;
+							case SFX_BONES: i += univ.town.testField<SFX_BONES>(i,j); break;
+							case SFX_RUBBLE: i += univ.town.testField<SFX_RUBBLE>(i,j); break;
 						}
 					}
 				if(i >= spec.sd1 && i <= spec.sd2)
@@ -4328,19 +4328,19 @@ void rect_spec(const runtime_state& ctx){
 							// These values are not allowed.
 							case SPECIAL_EXPLORED: case SPECIAL_SPOT: case SPECIAL_ROAD: break;
 							// Walls
-							case WALL_FIRE: univ.town.set_fire_wall(i,j,true); break;
-							case WALL_FORCE: univ.town.set_force_wall(i,j,true); break;
-							case WALL_ICE: univ.town.set_ice_wall(i,j,true); break;
-							case WALL_BLADES: univ.town.set_blade_wall(i,j,true); break;
+							case WALL_FIRE: univ.town.setField<WALL_FIRE>(i,j); break;
+							case WALL_FORCE: univ.town.setField<WALL_FORCE>(i,j); break;
+							case WALL_ICE: univ.town.setField<WALL_ICE>(i,j); break;
+							case WALL_BLADES: univ.town.setField<WALL_BLADES>(i,j); break;
 							// Clouds
-							case CLOUD_STINK: univ.town.set_scloud(i,j,true); break;
-							case CLOUD_SLEEP: univ.town.set_sleep_cloud(i,j,true); break;
+							case CLOUD_STINK: univ.town.setField<CLOUD_STINK>(i,j); break;
+							case CLOUD_SLEEP: univ.town.setField<CLOUD_SLEEP>(i,j); break;
 							// Advanced
-							case FIELD_QUICKFIRE: univ.town.set_quickfire(i,j,true); break;
-							case FIELD_ANTIMAGIC: univ.town.set_antimagic(i,j,true); break;
-							case BARRIER_FIRE: univ.town.set_fire_barr(i,j,true); break;
-							case BARRIER_FORCE: univ.town.set_force_barr(i,j,true); break;
-							case BARRIER_CAGE: univ.town.set_force_cage(i,j,true); break;
+							case FIELD_QUICKFIRE: univ.town.setField<FIELD_QUICKFIRE>(i,j); break;
+							case FIELD_ANTIMAGIC: univ.town.setField<FIELD_ANTIMAGIC>(i,j); break;
+							case BARRIER_FIRE: univ.town.setField<BARRIER_FIRE>(i,j); break;
+							case BARRIER_FORCE: univ.town.setField<BARRIER_FORCE>(i,j); break;
+							case BARRIER_CAGE: univ.town.setField<BARRIER_CAGE>(i,j); break;
 							// Cleanse
 							case FIELD_DISPEL:
 								if(spec.sd1 == 0)
@@ -4348,19 +4348,19 @@ void rect_spec(const runtime_state& ctx){
 								else dispel_fields(i,j,2);
 								break;
 							// Objects
-							case FIELD_WEB: univ.town.set_web(i,j,true); break;
-							case OBJECT_BARREL: univ.town.set_barrel(i,j,true); break;
-							case OBJECT_CRATE: univ.town.set_crate(i,j,true); break;
-							case OBJECT_BLOCK: univ.town.set_block(i,j,true); break;
+							case FIELD_WEB: univ.town.setField<FIELD_WEB>(i,j); break;
+							case OBJECT_BARREL: univ.town.setField<OBJECT_BARREL>(i,j); break;
+							case OBJECT_CRATE: univ.town.setField<OBJECT_CRATE>(i,j); break;
+							case OBJECT_BLOCK: univ.town.setField<OBJECT_BLOCK>(i,j); break;
 							// Sfx
-							case SFX_SMALL_BLOOD: univ.town.set_sm_blood(i,j,true); break;
-							case SFX_MEDIUM_BLOOD: univ.town.set_med_blood(i,j,true); break;
-							case SFX_LARGE_BLOOD: univ.town.set_lg_blood(i,j,true); break;
-							case SFX_SMALL_SLIME: univ.town.set_sm_slime(i,j,true); break;
-							case SFX_LARGE_SLIME: univ.town.set_lg_slime(i,j,true); break;
-							case SFX_ASH: univ.town.set_ash(i,j,true); break;
-							case SFX_BONES: univ.town.set_bones(i,j,true); break;
-							case SFX_RUBBLE: univ.town.set_rubble(i,j,true); break;
+							case SFX_SMALL_BLOOD: univ.town.setField<SFX_SMALL_BLOOD>(i,j); break;
+							case SFX_MEDIUM_BLOOD: univ.town.setField<SFX_MEDIUM_BLOOD>(i,j); break;
+							case SFX_LARGE_BLOOD: univ.town.setField<SFX_LARGE_BLOOD>(i,j); break;
+							case SFX_SMALL_SLIME: univ.town.setField<SFX_SMALL_SLIME>(i,j); break;
+							case SFX_LARGE_SLIME: univ.town.setField<SFX_LARGE_SLIME>(i,j); break;
+							case SFX_ASH: univ.town.setField<SFX_ASH>(i,j); break;
+							case SFX_BONES: univ.town.setField<SFX_BONES>(i,j); break;
+							case SFX_RUBBLE: univ.town.setField<SFX_RUBBLE>(i,j); break;
 							// Special value: Move Mountains!
 							case FIELD_SMASH: crumble_wall(loc(i,j)); break;
 						}
@@ -4375,7 +4375,7 @@ void rect_spec(const runtime_state& ctx){
 							univ.town.items[k].item_loc.y = spec.sd2;
 							if(i && spec.m3) {
 								univ.town.items[k].contained = is_container(univ.town.items[k].item_loc);
-								if(univ.town.is_crate(spec.sd1,spec.sd2) || univ.town.is_barrel(spec.sd1,spec.sd2))
+								if(univ.town.testField<OBJECT_CRATE,OBJECT_BARREL>(spec.sd1,spec.sd2))
 									univ.town.items[k].held = true;
 							}
 						}

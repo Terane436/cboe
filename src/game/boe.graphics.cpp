@@ -859,7 +859,7 @@ void draw_terrain(short	mode) {
 				draw_items(where_draw);
 			if(is_out() && univ.out.out_e[where_draw.x][where_draw.y] && univ.out.is_road(where_draw.x,where_draw.y))
 				place_road(q,r,where_draw,true);
-			else if(is_town() && univ.town.is_explored(where_draw.x,where_draw.y) && univ.town.is_road(where_draw.x, where_draw.y))
+			else if(is_town() && univ.town.testFieldAll<SPECIAL_EXPLORED,SPECIAL_ROAD>(where_draw.x,where_draw.y))
 				place_road(q,r,where_draw,true);
 			else place_road(q,r,where_draw,false);
 			draw_fields(where_draw);
@@ -1153,7 +1153,7 @@ void draw_trim(short q,short r,short which_trim,ter_num_t ground_ter) {
 static bool extend_road_terrain(int x, int y) {
 	if(is_out() && univ.out.is_road(x,y))
 	   return true;
-	if(is_town() && univ.town.is_road(x,y))
+	if(is_town() && univ.town.testFieldUnchecked<SPECIAL_ROAD>(x,y))
 		return true;
 	ter_num_t ter = coord_to_ter(x,y);
 	eTrimType trim = univ.scenario.ter_types[ter].trim_type;

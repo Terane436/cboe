@@ -167,7 +167,7 @@ bool place_item(cItem item,location where,bool contained) {
 	if(contained && !is_container(where))
 		contained = false;
 	
-	bool is_pushable_ctr = contained && (univ.town.is_barrel(where.x,where.y) || univ.town.is_crate(where.x,where.y));
+	bool is_pushable_ctr = contained && univ.town.testField<OBJECT_BARREL,OBJECT_CRATE>(where.x,where.y);
 	
 	for(short i = 0; i < univ.town.items.size(); i++)
 		if(univ.town.items[i].variety == eItemType::NO_ITEM) {

@@ -106,7 +106,7 @@ void cCurTown::place_preset_fields() {
 	for(size_t i = 0; i < record()->preset_fields.size(); i++) {
 		switch(record()->preset_fields[i].type){
 			case OBJECT_BLOCK:
-				set_block(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<OBJECT_BLOCK>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case SPECIAL_SPOT:
 				set_spot(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
@@ -115,49 +115,49 @@ void cCurTown::place_preset_fields() {
 				set_road(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
 				break;
 			case FIELD_WEB:
-				set_web(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<FIELD_WEB>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case OBJECT_CRATE:
-				set_crate(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<OBJECT_CRATE>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case OBJECT_BARREL:
-				set_barrel(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<OBJECT_BARREL>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case BARRIER_FIRE:
-				set_fire_barr(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<BARRIER_FIRE>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case BARRIER_FORCE:
-				set_force_barr(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<BARRIER_FORCE>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case BARRIER_CAGE:
 				set_force_cage(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
 				break;
 			case FIELD_QUICKFIRE:
-				set_quickfire(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<FIELD_QUICKFIRE>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case SFX_SMALL_BLOOD:
-				set_sm_blood(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<SFX_SMALL_BLOOD>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case SFX_MEDIUM_BLOOD:
-				set_med_blood(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<SFX_MEDIUM_BLOOD>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case SFX_LARGE_BLOOD:
-				set_lg_blood(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<SFX_LARGE_BLOOD>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case SFX_SMALL_SLIME:
-				set_sm_slime(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<SFX_SMALL_SLIME>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case SFX_LARGE_SLIME:
-				set_lg_slime(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<SFX_LARGE_SLIME>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case SFX_ASH:
-				set_ash(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<SFX_ASH>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case SFX_BONES:
-				set_bones(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<SFX_BONES>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 			case SFX_RUBBLE:
-				set_rubble(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y,true);
+				setField<SFX_RUBBLE>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
 				break;
 				// The rest can't be preset, but enumerate them in case a new field is added.
 			case FIELD_DISPEL: case FIELD_SMASH: case SPECIAL_EXPLORED: case CLOUD_SLEEP: case CLOUD_STINK:
@@ -192,14 +192,6 @@ cTown*const cCurTown::record() const {
 	return univ.scenario.towns[univ.party.town_num];
 }
 
-bool cCurTown::is_spot(short x, short y) const{
-	return fields[x][y] & SPECIAL_SPOT;
-}
-
-bool cCurTown::is_road(short x, short y) const{
-	return fields[x][y] & SPECIAL_ROAD;
-}
-
 bool cCurTown::is_special(short x, short y) const{
 	if(x > record()->max_dim || y > record()->max_dim) return false;
 	location check(x,y);
@@ -225,8 +217,7 @@ bool cCurTown::set_force_wall(short x, short y, bool b){
 			return false;
 		if(is_crate(x,y) || is_barrel(x,y) || is_fire_barr(x,y) || is_force_barr(x,y))
 			return false;
-		set_web(x,y,false);
-		set_fire_wall(x,y,false);
+		clearFields<FIELD_WEB,WALL_FIRE>(x,y);
 		fields[x][y]  |=  WALL_FORCE;
 	}
 	else fields[x][y] &= ~WALL_FORCE;
@@ -244,8 +235,7 @@ bool cCurTown::set_fire_wall(short x, short y, bool b){
 			return false;
 		if(is_web(x,y) || is_scloud(x,y) || is_sleep_cloud(x,y))
 			return false;
-		set_web(x,y,false);
-		set_fire_wall(x,y,false);
+		clearFields<FIELD_WEB,WALL_FIRE>(x,y);
 		fields[x][y]  |=  WALL_FIRE;
 	}
 	else fields[x][y] &= ~WALL_FIRE;
@@ -259,13 +249,7 @@ bool cCurTown::set_antimagic(short x, short y, bool b){
 			return false;
 		if(is_quickfire(x,y) || is_force_wall(x,y) || is_fire_wall(x,y))
 			return false;
-		set_force_wall(x,y,false);
-		set_fire_wall(x,y,false);
-		set_antimagic(x,y,false);
-		set_scloud(x,y,false);
-		set_ice_wall(x,y,false);
-		set_blade_wall(x,y,false);
-		set_sleep_cloud(x,y,false);
+		clearFields<WALL_FORCE,WALL_FIRE,FIELD_ANTIMAGIC,CLOUD_STINK,WALL_ICE,WALL_BLADES,CLOUD_SLEEP>(x,y);
 		fields[x][y]  |=  FIELD_ANTIMAGIC;
 	}
 	else fields[x][y] &= ~FIELD_ANTIMAGIC;
@@ -300,8 +284,7 @@ bool cCurTown::set_ice_wall(short x, short y, bool b){
 			return false;
 		if(is_fire_barr(x,y) || is_force_barr(x,y) || is_quickfire(x,y))
 			return false;
-		set_fire_wall(x,y,false);
-		set_scloud(x,y,false);
+		clearFields<WALL_FIRE,CLOUD_STINK>(x,y);
 		fields[x][y]  |=  WALL_ICE;
 	}
 	else fields[x][y] &= ~WALL_ICE;
@@ -315,8 +298,7 @@ bool cCurTown::set_blade_wall(short x, short y, bool b){
 			return false;
 		if(is_fire_barr(x,y) || is_force_barr(x,y) || is_quickfire(x,y) || is_antimagic(x,y))
 			return false;
-		set_force_wall(x,y,false);
-		set_fire_wall(x,y,false);
+		clearFields<WALL_FORCE,WALL_FIRE>(x,y);
 		fields[x][y]  |=  WALL_BLADES;
 	}
 	else fields[x][y] &= ~WALL_BLADES;
@@ -330,8 +312,7 @@ bool cCurTown::set_sleep_cloud(short x, short y, bool b){
 			return false;
 		if(is_fire_barr(x,y) || is_force_barr(x,y) || is_quickfire(x,y) || is_antimagic(x,y))
 			return false;
-		set_force_wall(x,y,false);
-		set_fire_wall(x,y,false);
+		clearFields<WALL_FORCE,WALL_FIRE>(x,y);
 		fields[x][y]  |=  CLOUD_SLEEP;
 	}
 	else fields[x][y] &= ~CLOUD_SLEEP;
@@ -406,14 +387,7 @@ bool cCurTown::set_fire_barr(short x, short y, bool b){
 		if(is_antimagic(x,y) && get_ran(1,0,3) < 3)
 			return false;
 		// Cancel out fields
-		set_web(x,y,false);
-		set_force_wall(x,y,false);
-		set_fire_wall(x,y,false);
-		set_antimagic(x,y,false);
-		set_scloud(x,y,false);
-		set_ice_wall(x,y,false);
-		set_blade_wall(x,y,false);
-		set_sleep_cloud(x,y,false);
+		clearFields<FIELD_WEB,WALL_FORCE,WALL_FIRE,FIELD_ANTIMAGIC,CLOUD_STINK,CLOUD_SLEEP,WALL_ICE,WALL_BLADES>(x,y);
 		fields[x][y]  |=  BARRIER_FIRE;
 	}
 	else fields[x][y] &= ~BARRIER_FIRE;
@@ -428,14 +402,7 @@ bool cCurTown::set_force_barr(short x, short y, bool b){
 		if(is_antimagic(x,y) && get_ran(1,0,2) < 2)
 			return false;
 		// Cancel out fields
-		set_web(x,y,false);
-		set_force_wall(x,y,false);
-		set_fire_wall(x,y,false);
-		set_antimagic(x,y,false);
-		set_scloud(x,y,false);
-		set_ice_wall(x,y,false);
-		set_blade_wall(x,y,false);
-		set_sleep_cloud(x,y,false);
+		clearFields<FIELD_WEB,WALL_FORCE,WALL_FIRE,FIELD_ANTIMAGIC,CLOUD_STINK,CLOUD_SLEEP,WALL_ICE,WALL_BLADES>(x,y);
 		fields[x][y]  |=  BARRIER_FORCE;
 	}
 	else fields[x][y] &= ~BARRIER_FORCE;
@@ -455,19 +422,8 @@ bool cCurTown::set_quickfire(short x, short y, bool b){
 			return false;
 		if(is_force_barr(x,y) || is_fire_barr(x,y))
 			return false;
+		clearFields<FIELD_WEB,WALL_FORCE,WALL_FIRE,FIELD_ANTIMAGIC,CLOUD_STINK,CLOUD_SLEEP,WALL_ICE,WALL_BLADES,OBJECT_CRATE,OBJECT_BARREL,BARRIER_FIRE,BARRIER_FORCE>(x,y);
 		quickfire_present = true;
-		set_force_wall(x,y,false);
-		set_fire_wall(x,y,false);
-		set_antimagic(x,y,false);
-		set_scloud(x,y,false);
-		set_ice_wall(x,y,false);
-		set_blade_wall(x,y,false);
-		set_sleep_cloud(x,y,false);
-		set_web(x,y,false);
-		set_crate(x,y,false);
-		set_barrel(x,y,false);
-		set_force_barr(x,y,false);
-		set_fire_barr(x,y,false);
 		fields[x][y]  |=  FIELD_QUICKFIRE;
 	}
 	else fields[x][y] &= ~FIELD_QUICKFIRE;
@@ -488,11 +444,7 @@ bool cCurTown::set_sm_blood(short x, short y, bool b){
 		if(!free_for_sfx(x,y)) return false;
 		if(is_med_blood(x,y) || is_lg_blood(x,y))
 			return false;
-		set_sm_slime(x,y,false);
-		set_lg_slime(x,y,false);
-		set_ash(x,y,false);
-		set_bones(x,y,false);
-		set_rubble(x,y,false);
+		clearFields<SFX_SMALL_SLIME,SFX_LARGE_SLIME,SFX_ASH,SFX_BONES,SFX_RUBBLE>(x,y);
 		fields[x][y]  |=  SFX_SMALL_BLOOD;
 	}
 	else fields[x][y] &= ~SFX_SMALL_BLOOD;
@@ -505,12 +457,7 @@ bool cCurTown::set_med_blood(short x, short y, bool b){
 		if(!free_for_sfx(x,y)) return false;
 		if(is_lg_blood(x,y))
 			return false;
-		set_sm_blood(x,y,false);
-		set_sm_slime(x,y,false);
-		set_lg_slime(x,y,false);
-		set_ash(x,y,false);
-		set_bones(x,y,false);
-		set_rubble(x,y,false);
+		clearFields<SFX_SMALL_BLOOD,SFX_SMALL_SLIME,SFX_LARGE_SLIME,SFX_ASH,SFX_BONES,SFX_RUBBLE>(x,y);
 		fields[x][y]  |=  SFX_MEDIUM_BLOOD;
 	}
 	else fields[x][y] &= ~SFX_MEDIUM_BLOOD;
@@ -521,13 +468,7 @@ bool cCurTown::set_lg_blood(short x, short y, bool b){
 	if(x > record()->max_dim || y > record()->max_dim) return false;
 	if(b){
 		if(!free_for_sfx(x,y)) return false;
-		set_sm_blood(x,y,false);
-		set_med_blood(x,y,false);
-		set_sm_slime(x,y,false);
-		set_lg_slime(x,y,false);
-		set_ash(x,y,false);
-		set_bones(x,y,false);
-		set_rubble(x,y,false);
+		clearFields<SFX_SMALL_BLOOD,SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD,SFX_SMALL_SLIME,SFX_LARGE_SLIME,SFX_ASH,SFX_BONES,SFX_RUBBLE>(x,y);
 		fields[x][y]  |=  SFX_LARGE_BLOOD;
 	}
 	else fields[x][y] &= ~SFX_LARGE_BLOOD;
@@ -539,12 +480,7 @@ bool cCurTown::set_sm_slime(short x, short y, bool b){
 		if(!free_for_sfx(x,y)) return false;
 		if(is_lg_slime(x,y))
 			return false;
-		set_sm_blood(x,y,false);
-		set_med_blood(x,y,false);
-		set_lg_blood(x,y,false);
-		set_ash(x,y,false);
-		set_bones(x,y,false);
-		set_rubble(x,y,false);
+		clearFields<SFX_SMALL_BLOOD,SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD,SFX_SMALL_SLIME,SFX_LARGE_SLIME,SFX_ASH,SFX_BONES,SFX_RUBBLE>(x,y);
 		fields[x][y]  |=  SFX_SMALL_SLIME;
 	}
 	else fields[x][y] &= ~SFX_SMALL_SLIME;
@@ -555,13 +491,7 @@ bool cCurTown::set_lg_slime(short x, short y, bool b){
 	if(x > record()->max_dim || y > record()->max_dim) return false;
 	if(b){
 		if(!free_for_sfx(x,y)) return false;
-		set_sm_blood(x,y,false);
-		set_med_blood(x,y,false);
-		set_lg_blood(x,y,false);
-		set_sm_slime(x,y,false);
-		set_ash(x,y,false);
-		set_bones(x,y,false);
-		set_rubble(x,y,false);
+		clearFields<SFX_SMALL_BLOOD,SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD,SFX_SMALL_SLIME,SFX_LARGE_SLIME,SFX_ASH,SFX_BONES,SFX_RUBBLE>(x,y);
 		fields[x][y]  |=  SFX_LARGE_SLIME;
 	}
 	else fields[x][y] &= ~SFX_LARGE_SLIME;
@@ -572,13 +502,7 @@ bool cCurTown::set_ash(short x, short y, bool b){
 	if(x > record()->max_dim || y > record()->max_dim) return false;
 	if(b){
 		if(!free_for_sfx(x,y)) return false;
-		set_sm_blood(x,y,false);
-		set_med_blood(x,y,false);
-		set_lg_blood(x,y,false);
-		set_sm_slime(x,y,false);
-		set_lg_slime(x,y,false);
-		set_bones(x,y,false);
-		set_rubble(x,y,false);
+		clearFields<SFX_SMALL_BLOOD,SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD,SFX_SMALL_SLIME,SFX_LARGE_SLIME,SFX_ASH,SFX_BONES,SFX_RUBBLE>(x,y);
 		fields[x][y]  |=  SFX_ASH;
 	}
 	else fields[x][y] &= ~SFX_ASH;
@@ -589,13 +513,7 @@ bool cCurTown::set_bones(short x, short y, bool b){
 	if(x > record()->max_dim || y > record()->max_dim) return false;
 	if(b){
 		if(!free_for_sfx(x,y)) return false;
-		set_sm_blood(x,y,false);
-		set_med_blood(x,y,false);
-		set_lg_blood(x,y,false);
-		set_sm_slime(x,y,false);
-		set_lg_slime(x,y,false);
-		set_ash(x,y,false);
-		set_rubble(x,y,false);
+		clearFields<SFX_SMALL_BLOOD,SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD,SFX_SMALL_SLIME,SFX_LARGE_SLIME,SFX_ASH,SFX_BONES,SFX_RUBBLE>(x,y);
 		fields[x][y]  |=  SFX_BONES;
 	}
 	else fields[x][y] &= ~SFX_BONES;
@@ -606,13 +524,7 @@ bool cCurTown::set_rubble(short x, short y, bool b){
 	if(x > record()->max_dim || y > record()->max_dim) return false;
 	if(b){
 		if(!free_for_sfx(x,y)) return false;
-		set_sm_blood(x,y,false);
-		set_med_blood(x,y,false);
-		set_lg_blood(x,y,false);
-		set_sm_slime(x,y,false);
-		set_lg_slime(x,y,false);
-		set_ash(x,y,false);
-		set_bones(x,y,false);
+		clearFields<SFX_SMALL_BLOOD,SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD,SFX_SMALL_SLIME,SFX_LARGE_SLIME,SFX_ASH,SFX_BONES,SFX_RUBBLE>(x,y);
 		fields[x][y]  |=  SFX_RUBBLE;
 	}
 	else fields[x][y] &= ~SFX_RUBBLE;

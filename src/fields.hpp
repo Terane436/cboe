@@ -9,6 +9,8 @@
 #ifndef BoE_FIELDS_HPP
 #define BoE_FIELDS_HPP
 
+#include "utility/templateutil.hpp"
+
 // This is a slight misnomer, as a couple of these are not true fields.
 enum eFieldType {
 	SPECIAL_EXPLORED = 0,
@@ -99,5 +101,139 @@ inline unsigned long operator~(eFieldType f) {
 
 std::ostream& operator << (std::ostream& out, eFieldType e);
 std::istream& operator >> (std::istream& in, eFieldType& e);
+
+struct BaseFieldsControl //BARRIER_CAGE, SPECIAL_ROAD, SPECIAL_SPOT
+{
+    typedef util::BuildMask<> BlockFields;
+    typedef util::BuildMask<> ClearFields;
+    static constexpr bool Checked = true;
+    static constexpr bool AvoidImpassable = false;
+    static constexpr short AntimagicChance = 0;
+    static constexpr bool IsSfx = false;
+};
+
+template<eFieldType Field> struct FieldControls : public BaseFieldsControl {};
+
+struct FieldControlsObject : public BaseFieldsControl
+{
+    typedef util::BuildMask<BARRIER_FIRE,BARRIER_FORCE,FIELD_QUICKFIRE> BlockFields;
+};
+
+struct FieldControlsSfx : public BaseFieldsControl
+{
+    static constexpr bool IsSfx = true;
+    typedef util::BuildMask<SFX_SMALL_BLOOD,SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD,SFX_SMALL_SLIME,SFX_LARGE_SLIME,SFX_ASH,SFX_BONES,SFX_RUBBLE> ClearFields;
+};
+
+template<> struct FieldControls<WALL_FORCE> : public BaseFieldsControl
+{
+    typedef util::BuildMask<FIELD_ANTIMAGIC,WALL_BLADES,FIELD_QUICKFIRE,BARRIER_FIRE,BARRIER_FORCE> BlockFields;//CHANGE: Removed OBJECT_CRATE, OBJECT_BARREL from blocking
+    typedef util::BuildMask<FIELD_WEB> ClearFields;//CHANGE: Removed WALL_FIRE from cleared fields
+    static constexpr bool AvoidImpassable = true;
+};
+
+template<> struct FieldControls<WALL_FIRE> : public BaseFieldsControl
+{ //CHANGE: Removed OBJECT_CRATE, OBJECT_BARREL, FIELD_WEB, CLOUD_SLEEP, CLOUD_STINK, WALL_FORCE from blocking
+    typedef util::BuildMask<FIELD_ANTIMAGIC,WALL_BLADES,FIELD_QUICKFIRE,WALL_ICE,BARRIER_FIRE,BARRIER_FORCE> BlockFields;
+    typedef util::BuildMask<FIELD_WEB> ClearFields;
+    static constexpr bool AvoidImpassable = true;
+};
+
+template<> struct FieldControls<FIELD_ANTIMAGIC> : public BaseFieldsControl
+{ //CHANGE: Removed CLOUD_STINK, CLOUD_SLEEP from cleared fields
+    typedef util::BuildMask<FIELD_ANTIMAGIC,FIELD_QUICKFIRE,BARRIER_FIRE,BARRIER_FORCE> BlockFields;
+    typedef util::BuildMask<WALL_FIRE,WALL_ICE,WALL_BLADES,WALL_FORCE> ClearFields;
+    static constexpr bool AvoidImpassable = true;
+};
+
+template<> struct FieldControls<CLOUD_STINK> : public BaseFieldsControl
+{ //CHANGE: Removed all walls, CLOUD_SLEEP from blocking
+    typedef util::BuildMask<FIELD_ANTIMAGIC,FIELD_QUICKFIRE,BARRIER_FIRE,BARRIER_FORCE> BlockFields;
+    static constexpr bool AvoidImpassable = true;
+};
+
+template<> struct FieldControls<WALL_ICE> : public BaseFieldsControl
+{ //CHANGE: Removed WALL_FORCE, WALL_BLADES, FIELD_WEB, OBJECT_CRATE, OBJECT_BARREL from blocking, added CLOUD_SLEEP to clear
+    typedef util::BuildMask<FIELD_ANTIMAGIC,FIELD_QUICKFIRE,BARRIER_FIRE,BARRIER_FORCE> BlockFields;
+    typedef util::BuildMask<WALL_FIRE,CLOUD_STINK,CLOUD_SLEEP> ClearFields;
+    static constexpr bool AvoidImpassable = true;
+};
+
+template<> struct FieldControls<WALL_BLADES> : public BaseFieldsControl
+{ //CHANGE: Removed WALL_FORCE, WALL_FIRE from cleared fields, added FIELD_WEB
+    typedef util::BuildMask<FIELD_ANTIMAGIC,FIELD_QUICKFIRE,BARRIER_FIRE,BARRIER_FORCE> BlockFields;
+    typedef util::BuildMask<FIELD_WEB> ClearFields;
+    static constexpr bool AvoidImpassable = true;
+};
+
+template<> struct FieldControls<CLOUD_SLEEP> : public BaseFieldsControl
+{ //CHANGE: Removed WALL_FORCE, WALL_FIRE from cleared fields
+    typedef util::BuildMask<FIELD_ANTIMAGIC,FIELD_QUICKFIRE,BARRIER_FIRE,BARRIER_FORCE> BlockFields;
+    static constexpr bool AvoidImpassable = true;
+};
+
+template<> struct FieldControls<FIELD_WEB> : public BaseFieldsControl
+{ //CHANGE: Removed CLOUD_SLEEP from blocking
+    typedef util::BuildMask<FIELD_ANTIMAGIC,WALL_BLADES,WALL_FIRE,WALL_ICE,FIELD_QUICKFIRE,BARRIER_FIRE,BARRIER_FORCE> BlockFields;
+    static constexpr bool AvoidImpassable = true;
+};
+
+template<> struct FieldControls<OBJECT_BLOCK> : public FieldControlsObject {};
+template<> struct FieldControls<OBJECT_CRATE> : public FieldControlsObject {};
+template<> struct FieldControls<OBJECT_BARREL> : public FieldControlsObject {};
+
+template<> struct FieldControls<BARRIER_FIRE> : public BaseFieldsControl
+{
+    typedef util::BuildMask<FIELD_QUICKFIRE,OBJECT_CRATE,OBJECT_BARREL,BARRIER_FORCE> BlockFields;
+    typedef util::BuildMask<WALL_FIRE,FIELD_WEB,WALL_FORCE,FIELD_ANTIMAGIC,CLOUD_STINK,WALL_ICE,WALL_BLADES,CLOUD_SLEEP> ClearFields;
+    static constexpr bool Checked = true;
+    static constexpr bool AvoidImpassable = true;
+    static constexpr short AntimagicChance = 3;
+};
+
+template<> struct FieldControls<BARRIER_FORCE> : public BaseFieldsControl
+{
+    typedef util::BuildMask<BARRIER_FIRE,FIELD_QUICKFIRE,OBJECT_CRATE,OBJECT_BARREL> BlockFields;
+    typedef util::BuildMask<WALL_FIRE,FIELD_WEB,WALL_FORCE,FIELD_ANTIMAGIC,CLOUD_STINK,WALL_ICE,WALL_BLADES,CLOUD_SLEEP> ClearFields;
+    static constexpr bool Checked = true;
+    static constexpr bool AvoidImpassable = true;
+    static constexpr short AntimagicChance = 2;
+};
+
+template<> struct FieldControls<FIELD_QUICKFIRE> : public BaseFieldsControl
+{ //CHANGE: Terrain blockages changed slightly
+    typedef util::BuildMask<BARRIER_FORCE,BARRIER_FIRE> BlockFields;
+    typedef util::BuildMask<WALL_FIRE,FIELD_WEB,WALL_FORCE,FIELD_ANTIMAGIC,CLOUD_STINK,WALL_ICE,WALL_BLADES,CLOUD_SLEEP,OBJECT_CRATE,OBJECT_BARREL,BARRIER_FORCE,BARRIER_FIRE> ClearFields;
+    static constexpr bool Checked = true;
+    static constexpr bool AvoidImpassable = true;
+    static constexpr short AntimagicChance = 1;
+};
+
+template<> struct FieldControls<SFX_SMALL_BLOOD> : public FieldControlsSfx
+{
+    typedef util::BuildMask<SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD> BlockFields;
+};
+
+template<> struct FieldControls<SFX_MEDIUM_BLOOD> : public FieldControlsSfx
+{
+    typedef util::BuildMask<SFX_LARGE_BLOOD> BlockFields;
+};
+
+template<> struct FieldControls<SFX_LARGE_BLOOD> : public FieldControlsSfx {};
+
+template<> struct FieldControls<SFX_SMALL_SLIME> : public FieldControlsSfx
+{
+    typedef util::BuildMask<SFX_LARGE_SLIME> BlockFields;
+};
+
+template<> struct FieldControls<SFX_LARGE_SLIME> : public FieldControlsSfx {};
+
+template<> struct FieldControls<SFX_ASH> : public FieldControlsSfx {};
+template<> struct FieldControls<SFX_BONES> : public FieldControlsSfx {};
+template<> struct FieldControls<SFX_RUBBLE> : public FieldControlsSfx {};
+
+namespace fieldgroups {
+typedef util::BuildMask<SPECIAL_SPOT,OBJECT_CRATE,OBJECT_BARREL,OBJECT_BLOCK,FIELD_QUICKFIRE,WALL_FORCE,WALL_FIRE,FIELD_ANTIMAGIC,CLOUD_STINK,WALL_ICE,WALL_BLADES,CLOUD_SLEEP> NonClearFields;
+}
 
 #endif

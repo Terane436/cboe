@@ -2960,7 +2960,7 @@ bool town_move_party(location destination,short forced) {
 	ter_num_t ter;
 	bool check_f = false;
 	
-	if(univ.town.is_force_cage(univ.party.town_loc.x, univ.party.town_loc.y)) {
+	if(univ.town.testField<BARRIER_CAGE>(univ.party.town_loc.x, univ.party.town_loc.y)) {
 		add_string_to_buf("Move: Can't escape.");
 		return false;
 	}

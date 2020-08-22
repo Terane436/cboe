@@ -458,7 +458,7 @@ bool is_poisonable_weap(cItem& weap) {
 void cast_spell(eSkill type) {
 	eSpell spell;
 	
-	if((is_town()) && (univ.town.is_antimagic(univ.party.town_loc.x,univ.party.town_loc.y))) {
+	if((is_town()) && (univ.town.testField<FIELD_ANTIMAGIC>(univ.party.town_loc.x,univ.party.town_loc.y))) {
 		add_string_to_buf("  Not in antimagic field.");
 		return;
 	}
@@ -1216,7 +1216,7 @@ void cast_town_spell(location where) {
 		queue_special(eSpecCtx::TARGET, spec_target_type, spec_target_fail, where);
 		return;
 	}
-	if(spec_target_options / 10 == 1 && univ.town.is_antimagic(where.x,where.y)) {
+	if(spec_target_options / 10 == 1 && univ.town.testField<FIELD_ANTIMAGIC>(where.x,where.y)) {
 		add_string_to_buf("  Target in antimagic field.");
 		queue_special(eSpecCtx::TARGET, spec_target_type, spec_target_fail, where);
 		return;
@@ -1259,8 +1259,7 @@ void cast_town_spell(location where) {
 				add_string_to_buf("  Target space obstructed.");
 				break;
 			}
-			univ.town.set_fire_barr(where.x,where.y,true);
-			if(univ.town.is_fire_barr(where.x,where.y))
+			if(univ.town.setField<BARRIER_FIRE>(where.x,where.y))
 				add_string_to_buf("  You create the barrier.");
 			else add_string_to_buf("  Failed.");
 			break;
@@ -1269,14 +1268,12 @@ void cast_town_spell(location where) {
 				add_string_to_buf("  Target space obstructed.");
 				break;
 			}
-			univ.town.set_force_barr(where.x,where.y,true);
-			if(univ.town.is_force_barr(where.x,where.y))
+			if(univ.town.setField<BARRIER_FORCE>(where.x,where.y))
 				add_string_to_buf("  You create the barrier.");
 			else add_string_to_buf("  Failed.");
 			break;
 		case eSpell::QUICKFIRE:
-			univ.town.set_quickfire(where.x,where.y,true);
-			if(univ.town.is_quickfire(where.x,where.y))
+			if(univ.town.setField<FIELD_QUICKFIRE>(where.x,where.y))
 				add_string_to_buf("  You create quickfire.");
 			else add_string_to_buf("  Failed.");
 			break;
@@ -1287,7 +1284,7 @@ void cast_town_spell(location where) {
 				for(loc.y = 0; loc.y < univ.town->max_dim; loc.y++)
 					if(dist(where,loc) <= 2 && can_see(where,loc,sight_obscurity) < 5 &&
 					   ((abs(loc.x - where.x) < 2) || (abs(loc.y - where.y) < 2)))
-						univ.town.set_antimagic(loc.x,loc.y,true);
+						univ.town.setField<FIELD_ANTIMAGIC>(loc.x,loc.y);
 			break;
 			
 		case eSpell::RITUAL_SANCTIFY:
@@ -1317,14 +1314,14 @@ void cast_town_spell(location where) {
 			break;
 			
 		case eSpell::DISPEL_BARRIER:
-			if((univ.town.is_fire_barr(where.x,where.y)) || (univ.town.is_force_barr(where.x,where.y))) {
+			if(univ.town.testField<BARRIER_FORCE,BARRIER_FIRE>(where.x,where.y))
+			{
 				r1 = get_ran(1,1,100) - 5 * adj + 5 * (univ.town.difficulty / 10) + 25 * univ.town->strong_barriers;
-				if(univ.town.is_fire_barr(where.x,where.y))
+				if(univ.town.testField<BARRIER_FIRE>(where.x,where.y))
 					r1 -= 8;
 				if(r1 < (120 - combat_percent[min(19,level)])) {
 					add_string_to_buf("  Barrier broken.");
-					univ.town.set_fire_barr(where.x,where.y,false);
-					univ.town.set_force_barr(where.x,where.y,false);
+					univ.town.clearFields<BARRIER_FIRE,BARRIER_FORCE>(where.x,where.y);
 					
 					// Now, show party new things
 					update_explored(univ.party.town_loc);
@@ -1334,7 +1331,7 @@ void cast_town_spell(location where) {
 					play_sound(41);
 					add_string_to_buf("  Didn't work.");
 				}
-			} else if(univ.town.is_force_cage(where.x,where.y)) {
+			} else if(univ.town.testField<BARRIER_CAGE>(where.x,where.y)) {
 				add_string_to_buf("  Cage broken.");
 				break_force_cage(where);
 			}
@@ -1452,33 +1449,26 @@ void do_mindduel(short pc_num,cCreature *monst) {
 void dispel_fields(short i,short j,short mode) {
 	short r1;
 	
-	if(mode == 2) {
-		univ.town.set_fire_barr(i,j,false);
-		univ.town.set_force_barr(i,j,false);
-		univ.town.set_barrel(i,j,false);
-		univ.town.set_crate(i,j,false);
-		univ.town.set_web(i,j,false);
-	}
+	if(mode == 2)
+		univ.town.clearFields<BARRIER_FIRE,BARRIER_FORCE,OBJECT_BARREL,OBJECT_CRATE,FIELD_WEB>(i,j);
 	if(mode >= 1)
 		mode = -10;
-	univ.town.set_fire_wall(i,j,false);
-	univ.town.set_force_wall(i,j,false);
-	univ.town.set_scloud(i,j,false);
+	univ.town.clearFields<WALL_FORCE,WALL_FIRE,CLOUD_STINK>(i,j);
 	r1 = get_ran(1,1,6) + mode;
 	if(r1 <= 1)
-		univ.town.set_web(i,j,false);
+		univ.town.clearFields<FIELD_WEB>(i,j);
 	r1 = get_ran(1,1,6) + mode;
 	if(r1 < 6)
-		univ.town.set_ice_wall(i,j,false);
+		univ.town.clearFields<WALL_ICE>(i,j);
 	r1 = get_ran(1,1,6) + mode;
 	if(r1 < 5)
-		univ.town.set_sleep_cloud(i,j,false);
+		univ.town.clearFields<CLOUD_SLEEP>(i,j);
 	r1 = get_ran(1,1,8) + mode;
 	if(r1 <= 1)
-		univ.town.set_quickfire(i,j,false);
+		univ.town.clearFields<FIELD_QUICKFIRE>(i,j);
 	r1 = get_ran(1,1,7) + mode;
 	if(r1 < 5)
-		univ.town.set_blade_wall(i,j,false);
+		univ.town.clearFields<WALL_BLADES>(i,j);
 	r1 = get_ran(1,1,12) + mode;
 	if(r1 < 3)
 		break_force_cage(loc(i,j));
@@ -2478,28 +2468,27 @@ void kill_pc(cPlayer& which_pc,eMainStatus type) {
 			which_pc.equip[i] = false;
 		
 		item_loc = is_combat() ? which_pc.combat_pos : univ.party.town_loc;
-		
 		if(!is_out()) {
 			if(type == eMainStatus::DUST)
-				univ.town.set_ash(item_loc.x,item_loc.y,true);
-			else if(type == eMainStatus::ABSENT);
+				univ.town.setField<SFX_ASH>(item_loc.x,item_loc.y);
+			else if(type == eMainStatus::ABSENT) {}
 			else switch(which_pc.race) {
 				case eRace::DEMON:
-					univ.town.set_ash(item_loc.x,item_loc.y,true);
+					univ.town.setField<SFX_ASH>(item_loc.x,item_loc.y);
 					break;
 				case eRace::UNDEAD:
 					break;
 				case eRace::SKELETAL:
-					univ.town.set_bones(item_loc.x,item_loc.y,true);
+					univ.town.setField<SFX_BONES>(item_loc.x,item_loc.y);
 					break;
 				case eRace::SLIME: case eRace::PLANT: case eRace::BUG:
-					univ.town.set_lg_slime(item_loc.x,item_loc.y,true);
+					univ.town.setField<SFX_LARGE_SLIME>(item_loc.x,item_loc.y);
 					break;
 				case eRace::STONE:
-					univ.town.set_rubble(item_loc.x,item_loc.y,true);
+					univ.town.setField<SFX_RUBBLE>(item_loc.x,item_loc.y);
 					break;
 				default:
-					univ.town.set_lg_blood(item_loc.x,item_loc.y,true);
+					univ.town.setField<SFX_LARGE_BLOOD>(item_loc.x,item_loc.y);
 					break;
 			}
 		}

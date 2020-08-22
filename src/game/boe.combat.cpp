@@ -276,7 +276,7 @@ void start_outdoor_combat(cOutdoors::cCreature encounter,location where,short nu
 	// the combat to take place in
 	for(short i = 0; i < 48; i++)
 		for(short j = 0; j < 48; j++) {
-			univ.town.fields[i][j] = 0;
+			univ.town.zeroField(i,j);
 		}
 	univ.town.prep_arena();
 	univ.town->in_town_rect = town_rect;
@@ -387,19 +387,23 @@ bool pc_combat_move(location destination) {
 		add_string_to_buf("  (Try doing something else.)");
 		return false;
 	}
-	
-	if(monst_hit == nullptr)
+	short cpc = univ.cur_pc;
+	if(monst_hit == nullptr) //This part can kill the current pc
 		keep_going = check_special_terrain(destination,eSpecCtx::COMBAT_MOVE,univ.current_pc(),&check_f);
 	if(check_f)
 		forced = true;
 	
 	if(univ.debug_mode && univ.ghost_mode) forced = true;
-	
+
 	if(keep_going) {
 		
 		dir = set_direction(univ.current_pc().combat_pos, destination);
-		
-		if((loc_off_act_area(destination)) && (which_combat_type == 1)) {
+		if(univ.party[cpc].main_status != eMainStatus::ALIVE) //Special case for PC that died while moving
+		{
+		    if(combat_active_pc == cpc) combat_active_pc = 6;
+                    return true;
+		}
+		else if((loc_off_act_area(destination)) && (which_combat_type == 1)) {
 			add_string_to_buf("Move: Can't leave town during combat.");
 			print_buf();
 			return true;
@@ -984,7 +988,7 @@ void place_target(location target) {
 			add_string_to_buf("  Target space obstructed.");
 			return;
 		}
-		if(univ.town.is_antimagic(target.x,target.y) && !allow_antimagic) {
+		if(univ.town.testField<FIELD_ANTIMAGIC>(target.x,target.y) && !allow_antimagic) {
 			add_string_to_buf("  Target in antimagic field.");
 			return;
 		}
@@ -1113,7 +1117,7 @@ void do_combat_cast(location target) {
 				add_string_to_buf("  Target out of range.");
 			else if(sight_obscurity(target.x,target.y) == 5 && !allow_obstructed)
 				add_string_to_buf("  Target space obstructed.");
-			else if(univ.town.is_antimagic(target.x,target.y) && !allow_antimagic)
+			else if(univ.town.testField<FIELD_ANTIMAGIC>(target.x,target.y) && !allow_antimagic)
 				add_string_to_buf("  Target in antimagic field.");
 			else {
 				failed = false;
@@ -1154,7 +1158,7 @@ void do_combat_cast(location target) {
 						place_spell_pattern(current_pat,target,CLOUD_SLEEP,univ.cur_pc);
 						break;
 					case eSpell::QUICKFIRE:
-						univ.town.set_quickfire(target.x,target.y,true);
+						univ.town.setField<FIELD_QUICKFIRE>(target.x,target.y);
 						break;
 					case eSpell::SPRAY_FIELDS:
 						r1 = get_ran(1,0,14);
@@ -1170,8 +1174,7 @@ void do_combat_cast(location target) {
 						play_sound(68);
 						r1 = get_ran(3,2,7);
 						hit_space(target,r1,eDamageType::FIRE,true,true);
-						univ.town.set_fire_barr(target.x,target.y,true);
-						if(univ.town.is_fire_barr(target.x,target.y))
+						if(univ.town.setField<BARRIER_FIRE>(target.x,target.y))
 							add_string_to_buf("  You create the barrier.");
 						else add_string_to_buf("  Failed.");
 						break;
@@ -1179,8 +1182,7 @@ void do_combat_cast(location target) {
 						play_sound(68);
 						r1 = get_ran(7,2,7);
 						hit_space(target,r1,eDamageType::FIRE,true,true);
-						univ.town.set_force_barr(target.x,target.y,true);
-						if(univ.town.is_force_barr(target.x,target.y))
+						if(univ.town.setField<BARRIER_FORCE>(target.x,target.y))
 							add_string_to_buf("  You create the barrier.");
 						else add_string_to_buf("  Failed.");
 						break;
@@ -1594,7 +1596,7 @@ void do_combat_cast(location target) {
 			hit_space(boom_targ[i],boom_dam[i],boom_type[i],1,0);
 	
 	if(ashes_loc.x > 0)
-		univ.town.set_ash(ashes_loc.x,ashes_loc.y,true);
+		univ.town.setField<SFX_ASH>(ashes_loc.x,ashes_loc.y);
 	
 	do_explosion_anim(5,0);
 	
@@ -1926,8 +1928,8 @@ static bool sync_force_cages() {
 		location loc = who.get_loc();
 		if(who.status[eStatus::FORCECAGE] > 0) {
 			was_change = true;
-			univ.town.set_force_cage(loc.x, loc.y, true);
-		} else if(univ.town.is_force_cage(loc.x, loc.y) && who.status[eStatus::FORCECAGE] == 0) {
+			univ.town.setField<BARRIER_CAGE>(loc.x, loc.y);
+		} else if(univ.town.testField<BARRIER_CAGE>(loc.x, loc.y) && who.status[eStatus::FORCECAGE] == 0) {
 			was_change = true;
 			who.status[eStatus::FORCECAGE] = get_ran(2, 2, 7) * fc_multipliers[get_ran(1,1,10)];
 		}
@@ -1937,8 +1939,8 @@ static bool sync_force_cages() {
 		location loc = who.get_loc();
 		if(who.status[eStatus::FORCECAGE] > 0) {
 			was_change = true;
-			univ.town.set_force_cage(loc.x, loc.y, true);
-		} else if(univ.town.is_force_cage(loc.x, loc.y) && who.status[eStatus::FORCECAGE] == 0) {
+			univ.town.setField<BARRIER_CAGE>(loc.x, loc.y);
+		} else if(univ.town.testField<BARRIER_CAGE>(loc.x, loc.y) && who.status[eStatus::FORCECAGE] == 0) {
 			was_change = true;
 			who.status[eStatus::FORCECAGE] = get_ran(2, 2, 7) * fc_multipliers[get_ran(1,1,10)];
 		}
@@ -3426,7 +3428,7 @@ bool monst_cast_mage(cCreature *caster,short targ) {
 		eSpell::CLOUD_STINK, eSpell::CONFLAGRATION, eSpell::FIREBALL, eSpell::WEB, eSpell::FIRESTORM, eSpell::SHOCKSTORM,
 	};
 	
-	if(univ.town.is_antimagic(caster->cur_loc.x,caster->cur_loc.y)) {
+	if(univ.town.testField<FIELD_ANTIMAGIC>(caster->cur_loc.x,caster->cur_loc.y)) {
 		return false;
 	}
 	// is target dead?
@@ -3476,15 +3478,15 @@ bool monst_cast_mage(cCreature *caster,short targ) {
 	location vict_loc = victim.get_loc();
 	
 	// check antimagic
-	if(targ == 6 && univ.town.is_antimagic(target.x,target.y))
+	if(targ == 6 && univ.town.testField<FIELD_ANTIMAGIC>(target.x,target.y))
 		return false;
 	if(is_combat())
-		if(targ < 6 && univ.town.is_antimagic(univ.party[targ].combat_pos.x,univ.party[targ].combat_pos.y))
+		if(targ < 6 && univ.town.testField<FIELD_ANTIMAGIC>(univ.party[targ].combat_pos.x,univ.party[targ].combat_pos.y))
 			return false;
 	if(is_town())
-		if(targ < 6 && univ.town.is_antimagic(univ.party.town_loc.x,univ.party.town_loc.y))
+		if(targ < 6 && univ.town.testField<FIELD_ANTIMAGIC>(univ.party.town_loc.x,univ.party.town_loc.y))
 			return false;
-	if(targ >= 100 && univ.town.is_antimagic(univ.town.monst[targ - 100].cur_loc.x, univ.town.monst[targ - 100].cur_loc.y))
+	if(targ >= 100 && univ.town.testField<FIELD_ANTIMAGIC>(univ.town.monst[targ - 100].cur_loc.x, univ.town.monst[targ - 100].cur_loc.y))
 		return false;
 	
 	// How about shockwave? Good idea?
@@ -3692,7 +3694,7 @@ bool monst_cast_mage(cCreature *caster,short targ) {
 	else caster->mp++;
 	
 	if(ashes_loc.x > 0)
-		univ.town.set_ash(ashes_loc.x,ashes_loc.y,true);
+		univ.town.setField<SFX_ASH>(ashes_loc.x,ashes_loc.y);
 	do_explosion_anim(5,0);
 	end_missile_anim();
 	handle_marked_damage();
@@ -3753,7 +3755,7 @@ bool monst_cast_priest(cCreature *caster,short targ) {
 		return false;
 	if((targ >= 100) && (univ.town.monst[targ - 100].active == 0))
 		return false;
-	if(univ.town.is_antimagic(caster->cur_loc.x,caster->cur_loc.y)) {
+	if(univ.town.testField<FIELD_ANTIMAGIC>(caster->cur_loc.x,caster->cur_loc.y)) {
 		return false;
 	}
 	level = minmax(1,7,caster->cl - caster->status[eStatus::DUMB]) - 1;
@@ -3793,11 +3795,11 @@ bool monst_cast_priest(cCreature *caster,short targ) {
 	if(targ >= 100)
 		vict_loc = univ.town.monst[targ - 100].cur_loc;
 	
-	if(targ == 6 && univ.town.is_antimagic(target.x,target.y))
+	if(targ == 6 && univ.town.testField<FIELD_ANTIMAGIC>(target.x,target.y))
 		return false;
-	if(targ < 6 && univ.town.is_antimagic(univ.party[targ].combat_pos.x,univ.party[targ].combat_pos.y))
+	if(targ < 6 && univ.town.testField<FIELD_ANTIMAGIC>(univ.party[targ].combat_pos.x,univ.party[targ].combat_pos.y))
 		return false;
-	if(targ >= 100 && univ.town.is_antimagic(univ.town.monst[targ - 100].cur_loc.x,univ.town.monst[targ - 100].cur_loc.y))
+	if(targ >= 100 && univ.town.testField<FIELD_ANTIMAGIC>(univ.town.monst[targ - 100].cur_loc.x,univ.town.monst[targ - 100].cur_loc.y))
 		return false;
 	
 	
@@ -4001,7 +4003,7 @@ bool monst_cast_priest(cCreature *caster,short targ) {
 	}
 	else caster->mp++;
 	if(ashes_loc.x > 0)
-		univ.town.set_ash(ashes_loc.x,ashes_loc.y,true);
+		univ.town.setField<SFX_ASH>(ashes_loc.x,ashes_loc.y);
 	do_explosion_anim(5,0);
 	end_missile_anim();
 	handle_marked_damage();
@@ -4143,31 +4145,31 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 						web_space(i,j);
 						break;
 					case BARRIER_FIRE:
-						univ.town.set_fire_barr(i,j,true);
+						univ.town.setField<BARRIER_FIRE>(i,j);
 						break;
 					case BARRIER_FORCE:
-						univ.town.set_force_barr(i,j,true);
+						univ.town.setField<BARRIER_FORCE>(i,j);
 						break;
 					case WALL_FORCE:
-						univ.town.set_force_wall(i, j, true);
+						univ.town.setField<WALL_FORCE>(i, j);
 						break;
 					case WALL_FIRE:
-						univ.town.set_fire_wall(i,j,true);
+						univ.town.setField<WALL_FIRE>(i,j);
 						break;
 					case FIELD_ANTIMAGIC:
-						univ.town.set_antimagic(i,j,true);
+						univ.town.setField<FIELD_ANTIMAGIC>(i,j);
 						break;
 					case CLOUD_STINK:
 						scloud_space(i,j);
 						break;
 					case WALL_ICE:
-						univ.town.set_ice_wall(i,j,true);
+						univ.town.setField<WALL_ICE>(i,j);
 						break;
 					case WALL_BLADES:
-						univ.town.set_blade_wall(i,j,true);
+						univ.town.setField<WALL_BLADES>(i,j);
 						break;
 					case FIELD_QUICKFIRE:
-						univ.town.set_quickfire(i,j,true);
+						univ.town.setField<FIELD_QUICKFIRE>(i,j);
 						break;
 					case FIELD_DISPEL:
 						dispel_fields(i,j,0);
@@ -4179,40 +4181,40 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 						crumble_wall(loc(i,j));
 						break;
 					case OBJECT_CRATE:
-						univ.town.set_crate(i,j,true);
+						univ.town.setField<OBJECT_CRATE>(i,j);
 						break;
 					case OBJECT_BARREL:
-						univ.town.set_barrel(i,j,true);
+						univ.town.setField<OBJECT_BARREL>(i,j);
 						break;
 					case OBJECT_BLOCK:
-						univ.town.set_block(i,j,true);
+						univ.town.setField<OBJECT_BLOCK>(i,j);
 						break;
 					case BARRIER_CAGE:
-						univ.town.set_force_cage(i, j, true);
+						univ.town.setField<BARRIER_CAGE>(i, j);
 						break;
 					case SFX_SMALL_BLOOD:
-						univ.town.set_sm_blood(i,j,true);
+						univ.town.setField<SFX_SMALL_BLOOD>(i,j);
 						break;
 					case SFX_MEDIUM_BLOOD:
-						univ.town.set_med_blood(i,j,true);
+						univ.town.setField<SFX_MEDIUM_BLOOD>(i,j);
 						break;
 					case SFX_LARGE_BLOOD:
-						univ.town.set_lg_blood(i,j,true);
+						univ.town.setField<SFX_LARGE_BLOOD>(i,j);
 						break;
 					case SFX_SMALL_SLIME:
-						univ.town.set_sm_slime(i,j,true);
+						univ.town.setField<SFX_SMALL_SLIME>(i,j);
 						break;
 					case SFX_LARGE_SLIME:
-						univ.town.set_lg_slime(i,j,true);
+						univ.town.setField<SFX_LARGE_SLIME>(i,j);
 						break;
 					case SFX_ASH:
-						univ.town.set_ash(i,j,true);
+						univ.town.setField<SFX_ASH>(i,j);
 						break;
 					case SFX_BONES:
-						univ.town.set_bones(i,j,true);
+						univ.town.setField<SFX_BONES>(i,j);
 						break;
 					case SFX_RUBBLE:
-						univ.town.set_rubble(i,j,true);
+						univ.town.setField<SFX_RUBBLE>(i,j);
 						break;
 				}
 			}
@@ -4491,7 +4493,7 @@ void hit_space(location target,short dam,eDamageType type,short report,short hit
 		hit_all -= 10;
 	}
 	
-	if(univ.town.is_antimagic(target.x,target.y) && (type == eDamageType::FIRE || type == eDamageType::MAGIC || type == eDamageType::COLD)) {
+	if(univ.town.testField<FIELD_ANTIMAGIC>(target.x,target.y) && (type == eDamageType::FIRE || type == eDamageType::MAGIC || type == eDamageType::COLD)) {
 		return;
 	}
 	
@@ -4684,7 +4686,7 @@ bool combat_cast_mage_spell() {
 		return false;
 	}
 	
-	if(univ.town.is_antimagic(univ.current_pc().combat_pos.x,univ.current_pc().combat_pos.y)) {
+	if(univ.town.testField<FIELD_ANTIMAGIC>(univ.current_pc().combat_pos.x,univ.current_pc().combat_pos.y)) {
 		add_string_to_buf("  Not in antimagic field.");
 		return false;
 	}
@@ -4910,7 +4912,7 @@ bool combat_cast_priest_spell() {
 	short store_sp;
 	eSpell spell_num;
 	
-	if(univ.town.is_antimagic(univ.current_pc().combat_pos.x,univ.current_pc().combat_pos.y)) {
+	if(univ.town.testField<FIELD_ANTIMAGIC>(univ.current_pc().combat_pos.x,univ.current_pc().combat_pos.y)) {
 		add_string_to_buf("  Not in antimagic field.");
 		return false;
 	}
@@ -5244,11 +5246,11 @@ void break_force_cage(location loc) {
 		if(univ.town.monst[j].get_loc() == loc)
 			univ.town.monst[j].status[eStatus::FORCECAGE] = 0;
 	}
-	univ.town.set_force_cage(loc.x, loc.y, false);
+	univ.town.clearFields<BARRIER_CAGE>(loc.x, loc.y);
 }
 
 void process_force_cage(location loc, short i, short adjust) {
-	if(!univ.town.is_force_cage(loc.x,loc.y)) return;
+	if(!univ.town.testField<BARRIER_CAGE>(loc.x,loc.y)) return;
 	if(i >= 100) {
 		short m = i - 100;
 		cCreature& which_m = univ.town.monst[m];
@@ -5300,11 +5302,11 @@ void process_fields() {
 		r = univ.town->in_town_rect;
 		for(short i = 0; i < univ.town->max_dim; i++)
 			for(short j = 0; j < univ.town->max_dim; j++)
-				qf[i][j] = (univ.town.is_quickfire(i,j)) ? 2 : 0;
+				qf[i][j] = (univ.town.testField<FIELD_QUICKFIRE>(i,j)) ? 2 : 0;
 		for(short k = 0; k < ((is_combat()) ? 4 : 1); k++) {
 			for(short i = r.left + 1; i < r.right ; i++)
 				for(short j = r.top + 1; j < r.bottom ; j++)
-					if(univ.town.is_quickfire(i,j)) {
+					if(univ.town.testField<FIELD_QUICKFIRE>(i,j)) {
 						r1 = get_ran(1,1,8);
 						if(r1 != 1) {
 							qf[i - 1][j] = 1;
@@ -5323,7 +5325,7 @@ void process_fields() {
 							univ.town->terrain(i,j) = univ.scenario.ter_types[ter].flag1;
 							add_string_to_buf("  Quickfire burns through barrier.");
 						}
-						univ.town.set_quickfire(i,j,true);
+						univ.town.setField<FIELD_QUICKFIRE>(i,j);
 					}
 		}
 	}
@@ -5338,65 +5340,65 @@ void process_fields() {
 	processing_fields = true; // this, in hit_space, makes damage considered to come from whole party
 	for(short i = 0; i < univ.town->max_dim; i++)
 		for(short j = 0; j < univ.town->max_dim; j++) {
-			if(univ.town.is_force_wall(i,j)) {
+			if(univ.town.testField<WALL_FORCE>(i,j)) { //Deals 3d6 damage
 				r1 = get_ran(3,1,6);
 				loc.x = i; loc.y = j;
 				hit_pcs_in_space(loc,r1,eDamageType::MAGIC,1,1);
-				r1 = get_ran(1,1,6);
+				r1 = get_ran(1,1,6); //1/6th change fade
 				if(r1 == 2)
-					univ.town.set_force_wall(i,j,false);
+					univ.town.clearFields<WALL_FORCE>(i,j);
 			}
-			if(univ.town.is_fire_wall(i,j)) {
+			if(univ.town.testField<WALL_FIRE>(i,j)) { //deals 2d6+1 damage
 				loc.x = i; loc.y = j;
 				r1 = get_ran(2,1,6) + 1;
 				hit_pcs_in_space(loc,r1,eDamageType::FIRE,1,1);
-				r1 = get_ran(1,1,4);
+				r1 = get_ran(1,1,4); //1/4th chance fade
 				if(r1 == 2)
-					univ.town.set_fire_wall(i,j,false);
+					univ.town.clearFields<WALL_FIRE>(i,j);
 			}
-			if(univ.town.is_antimagic(i,j)) {
-				r1 = get_ran(1,1,8);
+			if(univ.town.testField<FIELD_ANTIMAGIC>(i,j)) {
+				r1 = get_ran(1,1,8); //1/8th chance fade
 				if(r1 == 2)
-					univ.town.set_antimagic(i,j,false);
+					univ.town.clearFields<FIELD_ANTIMAGIC>(i,j);
 			}
-			if(univ.town.is_scloud(i,j)) {
-				r1 = get_ran(1,1,4);
+			if(univ.town.testField<CLOUD_STINK>(i,j)) {
+				r1 = get_ran(1,1,4); //1/4th chance fade
 				if(r1 == 2)
-					univ.town.set_scloud(i,j,false);
+					univ.town.clearFields<CLOUD_STINK>(i,j);
 				else {
 					scloud_space(i,j);
 				}
 			}
-			if(univ.town.is_sleep_cloud(i,j)) {
-				r1 = get_ran(1,1,4);
+			if(univ.town.testField<CLOUD_SLEEP>(i,j)) {
+				r1 = get_ran(1,1,4); //1/4th chance fade
 				if(r1 == 2)
-					univ.town.set_sleep_cloud(i,j,false);
+					univ.town.clearFields<CLOUD_SLEEP>(i,j);
 				else {
 					sleep_cloud_space(i,j);
 				}
 			}
-			if(univ.town.is_ice_wall(i,j)) {
+			if(univ.town.testField<WALL_ICE>(i,j)) { //Deals 3d6 damage
 				loc.x = i; loc.y = j;
 				r1 = get_ran(3,1,6);
 				hit_pcs_in_space(loc,r1,eDamageType::COLD,1,1);
-				r1 = get_ran(1,1,6);
+				r1 = get_ran(1,1,6); //1/6th chance fade
 				if(r1 == 1)
-					univ.town.set_ice_wall(i,j,false);
+					univ.town.clearFields<WALL_ICE>(i,j);
 			}
-			if(univ.town.is_blade_wall(i,j)) {
+			if(univ.town.testField<WALL_BLADES>(i,j)) {
 				loc.x = i; loc.y = j;
-				r1 = get_ran(6,1,8);
+				r1 = get_ran(6,1,8); //Deals 6d8 damage
 				hit_pcs_in_space(loc,r1,eDamageType::WEAPON,1,1);
 				r1 = get_ran(1,1,5);
 				if(r1 == 1)
-					univ.town.set_blade_wall(i,j,false);
+					univ.town.clearFields<WALL_BLADES>(i,j);
 			}
-			if(univ.town.is_force_cage(i,j)) {
+			if(univ.town.testField<BARRIER_CAGE>(i,j)) {
 				loc.x = i; loc.y = j;
 				short who = univ.get_target_i(*univ.target_there(loc));
 				process_force_cage(loc, who);
 				// If we got a PC, check the others too, in case they're on the same space
-				while(++who > 0 && who < 6 && univ.town.is_force_cage(i,j)) {
+				while(++who > 0 && who < 6 && univ.town.testField<BARRIER_CAGE>(i,j)) {
 					loc = univ.party[who].get_loc();
 					process_force_cage(loc, who);
 				}
@@ -5409,7 +5411,7 @@ void process_fields() {
 	if(univ.town.quickfire_present) {
 		for(short i = 0; i < univ.town->max_dim; i++)
 			for(short j = 0; j < univ.town->max_dim; j++)
-				if(univ.town.is_quickfire(i,j)) {
+				if(univ.town.testField<FIELD_QUICKFIRE>(i,j)) {
 					loc.x = i; loc.y = j;
 					r1 = get_ran(2,1,8);
 					hit_pcs_in_space(loc,r1,eDamageType::FIRE,1,1);
@@ -5426,7 +5428,7 @@ void scloud_space(short m,short n) {
 	target.x = (char) m;
 	target.y = (char) n;
 	
-	univ.town.set_scloud(m,n,true);
+	univ.town.setField<CLOUD_STINK>(m,n);
 	
 	if(is_combat()) {
 		for(cPlayer& pc : univ.party)
@@ -5444,7 +5446,7 @@ void scloud_space(short m,short n) {
 void web_space(short m,short n) {
 	location target(m, n);
 	
-	univ.town.set_web(m,n,true);
+	univ.town.setField<FIELD_WEB>(m,n);
 	
 	if(is_combat()) {
 		for(cPlayer& pc : univ.party)
@@ -5460,7 +5462,7 @@ void web_space(short m,short n) {
 void sleep_cloud_space(short m,short n) {
 	location target(m, n);
 	
-	univ.town.set_sleep_cloud(m,n,true);
+	univ.town.setField<CLOUD_SLEEP>(m,n);
 	
 	if(is_combat()) {
 		for(cPlayer& pc : univ.party)
