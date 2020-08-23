@@ -74,7 +74,6 @@ void start_town_mode(short which_town, short entry_dir) {
 	short at_which_save_slot,former_town;
 	bool monsters_loaded = false,town_toast = false;
 	location loc;
-	unsigned short temp;
 	bool play_town_sound = false;
 	
 	if(town_force < 200)
@@ -234,8 +233,8 @@ void start_town_mode(short which_town, short entry_dir) {
 					// except that pushable things restore to orig locs
 					// TODO: THIS IS A TEMPORARY HACK TO GET i VALUE
 					int i = std::find_if(univ.party.creature_save.begin(), univ.party.creature_save.end(), [&pop](cPopulation& p) {return &p == &pop;}) - univ.party.creature_save.begin();
-					temp = univ.party.setup[i][j][k] << 8;
-					temp &= ~(OBJECT_CRATE | OBJECT_BARREL | OBJECT_BLOCK);
+					FieldBitmap temp = univ.party.setup[i][j][k] << 8;
+					temp &= ~(util::BuildMask<OBJECT_CRATE,OBJECT_BARREL,OBJECT_BLOCK>::mask);
 					univ.town.directSetFields(j,k,temp);
 				}
 		}

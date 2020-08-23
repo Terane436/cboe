@@ -48,56 +48,9 @@ enum eFieldType {
 	// Mustn't have anything >= 50
 };
 
-// Field types are used to index bit fields.
-// In this case, their values should be taken as a bit index that is set.
-inline unsigned long operator&(unsigned long a, eFieldType b) {
-	return a & (1 << b);
-}
-inline unsigned long operator&(eFieldType a, unsigned long b) {
-	return (1 << a) & b;
-}
-inline unsigned long operator&(eFieldType a, eFieldType b) {
-	return (1 << a) & (1 << b);
-}
-inline unsigned long& operator &=(unsigned long& a, eFieldType b) {
-	a = a & b;
-	return a;
-}
-inline unsigned long operator|(unsigned long a, eFieldType b) {
-	return a | (1 << b);
-}
-inline unsigned long operator|(eFieldType a, unsigned long b) {
-	return (1 << a) | b;
-}
-inline unsigned long operator|(eFieldType a, eFieldType b) {
-	return (1 << a) | (1 << b);
-}
-inline unsigned long& operator |=(unsigned long& a, eFieldType b) {
-	a = a | b;
-	return a;
-}
-inline unsigned long operator^(unsigned long a, eFieldType b) {
-	return a ^ (1 << b);
-}
-inline unsigned long operator^(eFieldType a, unsigned long b) {
-	return (1 << a) ^ b;
-}
-inline unsigned long operator^(eFieldType a, eFieldType b) {
-	return (1 << a) ^ (1 << b);
-}
-inline unsigned long& operator ^=(unsigned long& a, eFieldType b) {
-	a = a ^ b;
-	return a;
-}
-inline unsigned long operator>>(eFieldType a, unsigned long b) {
-	return (1 << a) >> b;
-}
-inline unsigned long operator<<(eFieldType a, unsigned long b) {
-	return (1 << a) << b;
-}
-inline unsigned long operator~(eFieldType f) {
-	return ~(1 << f);
-}
+// Field types are used to index bit fields - use util::BuildMask at all times with them
+
+typedef unsigned long FieldBitmap;
 
 std::ostream& operator << (std::ostream& out, eFieldType e);
 std::istream& operator >> (std::istream& in, eFieldType& e);

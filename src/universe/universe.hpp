@@ -40,9 +40,9 @@ class cCurTown {
 	cTown* arena;
 	cTown*const record() const;
 public:
-        unsigned long savedFields(short x, short y) {return (fields[x][y]>>8) & 0x0FF;}
+        FieldBitmap savedFields(short x, short y) {return (fields[x][y]>>8) & 0x0FF;}
 	void zeroField(short x, short y) {fields[x][y] = 0;}
-        void directSetFields(short x, short y, unsigned long mask) {fields[x][y] |= mask;}
+        void directSetFields(short x, short y, FieldBitmap mask) {fields[x][y] |= mask;}
         template<typename Fields> bool testFields(short x, short y) const
         {
             if(x > record()->max_dim || y > record()->max_dim) return false;
@@ -108,7 +108,7 @@ public:
 	
 	std::vector<cItem> items; // formerly town_item_list type
 private:
-	unsigned long fields[64][64];
+	FieldBitmap fields[64][64];
 public:
 	void import_legacy(legacy::current_town_type& old);
 	void import_legacy(legacy::town_item_list& old);
@@ -123,60 +123,6 @@ public:
 	bool prep_talk(short which); // Prepare for loading specified speech, returning true if already loaded
 	void prep_arena(); // Set up for a combat arena
 	void place_preset_fields();
-private:
-	bool is_explored(short x, short y) const {return testField<SPECIAL_EXPLORED>(x,y);}
-	bool is_force_wall(short x, short y) const {return testField<WALL_FORCE>(x,y);}
-	bool is_fire_wall(short x, short y) const {return testField<WALL_FIRE>(x,y);}
-	bool is_antimagic(short x, short y) const {return testField<FIELD_ANTIMAGIC>(x,y);}
-	bool is_scloud(short x, short y) const {return testField<CLOUD_STINK>(x,y);}
-	bool is_ice_wall(short x, short y) const {return testField<WALL_ICE>(x,y);}
-	bool is_blade_wall(short x, short y) const {return testField<WALL_BLADES>(x,y);}
-	bool is_sleep_cloud(short x, short y) const {return testField<CLOUD_SLEEP>(x,y);}
-	bool is_block(short x, short y) const {return testField<OBJECT_BLOCK>(x,y);} // currently unused
-	bool is_spot(short x, short y) const {return testFieldUnchecked<SPECIAL_SPOT>(x,y);}
-	bool is_web(short x, short y) const {return testField<FIELD_WEB>(x,y);}
-	bool is_crate(short x, short y) const {return testField<OBJECT_CRATE>(x,y);}
-	bool is_barrel(short x, short y) const {return testField<OBJECT_BARREL>(x,y);}
-	bool is_fire_barr(short x, short y) const {return testField<BARRIER_FIRE>(x,y);}
-	bool is_force_barr(short x, short y) const {return testField<BARRIER_FORCE>(x,y);}
-	bool is_quickfire(short x, short y) const {return testField<FIELD_QUICKFIRE>(x,y);}
-	bool is_sm_blood(short x, short y) const {return testField<SFX_SMALL_BLOOD>(x,y);}
-	bool is_med_blood(short x, short y) const {return testField<SFX_MEDIUM_BLOOD>(x,y);}
-	bool is_lg_blood(short x, short y) const {return testField<SFX_LARGE_BLOOD>(x,y);}
-	bool is_sm_slime(short x, short y) const {return testField<SFX_SMALL_SLIME>(x,y);}
-	bool is_lg_slime(short x, short y) const {return testField<SFX_LARGE_SLIME>(x,y);}
-	bool is_ash(short x, short y) const {return testField<SFX_ASH>(x,y);}
-	bool is_bones(short x, short y) const {return testField<SFX_BONES>(x,y);}
-	bool is_rubble(short x, short y) const {return testField<SFX_RUBBLE>(x,y);}
-	bool is_force_cage(short x, short y) const {return testField<BARRIER_CAGE>(x,y);}
-	bool is_road(short x, short y) const {return testFieldUnchecked<SPECIAL_ROAD>(x,y);}
-	bool set_explored(short x, short y, bool b);
-	bool set_force_wall(short x, short y, bool b);
-	bool set_fire_wall(short x, short y, bool b);
-	bool set_antimagic(short x, short y, bool b);
-	bool set_scloud(short x, short y, bool b); // stinking cloud
-	bool set_ice_wall(short x, short y, bool b);
-	bool set_blade_wall(short x, short y, bool b);
-	bool set_sleep_cloud(short x, short y, bool b);
-	bool set_block(short x, short y, bool b); // currently unused
-	bool set_spot(short x, short y, bool b);
-	bool set_web(short x, short y, bool b);
-	bool set_crate(short x, short y, bool b);
-	bool set_barrel(short x, short y, bool b);
-	bool set_fire_barr(short x, short y, bool b);
-	bool set_force_barr(short x, short y, bool b);
-	bool set_quickfire(short x, short y, bool b);
-	bool set_sm_blood(short x, short y, bool b);
-	bool set_med_blood(short x, short y, bool b);
-	bool set_lg_blood(short x, short y, bool b);
-	bool set_sm_slime(short x, short y, bool b);
-	bool set_lg_slime(short x, short y, bool b);
-	bool set_ash(short x, short y, bool b);
-	bool set_bones(short x, short y, bool b);
-	bool set_rubble(short x, short y, bool b);
-	bool set_force_cage(short x, short y, bool b);
-	bool set_road(short x, short y, bool b);
-public:
 	bool is_special(short x, short y) const;
 	bool is_impassable(short x, short y);
 	void writeTo(std::ostream& file) const;

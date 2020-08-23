@@ -1,6 +1,8 @@
 #ifndef TEMPLATE_UTIL_HPP
 #define TEMPLATE_UTIL_HPP
 
+#include <stdint.h>
+
 namespace util
 {
 
@@ -23,11 +25,11 @@ public:
 };
 
 template<unsigned long... Args> struct BuildMask
-{static constexpr unsigned long mask = 0;};
+{static constexpr uint64_t mask = 0;};
 template<unsigned long Arg> struct BuildMask<Arg>
-{static constexpr unsigned long mask = 1 << Arg;};
+{static constexpr uint64_t mask = 1ULL << Arg;};
 template<unsigned long Arg, unsigned long... Args> struct BuildMask<Arg,Args...>
-{static constexpr unsigned long mask = (1 << Arg) | BuildMask<Args...>::mask;};
+{static constexpr uint64_t mask = (1ULL << Arg) | BuildMask<Args...>::mask;};
 
 }
 

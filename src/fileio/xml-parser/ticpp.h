@@ -995,7 +995,9 @@ namespace ticpp
 		@endcode
 		@return Pointer the duplicate node.
 		*/
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 		std::auto_ptr< Node > Clone() const;
+#pragma GCC diagnostic pop
 
 		/**
 		Accept a hierchical visit the nodes in the TinyXML DOM.
