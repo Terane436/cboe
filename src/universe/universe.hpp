@@ -23,6 +23,7 @@
 #include "pictypes.hpp"
 #include "fields.hpp"
 #include "utility/templateutil.hpp"
+#include "mathutil.hpp"
 
 namespace legacy {
 	struct out_info_type;
@@ -99,6 +100,13 @@ public:
                 clearFields<Field>(x,y);
 		return true;
 	    }
+	}
+	template<eFieldType Field> void fadeField(short x, short y)
+	{
+            if(FieldControls<Field>::FadeChance == 0) return;
+	    if(!testField<Field>(x,y)) return;
+            if(get_ran(1,1,FieldControls<Field>::FadeChance) == 1)
+                clearFields<Field>(x,y);
 	}
 
 	bool quickfire_present = false, belt_present = false;

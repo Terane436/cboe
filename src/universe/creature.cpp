@@ -165,7 +165,8 @@ void cCreature::curse(int how_much) {
 	
 }
 
-void cCreature::web(int how_much) {
+void cCreature::web(int how_much) { //CHANGE - making bugs immune to all forms of webbing
+	if(m_type == eRace::BUG) return;
 	how_much = magic_adjust(how_much);
 	apply_status<eStatus::WEBS>(how_much);
 	if(how_much >= 0)

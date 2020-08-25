@@ -784,7 +784,7 @@ bool monster_placid(short m_num) {
 }
 
 // This damages a monster by any fields it's in, and destroys any barrels or crates
-// it's stiing on.
+// it's sitting on.
 void monst_inflict_fields(short which_monst) {
 	short r1;
 	location where_check;
@@ -795,60 +795,14 @@ void monst_inflict_fields(short which_monst) {
 	
 	which_m = &univ.town.monst[which_monst];
 	bool have_radiate = which_m->abil[eMonstAbil::RADIATE].active;
-	eFieldType which_radiate = which_m->abil[eMonstAbil::RADIATE].radiate.type;
+	eFieldType which_radiate = have_radiate ? which_m->abil[eMonstAbil::RADIATE].radiate.type : SPECIAL_EXPLORED;
 	for(short i = 0; i < univ.town.monst[which_monst].x_width; i++)
 		for(short j = 0; j < univ.town.monst[which_monst].y_width; j++)
 			if(univ.town.monst[which_monst].active > 0) {
 				where_check.x = univ.town.monst[which_monst].cur_loc.x + i;
 				where_check.y = univ.town.monst[which_monst].cur_loc.y + j;
 				// TODO: If the goal is to damage the monster by any fields it's on, why all the break statements?
-				if(univ.town.testField<FIELD_QUICKFIRE>(where_check.x,where_check.y)) {
-					r1 = get_ran(2,1,8);
-					damage_monst(*which_m,7,r1,eDamageType::FIRE,0);
-					break;
-				}
-				if(univ.town.testField<WALL_BLADES>(where_check.x,where_check.y)) {
-					r1 = get_ran(6,1,8);
-					if(have_radiate && which_radiate != eFieldType::WALL_BLADES)
-						damage_monst(*which_m,7,r1,eDamageType::WEAPON,0);
-					break;
-				}
-				if(univ.town.testField<WALL_FORCE>(where_check.x,where_check.y)) {
-					r1 = get_ran(3,1,6);
-					if(have_radiate && which_radiate != eFieldType::WALL_FORCE)
-						damage_monst(*which_m,7,r1,eDamageType::MAGIC,0);
-					break;
-				}
-				if(univ.town.testField<CLOUD_SLEEP>(where_check.x,where_check.y)) {
-					if(have_radiate && which_radiate != eFieldType::CLOUD_SLEEP)
-						which_m->sleep(eStatus::ASLEEP,3,0);
-					break;
-				}
-				if(univ.town.testField<WALL_ICE>(where_check.x,where_check.y)) {
-					r1 = get_ran(3,1,6);
-					if(have_radiate && which_radiate != eFieldType::WALL_ICE)
-						damage_monst(*which_m,7,r1,eDamageType::COLD,0);
-					break;
-				}
-				if(univ.town.testField<CLOUD_STINK>(where_check.x,where_check.y)) {
-					r1 = get_ran(1,2,3);
-					if(have_radiate && which_radiate != eFieldType::CLOUD_STINK)
-						which_m->curse(r1);
-					break;
-				}
-				if(univ.town.testField<FIELD_WEB>(where_check.x,where_check.y) && which_m->m_type != eRace::BUG) {
-					which_m->spell_note(19);
-					r1 = get_ran(1,2,3);
-					which_m->web(r1);
-					univ.town.clearFields<FIELD_WEB>(where_check.x,where_check.y);
-					break;
-				}
-				if(univ.town.testField<WALL_FIRE>(where_check.x,where_check.y)) {
-					r1 = get_ran(2,1,6);
-					if(have_radiate && which_radiate != eFieldType::WALL_FIRE)
-						damage_monst(*which_m,7,r1,eDamageType::FIRE,0);
-					break;
-				}
+				FieldApplier::template inflict<cCreature>(*which_m,where_check.x,where_check.y,univ.town,which_radiate);
 				if(univ.town.testField<BARRIER_CAGE>(where_check.x,where_check.y))
 					process_force_cage(where_check, univ.get_target_i(*which_m));
 			}

@@ -25,6 +25,7 @@
 #include "spell.hpp"
 #include "prefs.hpp"
 #include "utility.hpp"
+#include <type_traits>
 
 extern eGameMode overall_mode;
 extern short which_combat_type;
@@ -4098,16 +4099,53 @@ bool monst_near(short m_num,location where,short radius,short active) {
 	else return false;
 }
 
-void fireball_space(location loc,short dam) {
-	place_spell_pattern(square,loc,eDamageType::FIRE,dam,7);
+template<typename Target, bool Init = std::is_same<Target,cPlayer>::value> void executeEffects(int effect, Target& target, short source)
+{ //TODO: Migrate switch statements to here
+    if(effect == 0) return;
+    switch(effect)
+    { 
+    case WALL_FORCE:
+        FieldControls<WALL_FORCE>::template applyFieldEffect<Target,Init>(target);
+        break;
+    case WALL_FIRE:
+        FieldControls<WALL_FIRE>::template applyFieldEffect<Target,Init>(target);
+        break;
+    case WALL_ICE:
+        FieldControls<WALL_ICE>::template applyFieldEffect<Target,Init>(target);
+        break;
+    case WALL_BLADES:
+        FieldControls<WALL_BLADES>::template applyFieldEffect<Target,Init>(target);
+        break;
+    case OBJECT_BLOCK:
+        FieldControls<OBJECT_BLOCK>::template applyFieldEffect<Target,Init>(target);
+        break;
+    case FIELD_WEB:
+        FieldControls<FIELD_WEB>::template applyFieldEffect<Target,Init>(target);
+        break;
+    case CLOUD_STINK:
+        FieldControls<CLOUD_STINK>::template applyFieldEffect<Target,Init>(target);
+        break;
+    case CLOUD_SLEEP:
+        FieldControls<CLOUD_SLEEP>::template applyFieldEffect<Target,Init>(target);
+        break;
+    case BARRIER_CAGE:
+        if(std::is_same<Target,cCreature>::value) //Special case, only monsters get force-caged here for some reason.  TODO: Consider consistency
+            target.status[eStatus::FORCECAGE] = max(8, target.status[eStatus::FORCECAGE]);
+        break;
+    default:
+        eDamageType type = (eDamageType)((effect >> 8)-1);
+        unsigned short dice = effect & 0x0FF;
+        if(type == eDamageType::MARKED) break;
+        FieldDamager<Target>::damage(target,get_ran(dice,1,6),type,source);//For some reason this is triggering a weird swirly effect on everyone
+        break;
+    }
 }
 
 //type;  // 0 - take codes in pattern, OW make all nonzero this type
-// Types  0 - Null  1 - web  2 - fire barrier  3 - force barrier  4 - force wall  5 - fire wall
-//   6 - anti-magic field  7 - stink cloud  8 - ice wall  9 - blade wall  10 - quickfire
-//   11 - dispel  12 - sleep field
-//  50 + i - 80 :  id6 fire damage  90 + i - 120 : id6 cold damage 	130 + i - 160 : id6 magic dam.
-// if prep for anim is true, supporess look checks and go fast
+// Types  - uses FIELD values for <256
+// If > 256, upper byte is damage type (eDamageType+1), lower byte is number of dice
+//Allows noticeably larger damage figures
+// if prep for anim is true, suppress look checks and go fast
 static void place_spell_pattern(effect_pat_type pat,location center,unsigned short type,short who_hit) {
 	short r1 = 0;
 	unsigned short effect;
@@ -4117,12 +4155,8 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 	cCreature *which_m;
 	bool monster_hit = false;
 	
-	
-	if(type != 0)
-		modify_pattern(&pat,type);
-	
-	
-	
+	if(type != 0) modify_pattern(&pat,type);
+
 	active = univ.town->in_town_rect;
 	// eliminate barriers that can't be seen
 	for(short i = minmax(active.left + 1,active.right - 1,center.x - 4);
@@ -4142,7 +4176,7 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 			if(effect == FIELD_SMASH || sight_obscurity(i,j) < 5) {
 				switch(effect) {
 					case FIELD_WEB:
-						web_space(i,j);
+						univ.town.setField<FIELD_WEB>(i,j);
 						break;
 					case BARRIER_FIRE:
 						univ.town.setField<BARRIER_FIRE>(i,j);
@@ -4160,7 +4194,7 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 						univ.town.setField<FIELD_ANTIMAGIC>(i,j);
 						break;
 					case CLOUD_STINK:
-						scloud_space(i,j);
+						univ.town.setField<CLOUD_STINK>(i,j);
 						break;
 					case WALL_ICE:
 						univ.town.setField<WALL_ICE>(i,j);
@@ -4175,7 +4209,7 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 						dispel_fields(i,j,0);
 						break;
 					case CLOUD_SLEEP:
-						sleep_cloud_space(i,j);
+						univ.town.setField<CLOUD_SLEEP>(i,j);
 						break;
 					case FIELD_SMASH:
 						crumble_wall(loc(i,j));
@@ -4233,64 +4267,7 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 					&& (((is_combat()) && (pc.combat_pos == spot_hit)) ||
 						((is_town()) && (univ.party.town_loc == spot_hit)))) {
 					effect = pat.pattern[i - center.x + 4][j - center.y + 4];
-					switch(effect) {
-						case WALL_FORCE:
-							r1 = get_ran(2,1,6);
-							damage_pc(pc,r1,eDamageType::MAGIC,eRace::UNKNOWN,0);
-							break;
-						case WALL_FIRE:
-							r1 = get_ran(1,1,6) + 1;
-							damage_pc(pc,r1,eDamageType::FIRE,eRace::UNKNOWN,0);
-							break;
-						case WALL_ICE:
-							r1 = get_ran(2,1,6);
-							damage_pc(pc,r1,eDamageType::COLD,eRace::UNKNOWN,0);
-							break;
-						case WALL_BLADES:
-							r1 = get_ran(4,1,8);
-							damage_pc(pc,r1,eDamageType::WEAPON,eRace::UNKNOWN,0);
-							break;
-						case OBJECT_BLOCK:
-							r1 = get_ran(6,1,8);
-							damage_pc(pc,r1,eDamageType::WEAPON,eRace::UNKNOWN,0);
-							break;
-						default:
-							eDamageType type = eDamageType::MARKED;
-							unsigned short dice;
-							if(effect > 50 && effect <= 80) {
-								type = eDamageType::FIRE;
-								dice = effect - 50;
-							} else if(effect > 90 && effect <= 120) {
-								type = eDamageType::COLD;
-								dice = effect - 90;
-							} else if(effect > 130 && effect <= 160) {
-								type = eDamageType::MAGIC;
-								dice = effect - 130;
-								// The rest of these are new, currently unused.
-							} else if(effect > 170 && effect <= 200) {
-								type = eDamageType::WEAPON;
-								dice = effect - 170;
-							} else if(effect > 210 && effect <= 240) {
-								type = eDamageType::POISON;
-								dice = effect - 210;
-							} else if(effect > 250 && effect <= 280) {
-								type = eDamageType::UNBLOCKABLE;
-								dice = effect - 250;
-							} else if(effect > 290 && effect <= 320) {
-								type = eDamageType::UNDEAD;
-								dice = effect - 290;
-							} else if(effect > 330 && effect <= 360) {
-								type = eDamageType::DEMON;
-								dice = effect - 330;
-							} else if(effect > 370 && effect <= 400) {
-								type = eDamageType::SPECIAL;
-								dice = effect - 370;
-							}
-							if(type == eDamageType::MARKED) break;
-							r1 = get_ran(dice,1,6);
-							damage_pc(pc,r1,type,eRace::UNKNOWN,0);
-							break;
-					}
+                                        executeEffects<cPlayer>(effect,pc,0);
 				}
 			}
 	put_pc_screen();
@@ -4315,76 +4292,7 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 						which_m = &univ.town.monst[k];
 						if(which_m->abil[eMonstAbil::RADIATE].active && effect == which_m->abil[eMonstAbil::RADIATE].radiate.type)
 							continue;
-						switch(effect) {
-							case FIELD_WEB:
-								which_m->web(3);
-								break;
-							case WALL_FORCE:
-								r1 = get_ran(3,1,6);
-								damage_monst(univ.town.monst[k], who_hit, r1, eDamageType::MAGIC,0);
-								break;
-							case WALL_FIRE:
-								r1 = get_ran(2,1,6);
-								damage_monst(univ.town.monst[k], who_hit, r1, eDamageType::FIRE,0);
-								break;
-							case CLOUD_STINK:
-								which_m->curse(get_ran(1,1,2));
-								break;
-							case WALL_ICE:
-								r1 = get_ran(3,1,6);
-								damage_monst(univ.town.monst[k], who_hit, r1, eDamageType::COLD,0);
-								break;
-							case WALL_BLADES:
-								r1 = get_ran(6,1,8);
-								damage_monst(univ.town.monst[k], who_hit, r1, eDamageType::WEAPON,0);
-								break;
-							case CLOUD_SLEEP:
-								which_m->sleep(eStatus::ASLEEP,3,0);
-								break;
-							case OBJECT_BLOCK:
-								r1 = get_ran(6,1,8);
-								damage_monst(univ.town.monst[k],who_hit,r1,eDamageType::WEAPON,0);
-								break;
-							case BARRIER_CAGE:
-								univ.town.monst[k].status[eStatus::FORCECAGE] = max(8, univ.town.monst[k].status[eStatus::FORCECAGE]);
-								break;
-							default:
-								eDamageType type = eDamageType::MARKED;
-								unsigned short dice;
-								if(effect > 50 && effect <= 80) {
-									type = eDamageType::FIRE;
-									dice = effect - 50;
-								} else if(effect > 90 && effect <= 120) {
-									type = eDamageType::COLD;
-									dice = effect - 90;
-								} else if(effect > 130 && effect <= 160) {
-									type = eDamageType::MAGIC;
-									dice = effect - 130;
-									// The rest of these are new, currently unused.
-								} else if(effect > 170 && effect <= 200) {
-									type = eDamageType::WEAPON;
-									dice = effect - 170;
-								} else if(effect > 210 && effect <= 240) {
-									type = eDamageType::POISON;
-									dice = effect - 210;
-								} else if(effect > 250 && effect <= 280) {
-									type = eDamageType::UNBLOCKABLE;
-									dice = effect - 250;
-								} else if(effect > 290 && effect <= 320) {
-									type = eDamageType::UNDEAD;
-									dice = effect - 290;
-								} else if(effect > 330 && effect <= 360) {
-									type = eDamageType::DEMON;
-									dice = effect - 330;
-								} else if(effect > 370 && effect <= 400) {
-									type = eDamageType::SPECIAL;
-									dice = effect - 370;
-								}
-								if(type == eDamageType::MARKED) break;
-								r1 = get_ran(dice,1,6);
-								damage_monst(univ.town.monst[k],who_hit,r1,type,0);
-								break;
-						}
+                                                executeEffects<cCreature>(effect,univ.town.monst[k],who_hit);
 					}
 				}
 		}
@@ -4400,25 +4308,11 @@ void place_spell_pattern(effect_pat_type pat,location center,eFieldType type,sho
 }
 
 // Copied from place_spell_pattern comment above:
-//  50 + i - 80 :  id6 fire damage  90 + i - 120 : id6 cold damage 	130 + i - 160 : id6 magic dam.
 void place_spell_pattern(effect_pat_type pat,location center,eDamageType type,short dice,short who_hit) {
-	unsigned short code;
-	dice = minmax(1, 30, dice);
-	switch(type) {
-		case eDamageType::FIRE: code = 50; break;
-		case eDamageType::COLD: code = 90; break;
-		case eDamageType::MAGIC: code = 130; break;
-		case eDamageType::WEAPON: code = 170; break;
-		case eDamageType::POISON: code = 210; break;
-		case eDamageType::UNBLOCKABLE: code = 250; break;
-		case eDamageType::UNDEAD: code = 290; break;
-		case eDamageType::DEMON: code = 330; break;
-		case eDamageType::SPECIAL: code = 370; break;
-		case eDamageType::MARKED:
-			// Not valid; do nothing.
-			return;
-	}
-	place_spell_pattern(pat, center, code + dice, who_hit);
+        if(type == eDamageType::MARKED) return;//Not valid, so do nothing
+	unsigned short code = ((static_cast<unsigned short>(type)+1) << 8) + minmax(1,60,dice);
+	dice = minmax(1, 60, dice);
+	place_spell_pattern(pat, center, code, who_hit);
 }
 
 void modify_pattern(effect_pat_type *pat,unsigned short type) {
@@ -5338,62 +5232,24 @@ void process_fields() {
 	
 	// First fry PCs, then call to handle damage to monsters
 	processing_fields = true; // this, in hit_space, makes damage considered to come from whole party
+	for(auto& pc : univ.party)
+	{
+            location pcloc = univ.party.town_loc;
+            if(is_combat()) pcloc = pc.combat_pos;
+	    FieldApplier::template inflict<cPlayer>(pc,pcloc.x,pcloc.y,univ.town);
+	}
 	for(short i = 0; i < univ.town->max_dim; i++)
 		for(short j = 0; j < univ.town->max_dim; j++) {
-			if(univ.town.testField<WALL_FORCE>(i,j)) { //Deals 3d6 damage
-				r1 = get_ran(3,1,6);
-				loc.x = i; loc.y = j;
-				hit_pcs_in_space(loc,r1,eDamageType::MAGIC,1,1);
-				r1 = get_ran(1,1,6); //1/6th change fade
-				if(r1 == 2)
-					univ.town.clearFields<WALL_FORCE>(i,j);
+                        if(univ.town.testFields<fieldgroups::FadingFields>(i,j)) {
+                            univ.town.fadeField<WALL_FORCE>(i,j);
+                            univ.town.fadeField<WALL_FIRE>(i,j);
+                            univ.town.fadeField<FIELD_ANTIMAGIC>(i,j);
+                            univ.town.fadeField<CLOUD_STINK>(i,j);
+                            univ.town.fadeField<CLOUD_SLEEP>(i,j);
+                            univ.town.fadeField<WALL_ICE>(i,j);
+                            univ.town.fadeField<WALL_BLADES>(i,j);
 			}
-			if(univ.town.testField<WALL_FIRE>(i,j)) { //deals 2d6+1 damage
-				loc.x = i; loc.y = j;
-				r1 = get_ran(2,1,6) + 1;
-				hit_pcs_in_space(loc,r1,eDamageType::FIRE,1,1);
-				r1 = get_ran(1,1,4); //1/4th chance fade
-				if(r1 == 2)
-					univ.town.clearFields<WALL_FIRE>(i,j);
-			}
-			if(univ.town.testField<FIELD_ANTIMAGIC>(i,j)) {
-				r1 = get_ran(1,1,8); //1/8th chance fade
-				if(r1 == 2)
-					univ.town.clearFields<FIELD_ANTIMAGIC>(i,j);
-			}
-			if(univ.town.testField<CLOUD_STINK>(i,j)) {
-				r1 = get_ran(1,1,4); //1/4th chance fade
-				if(r1 == 2)
-					univ.town.clearFields<CLOUD_STINK>(i,j);
-				else {
-					scloud_space(i,j);
-				}
-			}
-			if(univ.town.testField<CLOUD_SLEEP>(i,j)) {
-				r1 = get_ran(1,1,4); //1/4th chance fade
-				if(r1 == 2)
-					univ.town.clearFields<CLOUD_SLEEP>(i,j);
-				else {
-					sleep_cloud_space(i,j);
-				}
-			}
-			if(univ.town.testField<WALL_ICE>(i,j)) { //Deals 3d6 damage
-				loc.x = i; loc.y = j;
-				r1 = get_ran(3,1,6);
-				hit_pcs_in_space(loc,r1,eDamageType::COLD,1,1);
-				r1 = get_ran(1,1,6); //1/6th chance fade
-				if(r1 == 1)
-					univ.town.clearFields<WALL_ICE>(i,j);
-			}
-			if(univ.town.testField<WALL_BLADES>(i,j)) {
-				loc.x = i; loc.y = j;
-				r1 = get_ran(6,1,8); //Deals 6d8 damage
-				hit_pcs_in_space(loc,r1,eDamageType::WEAPON,1,1);
-				r1 = get_ran(1,1,5);
-				if(r1 == 1)
-					univ.town.clearFields<WALL_BLADES>(i,j);
-			}
-			if(univ.town.testField<BARRIER_CAGE>(i,j)) {
+			if(univ.town.testField<BARRIER_CAGE>(i,j)) { //LEAVING FORCECAGE HERE FOR NOW
 				loc.x = i; loc.y = j;
 				short who = univ.get_target_i(*univ.target_there(loc));
 				process_force_cage(loc, who);
@@ -5406,19 +5262,6 @@ void process_fields() {
 		}
 	
 	processing_fields = false;
-	monsters_going = true; // this changes who the damage is considered to come from in hit_space
-	
-	if(univ.town.quickfire_present) {
-		for(short i = 0; i < univ.town->max_dim; i++)
-			for(short j = 0; j < univ.town->max_dim; j++)
-				if(univ.town.testField<FIELD_QUICKFIRE>(i,j)) {
-					loc.x = i; loc.y = j;
-					r1 = get_ran(2,1,8);
-					hit_pcs_in_space(loc,r1,eDamageType::FIRE,1,1);
-				}
-	}
-	
-	monsters_going = false;
 }
 
 void scloud_space(short m,short n) {

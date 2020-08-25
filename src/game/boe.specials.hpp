@@ -1,5 +1,6 @@
 
 #include "creature.hpp"
+#include "fields.hpp"
 
 bool handle_wandering_specials(short mode);
 bool check_special_terrain(location where_check,eSpecCtx mode,cPlayer& which_pc,bool *forced);
@@ -25,3 +26,10 @@ void run_special(pending_special_type spec, short* a, short* b, bool* redraw);
 void get_strs(std::string& str1, std::string& str2,eSpecCtxType cur_type,short which_str1,short which_str2);
 
 void set_campaign_flag(short sdf_a, short sdf_b, short cpf_a, short cpf_b, short str, bool get_send);
+
+template<> struct FieldDamager<cCreature>
+{
+    static void damage(cCreature& monster, short amount, eDamageType type, short source = 7)
+    {damage_monst(monster,source,amount,type,0);}
+};
+

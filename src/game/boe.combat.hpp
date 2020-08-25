@@ -36,7 +36,6 @@ location closest_pc_loc(location where);
 short count_levels(location where,short radius);
 bool pc_near(short pc_num,location where,short radius);
 bool monst_near(short m_num,location where,short radius,short active);
-void fireball_space(location loc,short dam);
 void place_spell_pattern(effect_pat_type pat,location center,short who_hit);
 void place_spell_pattern(effect_pat_type pat,location center,eFieldType type,short who_hit);
 void place_spell_pattern(effect_pat_type pat,location center,eDamageType type, short dice,short who_hit);
