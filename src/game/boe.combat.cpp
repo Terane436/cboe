@@ -26,6 +26,7 @@
 #include "prefs.hpp"
 #include "utility.hpp"
 #include <type_traits>
+#include "fieldInflicts.hpp"
 
 extern eGameMode overall_mode;
 extern short which_combat_type;
@@ -2764,48 +2765,43 @@ void do_monster_turn() {
 	monsters_going = false;
 }
 
-void monster_attack(short who_att,iLiving* target) {
-	short r1,r2,store_hp,sound_type = 0;
-	eDamageType dam_type = eDamageType::WEAPON;
+void monster_attack(short who_att,iLiving* target)
+{
+    short r1,r2,store_hp,sound_type = 0;
+    eDamageType dam_type = eDamageType::WEAPON;
+    cCreature* attacker = &univ.town.monst[who_att];
 	
-	cCreature* attacker = &univ.town.monst[who_att];
+    // A peaceful monster won't attack PCs or friendly monsters
+    if(attacker->is_friendly() && target->is_friendly()) return;
 	
-	// A peaceful monster won't attack PCs or friendly monsters
-	if(attacker->is_friendly() && target->is_friendly())
-		return;
+    // Draw attacker frames
+    if(is_combat() && (center_on_monst || !monsters_going))
+    {
+        if(!attacker->invisible && attacker->status[eStatus::INVISIBLE] <= 0)
+            frame_space(attacker->cur_loc,0,attacker->x_width,attacker->y_width);
+        frame_space(target->get_loc(),1,1,1);
+    }
 	
-	// Draw attacker frames
-	if((is_combat())
-	   && (center_on_monst || !monsters_going)) {
-		if(!attacker->invisible && attacker->status[eStatus::INVISIBLE] <= 0)
-			frame_space(attacker->cur_loc,0,attacker->x_width,attacker->y_width);
-		frame_space(target->get_loc(),1,1,1);
-	}
+    for(const auto& att : attacker->a)
+        if(att.dice != 0)
+        {
+            attacker->print_attacks(target);
+            break;
+        }
+    // Some things depend on whether it's a player or a monster.
+    cCreature* m_target = dynamic_cast<cCreature*>(target);
+    cPlayer* pc_target = dynamic_cast<cPlayer*>(target);
 	
-	for(const auto& att : attacker->a)
-		if(att.dice != 0) {
-			attacker->print_attacks(target);
-			break;
-		}
-			
-	// Some things depend on whether it's a player or a monster.
-	cCreature* m_target = dynamic_cast<cCreature*>(target);
-	cPlayer* pc_target = dynamic_cast<cPlayer*>(target);
-	
-	// Check sanctuary
-	if(target->status[eStatus::INVISIBLE] > 0 || (m_target != nullptr && m_target->invisible)) {
-		r1 = get_ran(1,1,100);
-		if(r1 > hit_chance[attacker->level / 2]) {
-			add_string_to_buf("  Can't find target!");
-		}
-		return;
-	}
+    // Check sanctuary
+    if(target->status[eStatus::INVISIBLE] > 0 || (m_target != nullptr && m_target->invisible))
+    {
+        r1 = get_ran(1,1,100);
+        if(r1 > hit_chance[attacker->level / 2]) add_string_to_buf("  Can't find target!");
+        return;
+    }
 	
 	for(short i = 0; i < attacker->a.size(); i++) {
 		if(attacker->a[i].dice > 0 && target->is_alive()) {
-//			sprintf ((char *) create_line, "  Attacks %s.",(char *) univ.party[target].name);
-//			add_string_to_buf((char *) create_line);
-			
 			// if target monster friendly to party, make able to attack
 			if(m_target != nullptr && m_target->attitude == eAttitude::DOCILE)
 				m_target->attitude = eAttitude::FRIENDLY;
@@ -4099,48 +4095,6 @@ bool monst_near(short m_num,location where,short radius,short active) {
 	else return false;
 }
 
-template<typename Target, bool Init = std::is_same<Target,cPlayer>::value> void executeEffects(int effect, Target& target, short source)
-{ //TODO: Migrate switch statements to here
-    if(effect == 0) return;
-    switch(effect)
-    { 
-    case WALL_FORCE:
-        FieldControls<WALL_FORCE>::template applyFieldEffect<Target,Init>(target);
-        break;
-    case WALL_FIRE:
-        FieldControls<WALL_FIRE>::template applyFieldEffect<Target,Init>(target);
-        break;
-    case WALL_ICE:
-        FieldControls<WALL_ICE>::template applyFieldEffect<Target,Init>(target);
-        break;
-    case WALL_BLADES:
-        FieldControls<WALL_BLADES>::template applyFieldEffect<Target,Init>(target);
-        break;
-    case OBJECT_BLOCK:
-        FieldControls<OBJECT_BLOCK>::template applyFieldEffect<Target,Init>(target);
-        break;
-    case FIELD_WEB:
-        FieldControls<FIELD_WEB>::template applyFieldEffect<Target,Init>(target);
-        break;
-    case CLOUD_STINK:
-        FieldControls<CLOUD_STINK>::template applyFieldEffect<Target,Init>(target);
-        break;
-    case CLOUD_SLEEP:
-        FieldControls<CLOUD_SLEEP>::template applyFieldEffect<Target,Init>(target);
-        break;
-    case BARRIER_CAGE:
-        if(std::is_same<Target,cCreature>::value) //Special case, only monsters get force-caged here for some reason.  TODO: Consider consistency
-            target.status[eStatus::FORCECAGE] = max(8, target.status[eStatus::FORCECAGE]);
-        break;
-    default:
-        eDamageType type = (eDamageType)((effect >> 8)-1);
-        unsigned short dice = effect & 0x0FF;
-        if(type == eDamageType::MARKED) break;
-        FieldDamager<Target>::damage(target,get_ran(dice,1,6),type,source);//For some reason this is triggering a weird swirly effect on everyone
-        break;
-    }
-}
-
 //type;  // 0 - take codes in pattern, OW make all nonzero this type
 // Types  - uses FIELD values for <256
 // If > 256, upper byte is damage type (eDamageType+1), lower byte is number of dice
@@ -5189,8 +5143,7 @@ void process_fields() {
 	short qf[64][64];
 	rectangle r;
 	
-	if(is_out())
-		return;
+	if(is_out()) return;
 	
 	if(univ.town.quickfire_present) {
 		r = univ.town->in_town_rect;
@@ -5234,10 +5187,10 @@ void process_fields() {
 	processing_fields = true; // this, in hit_space, makes damage considered to come from whole party
 	for(auto& pc : univ.party)
 	{
-            location pcloc = univ.party.town_loc;
-            if(is_combat()) pcloc = pc.combat_pos;
-	    FieldApplier::template inflict<cPlayer>(pc,pcloc.x,pcloc.y,univ.town);
+            if(is_combat()) FieldApplier::template inflict<cPlayer>(pc,pc.combat_pos.x,pc.combat_pos.y,univ.town);
+	    else FieldApplier::template inflict<cPlayer,cCurTown,false,false,true>(pc,univ.party.town_loc.x,univ.party.town_loc.y,univ.town);
 	}
+	if(!is_combat()) FieldApplier::clearTriggeredFields(univ.town,univ.party.town_loc.x,univ.party.town_loc.y);
 	for(short i = 0; i < univ.town->max_dim; i++)
 		for(short j = 0; j < univ.town->max_dim; j++) {
                         if(univ.town.testFields<fieldgroups::FadingFields>(i,j)) {
@@ -5329,41 +5282,31 @@ void add_new_action(short pc_num) {
 		univ.party[pc_num].ap++;
 }
 
-short get_monst_sound(cCreature *attacker,short which_att) {
-	switch(attacker->a[which_att].type) {
-		case eMonstMelee::SLIME:
-			return 11;
-		case eMonstMelee::PUNCH:
-			return 4;
-		case eMonstMelee::CLAW:
-			return 9;
-		case eMonstMelee::BITE:
-			return 10;
-		case eMonstMelee::STING:
-			return 12;
-		case eMonstMelee::CLUB:
-			return 4;
-		case eMonstMelee::BURN:
-			return 5;
-		case eMonstMelee::HARM:
-			return 0;
-		case eMonstMelee::STAB:
-		case eMonstMelee::SWING:
-			// TODO: These sounds don't quite seem right.
-			// They're passed to boom_space, so 0 = ouch, 1 = small sword, 2 = loud sword, 3 = pole, 4 = club
-			if(attacker->m_type == eRace::HUMAN) {
-				if(attacker->a[which_att].sides > 9)
-					return 3;
-				else return 2;
-			}
-			if(attacker->m_type == eRace::MAGE)
-				return 1;
-			if(attacker->m_type == eRace::PRIEST)
-				return 4;
-			if(isHumanoid(attacker->m_type) || attacker->m_type == eRace::GIANT) {
-				return 2;
-			}
-			return 1;
-	}
-	return 0;
+short get_monst_sound(cCreature *attacker,short which_att)
+{
+    switch(attacker->a[which_att].type)
+    {
+    case eMonstMelee::SLIME: return 11;
+    case eMonstMelee::PUNCH: return 4;
+    case eMonstMelee::CLAW: return 9;
+    case eMonstMelee::BITE: return 10;
+    case eMonstMelee::STING: return 12;
+    case eMonstMelee::CLUB: return 4;
+    case eMonstMelee::BURN: return 5;
+    case eMonstMelee::HARM: return 0;
+    case eMonstMelee::STAB:
+    case eMonstMelee::SWING:
+    // TODO: These sounds don't quite seem right.
+    // They're passed to boom_space, so 0 = ouch, 1 = small sword, 2 = loud sword, 3 = pole, 4 = club
+        if(attacker->m_type == eRace::HUMAN)
+        {
+            if(attacker->a[which_att].sides > 9) return 3;
+            else return 2;
+        }
+        if(attacker->m_type == eRace::MAGE) return 1;
+        if(attacker->m_type == eRace::PRIEST) return 4;
+        if(isHumanoid(attacker->m_type) || attacker->m_type == eRace::GIANT) return 2;
+        return 1;
+    }
+    return 0;
 }

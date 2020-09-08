@@ -1,3 +1,5 @@
+#ifndef GAME_BOE_MONSTER_HPP
+#define GAME_BOE_MONSTER_HPP
 
 #include "pict.hpp"
 #include "creature.hpp"
@@ -36,3 +38,6 @@ short place_monster(mon_num_t which,location where,bool forced=false);
 bool summon_monster(mon_num_t which,location where,short duration,eAttitude given_attitude,bool by_party);
 void activate_monsters(short code,short attitude);
 mon_num_t get_summon_monster(short summon_class);
+
+#endif
+

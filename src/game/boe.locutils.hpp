@@ -1,3 +1,5 @@
+#ifndef GAME_BOE_LOCUTILS_HPP
+#define GAME_BOE_LOCUTILS_HPP
 
 #include <functional>
 #include "location.hpp"
@@ -43,3 +45,6 @@ location push_loc(location from_where,location to_where);
 bool spot_impassable(short i,short  j);
 void swap_ter(short i,short j,ter_num_t ter1,ter_num_t ter2);
 void alter_space(short i,short j,ter_num_t ter);
+
+#endif
+

@@ -1369,8 +1369,7 @@ bool cast_spell_on_space(location where, eSpell spell) {
 void crumble_wall(location where) {
 	ter_num_t ter;
 	
-	if(loc_off_act_area(where))
-		return;
+	if(loc_off_act_area(where)) return;
 	ter = univ.town->terrain(where.x,where.y);
 	if(univ.scenario.ter_types[ter].special == eTerSpec::CRUMBLING && univ.scenario.ter_types[ter].flag2 < 2) {
 		// TODO: This seems like the wrong sound
@@ -1505,35 +1504,21 @@ bool pc_can_cast_spell(const cPlayer& pc,eSpell spell_num) {
 	if(pc.status[eStatus::DUMB] < 0)
 		effective_skill -= pc.status[eStatus::DUMB];
 	
-	if(overall_mode >= MODE_TALKING)
-		return false; // From Windows version. It does kinda make sense, though this function shouldn't even be called in these modes.
-	if(!isMage(spell_num) && !isPriest(spell_num))
-		return false;
-	if(effective_skill < level)
-		return false;
-	if(pc.main_status != eMainStatus::ALIVE)
-		return false;
-	if(pc.cur_sp < (*spell_num).cost)
-		return false;
-	// TODO: Maybe get rid of the casts here?
-	if(type == eSkill::MAGE_SPELLS && !pc.mage_spells[int(spell_num)])
-		return false;
-	if(type == eSkill::PRIEST_SPELLS && !pc.priest_spells[int(spell_num) - 100])
-		return false;
-	if(pc.status[eStatus::DUMB] >= 8 - level)
-		return false;
-	if(pc.status[eStatus::PARALYZED] != 0)
-		return false;
-	if(pc.status[eStatus::ASLEEP] > 0)
-		return false;
+	if(overall_mode >= MODE_TALKING) return false;
+	if(!isMage(spell_num) && !isPriest(spell_num)) return false;
+	if(effective_skill < level) return false;
+	if(pc.main_status != eMainStatus::ALIVE) return false;
+	if(pc.cur_sp < (*spell_num).cost) return false;
+	if(type == eSkill::MAGE_SPELLS && !pc.mage_spells[int(spell_num)]) return false;
+	if(type == eSkill::PRIEST_SPELLS && !pc.priest_spells[int(spell_num) - 100]) return false;
+	if(pc.status[eStatus::DUMB] >= 8 - level) return false;
+	if(pc.status[eStatus::PARALYZED] != 0) return false;
+	if(pc.status[eStatus::ASLEEP] > 0) return false;
 	
 	store_w_cast = (*spell_num).when_cast;
-	if(is_out() && WHEN_OUTDOORS &~ store_w_cast)
-		return false;
-	if(is_town() && WHEN_TOWN &~ store_w_cast)
-		return false;
-	if(is_combat() &&  WHEN_COMBAT &~ store_w_cast)
-		return false;
+	if(is_out() && WHEN_OUTDOORS &~ store_w_cast) return false;
+	if(is_town() && WHEN_TOWN &~ store_w_cast) return false;
+	if(is_combat() &&  WHEN_COMBAT &~ store_w_cast) return false;
 	return true;
 }
 

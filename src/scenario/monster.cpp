@@ -20,6 +20,7 @@
 #include "fileio.hpp"
 #include "spell.hpp"
 #include "gfxsheets.hpp" // for NO_PIC
+#include "fieldLogging.hpp"
 
 void cMonster::import_legacy(legacy::monster_record_type& old){
 	level = old.level;
@@ -525,33 +526,7 @@ std::string uAbility::to_string(eMonstAbil key) const {
 				case eMonstAbil::STEAL_FOOD: sout << "Steals food"; break;
 				case eMonstAbil::STEAL_GOLD: sout << "Steals gold"; break;
 				case eMonstAbil::FIELD:
-					switch(gen.fld) {
-						case eFieldType::SPECIAL_EXPLORED:
-						case eFieldType::SPECIAL_SPOT:
-						case eFieldType::SPECIAL_ROAD:
-							break; // These are invalid field types
-						case eFieldType::CLOUD_SLEEP: sout << "Sleep"; break;
-						case eFieldType::CLOUD_STINK: sout << "Foul"; break;
-						case eFieldType::WALL_FIRE: sout << "Fiery"; break;
-						case eFieldType::WALL_FORCE: sout << "Charged"; break;
-						case eFieldType::WALL_ICE: sout << "Frosted"; break;
-						case eFieldType::WALL_BLADES: sout << "Thorny"; break;
-						case eFieldType::FIELD_ANTIMAGIC: sout << "Null"; break;
-						case eFieldType::FIELD_WEB: sout << "Web"; break;
-						case eFieldType::FIELD_QUICKFIRE: sout << "Incendiary"; break;
-						case eFieldType::BARRIER_CAGE: sout << "Entrapping"; break;
-						case eFieldType::BARRIER_FIRE: case eFieldType::BARRIER_FORCE: sout << "Barrier"; break;
-						case eFieldType::FIELD_DISPEL: sout << "Dispelling"; break;
-						case eFieldType::FIELD_SMASH: sout << "Smashing"; break;
-						case eFieldType::OBJECT_BARREL: sout << "Barrel"; break;
-						case eFieldType::OBJECT_BLOCK: sout << "Stone Block"; break;
-						case eFieldType::OBJECT_CRATE: sout << "Crate"; break;
-						case eFieldType::SFX_ASH: case eFieldType::SFX_BONES: case eFieldType::SFX_RUBBLE:
-						case eFieldType::SFX_SMALL_BLOOD: case eFieldType::SFX_MEDIUM_BLOOD: case eFieldType::SFX_LARGE_BLOOD:
-						case eFieldType::SFX_SMALL_SLIME: case eFieldType::SFX_LARGE_SLIME:
-							sout << "Littering";
-							break;
-					}
+                                        nameField<true>(gen.fld,sout);
 					break;
 				case eMonstAbil::DAMAGE: case eMonstAbil::DAMAGE2:
 					switch(gen.dmg) {
@@ -708,33 +683,7 @@ std::string uAbility::to_string(eMonstAbil key) const {
 			break;
 		case eMonstAbilCat::RADIATE:
 			sout << "Radiates ";
-			switch(radiate.type) {
-				case eFieldType::SPECIAL_EXPLORED:
-				case eFieldType::SPECIAL_SPOT:
-				case eFieldType::SPECIAL_ROAD:
-					break; // These are invalid field types
-				case eFieldType::WALL_BLADES: sout << "blade fields"; break;
-				case eFieldType::WALL_FIRE: sout << "fire fields"; break;
-				case eFieldType::WALL_FORCE: sout << "shock fields"; break;
-				case eFieldType::WALL_ICE: sout << "ice fields"; break;
-				case eFieldType::CLOUD_STINK: sout << "stinking clouds"; break;
-				case eFieldType::CLOUD_SLEEP: sout << "sleep fields"; break;
-				case eFieldType::FIELD_ANTIMAGIC: sout << "antimagic fields"; break;
-				case eFieldType::FIELD_WEB: sout << "webs"; break;
-				case eFieldType::FIELD_QUICKFIRE: sout << "quickfire"; break;
-				case eFieldType::BARRIER_CAGE: sout << "forcecages"; break;
-				case eFieldType::BARRIER_FIRE: case eFieldType::BARRIER_FORCE: sout << "barriers"; break;
-				case eFieldType::FIELD_DISPEL: sout.str("Dispels surrounding fields"); break;
-				case eFieldType::FIELD_SMASH: sout.str("Wall-smashing aura");; break;
-				case eFieldType::OBJECT_BARREL: sout << "barrels"; break;
-				case eFieldType::OBJECT_BLOCK: sout << "stone blocks"; break;
-				case eFieldType::OBJECT_CRATE: sout << "crates"; break;
-				case eFieldType::SFX_ASH: case eFieldType::SFX_BONES: case eFieldType::SFX_RUBBLE:
-				case eFieldType::SFX_SMALL_BLOOD: case eFieldType::SFX_MEDIUM_BLOOD: case eFieldType::SFX_LARGE_BLOOD:
-				case eFieldType::SFX_SMALL_SLIME: case eFieldType::SFX_LARGE_SLIME:
-					sout << "litter";
-					break;
-			}
+			nameField<false>(radiate.type,sout);
 			break;
 	}
 	return sout.str();

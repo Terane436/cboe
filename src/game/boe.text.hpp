@@ -1,3 +1,6 @@
+#ifndef GAME_BOE_TEXT_HPP
+#define GAME_BOE_TEXT_HPP
+
 #include <string>
 
 class cVehicle;
@@ -46,3 +49,6 @@ struct text_label_t {
 
 void place_text_label(std::string string, location at, bool centred);
 void draw_text_label(const text_label_t& label);
+
+#endif
+

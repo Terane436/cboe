@@ -73,7 +73,8 @@ struct BaseFieldsControl //BARRIER_CAGE, SPECIAL_ROAD, SPECIAL_SPOT
     static constexpr bool IsSfx = false;
     static constexpr bool TriggeringClears = false;
     static constexpr short FadeChance = 0;
-    template<typename Target, bool Init> static void applyFieldEffect(Target&) {}
+    static std::string log() {return "";}
+    static std::string look() {return "";}
 };
 
 template<eFieldType Field> struct FieldControls : public BaseFieldsControl {};
@@ -81,6 +82,11 @@ template<eFieldType Field> struct FieldControls : public BaseFieldsControl {};
 struct FieldControlsObject : public BaseFieldsControl
 {
     typedef util::BuildMask<BARRIER_FIRE,BARRIER_FORCE,FIELD_QUICKFIRE> BlockFields;
+};
+
+template<> struct FieldControls<BARRIER_CAGE> : public BaseFieldsControl
+{
+    static std::string look() {return "    Force Cage";}
 };
 
 struct FieldControlsSfx : public BaseFieldsControl
@@ -95,8 +101,8 @@ template<> struct FieldControls<WALL_FORCE> : public BaseFieldsControl
     typedef util::BuildMask<FIELD_WEB> ClearFields;//CHANGE: Removed WALL_FIRE from cleared fields
     static constexpr bool AvoidImpassable = true;
     static constexpr short FadeChance = 6;
-    template<typename Target, bool Init>
-    static void applyFieldEffect(Target& target) {FieldDamager<Target>::damage(target,get_ran(3-(Init?1:0),1,6),eDamageType::MAGIC);}
+    static std::string log() {return "  Force wall!";}
+    static std::string look() {return "    Wall of Force";}
 };
 
 template<> struct FieldControls<WALL_FIRE> : public BaseFieldsControl
@@ -105,7 +111,8 @@ template<> struct FieldControls<WALL_FIRE> : public BaseFieldsControl
     typedef util::BuildMask<FIELD_WEB> ClearFields;
     static constexpr bool AvoidImpassable = true;
     static constexpr short FadeChance = 4;
-    template<typename Target,bool Init> static void applyFieldEffect(Target& target) {FieldDamager<Target>::damage(target,get_ran(2-(Init ?1:0),1,6)+1,eDamageType::FIRE);}
+    static std::string log() {return "  Fire wall!";}
+    static std::string look() {return "    Wall of Fire";}
 };
 
 template<> struct FieldControls<FIELD_ANTIMAGIC> : public BaseFieldsControl
@@ -114,6 +121,7 @@ template<> struct FieldControls<FIELD_ANTIMAGIC> : public BaseFieldsControl
     typedef util::BuildMask<WALL_FIRE,WALL_ICE,WALL_BLADES,WALL_FORCE> ClearFields;
     static constexpr bool AvoidImpassable = true;
     static constexpr short FadeChance = 8;
+    static std::string look() {return "    Antimagic Field";}
 };
 
 template<> struct FieldControls<CLOUD_STINK> : public BaseFieldsControl
@@ -121,7 +129,8 @@ template<> struct FieldControls<CLOUD_STINK> : public BaseFieldsControl
     typedef util::BuildMask<FIELD_ANTIMAGIC,FIELD_QUICKFIRE,BARRIER_FIRE,BARRIER_FORCE> BlockFields;
     static constexpr bool AvoidImpassable = true;
     static constexpr short FadeChance = 4;
-    template<typename Target, bool Init> static void applyFieldEffect(Target& target) {target.curse(get_ran(1,1,2));}
+    static std::string log() {return "  Stinking cloud!";}
+    static std::string look() {return "    Stinking Cloud";}
 };
 
 template<> struct FieldControls<WALL_ICE> : public BaseFieldsControl
@@ -130,7 +139,8 @@ template<> struct FieldControls<WALL_ICE> : public BaseFieldsControl
     typedef util::BuildMask<WALL_FIRE,CLOUD_STINK,CLOUD_SLEEP> ClearFields;
     static constexpr bool AvoidImpassable = true;
     static constexpr short FadeChance = 6;
-    template<typename Target, bool Init> static void applyFieldEffect(Target& target) {FieldDamager<Target>::damage(target,get_ran(3-(Init ?1:0),1,6),eDamageType::COLD);}
+    static std::string log() {return "  Ice wall!";}
+    static std::string look() {return "    Wall of Ice";}
 };
 
 template<> struct FieldControls<WALL_BLADES> : public BaseFieldsControl
@@ -139,7 +149,8 @@ template<> struct FieldControls<WALL_BLADES> : public BaseFieldsControl
     typedef util::BuildMask<FIELD_WEB> ClearFields;
     static constexpr bool AvoidImpassable = true;
     static constexpr short FadeChance = 5;
-    template<typename Target,bool Init> static void applyFieldEffect(Target& target) {FieldDamager<Target>::damage(target,get_ran(6-(Init ?2:0),1,8),eDamageType::WEAPON);}
+    static std::string log() {return "  Blade wall!";}
+    static std::string look() {return "    Wall of Blades";}
 };
 
 template<> struct FieldControls<CLOUD_SLEEP> : public BaseFieldsControl
@@ -147,23 +158,31 @@ template<> struct FieldControls<CLOUD_SLEEP> : public BaseFieldsControl
     typedef util::BuildMask<FIELD_ANTIMAGIC,FIELD_QUICKFIRE,BARRIER_FIRE,BARRIER_FORCE> BlockFields;
     static constexpr bool AvoidImpassable = true;
     static constexpr short FadeChance = 4;
-    template<typename Target, bool Init> static void applyFieldEffect(Target& target) {target.sleep(eStatus::ASLEEP,3,0);}
+    static std::string log() {return "  Sleep cloud!";}
+    static std::string look() {return "    Sleep Cloud";}
 };
 
 template<> struct FieldControls<FIELD_WEB> : public BaseFieldsControl
 { //CHANGE: Removed CLOUD_SLEEP from blocking
     typedef util::BuildMask<FIELD_ANTIMAGIC,WALL_BLADES,WALL_FIRE,WALL_ICE,FIELD_QUICKFIRE,BARRIER_FIRE,BARRIER_FORCE> BlockFields;
     static constexpr bool AvoidImpassable = true;
-    template<typename Target, bool Init> static void applyFieldEffect(Target& target) {target.web(get_ran(1,2,3));}//CHANGE: Slight shift in web levels
     static constexpr bool TriggeringClears = true;
+    static std::string log() {return "  Webs!";}
+    static std::string look() {return "    Web";}
 };
 
 template<> struct FieldControls<OBJECT_BLOCK> : public FieldControlsObject
 {
-    template<typename Target, bool Init> static void applyFieldEffect(Target& target) {FieldDamager<Target>::damage(target,get_ran(6,1,8),eDamageType::WEAPON);}
+    static std::string look() {return "    Stone Block";}
 };
-template<> struct FieldControls<OBJECT_CRATE> : public FieldControlsObject {};
-template<> struct FieldControls<OBJECT_BARREL> : public FieldControlsObject {};
+template<> struct FieldControls<OBJECT_CRATE> : public FieldControlsObject
+{
+    static std::string look() {return "    Crate";}
+};
+template<> struct FieldControls<OBJECT_BARREL> : public FieldControlsObject
+{
+    static std::string look() {return "    Barrel";}
+};
 
 template<> struct FieldControls<BARRIER_FIRE> : public BaseFieldsControl
 {
@@ -172,6 +191,8 @@ template<> struct FieldControls<BARRIER_FIRE> : public BaseFieldsControl
     static constexpr bool Checked = true;
     static constexpr bool AvoidImpassable = true;
     static constexpr short AntimagicChance = 3;
+    static std::string log() {return "  Magic barrier!";}
+    static std::string look() {return "    Magic Barrier";}
 };
 
 template<> struct FieldControls<BARRIER_FORCE> : public BaseFieldsControl
@@ -181,6 +202,7 @@ template<> struct FieldControls<BARRIER_FORCE> : public BaseFieldsControl
     static constexpr bool Checked = true;
     static constexpr bool AvoidImpassable = true;
     static constexpr short AntimagicChance = 2;
+    static std::string look() {return "    Magic Barrier";}
 };
 
 template<> struct FieldControls<FIELD_QUICKFIRE> : public BaseFieldsControl
@@ -190,68 +212,55 @@ template<> struct FieldControls<FIELD_QUICKFIRE> : public BaseFieldsControl
     static constexpr bool Checked = true;
     static constexpr bool AvoidImpassable = true;
     static constexpr short AntimagicChance = 1;
-    template<typename Target, bool Init> static void applyFieldEffect(Target& target) {FieldDamager<Target>::damage(target,get_ran(2,1,8),eDamageType::FIRE);}
+    static std::string log() {return "  Quickfire!";}
+    static std::string look() {return "    Quickfire";}
 };
 
 template<> struct FieldControls<SFX_SMALL_BLOOD> : public FieldControlsSfx
 {
     typedef util::BuildMask<SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD> BlockFields;
+    static std::string look() {return "    Blood stain";}
 };
 
 template<> struct FieldControls<SFX_MEDIUM_BLOOD> : public FieldControlsSfx
 {
     typedef util::BuildMask<SFX_LARGE_BLOOD> BlockFields;
+    static std::string look() {return "    Blood stain";}
 };
 
-template<> struct FieldControls<SFX_LARGE_BLOOD> : public FieldControlsSfx {};
+template<> struct FieldControls<SFX_LARGE_BLOOD> : public FieldControlsSfx
+{
+    static std::string look() {return "    Blood stain";}
+};
 
 template<> struct FieldControls<SFX_SMALL_SLIME> : public FieldControlsSfx
 {
     typedef util::BuildMask<SFX_LARGE_SLIME> BlockFields;
+    static std::string look() {return "    Smears of slime";}
 };
 
-template<> struct FieldControls<SFX_LARGE_SLIME> : public FieldControlsSfx {};
+template<> struct FieldControls<SFX_LARGE_SLIME> : public FieldControlsSfx
+{
+    static std::string look() {return "    Smears of slime";}
+};
 
-template<> struct FieldControls<SFX_ASH> : public FieldControlsSfx {};
-template<> struct FieldControls<SFX_BONES> : public FieldControlsSfx {};
-template<> struct FieldControls<SFX_RUBBLE> : public FieldControlsSfx {};
+template<> struct FieldControls<SFX_ASH> : public FieldControlsSfx
+{
+    static std::string look() {return "    Ashes";}
+};
+template<> struct FieldControls<SFX_BONES> : public FieldControlsSfx
+{
+    static std::string look() {return "    Bones";}
+};
+template<> struct FieldControls<SFX_RUBBLE> : public FieldControlsSfx
+{
+    static std::string look() {return "    Rubble";}
+};
 
 namespace fieldgroups {
 typedef util::BuildMask<SPECIAL_SPOT,OBJECT_CRATE,OBJECT_BARREL,OBJECT_BLOCK,FIELD_QUICKFIRE,WALL_FORCE,WALL_FIRE,FIELD_ANTIMAGIC,CLOUD_STINK,WALL_ICE,WALL_BLADES,CLOUD_SLEEP> NonClearFields;
 typedef util::BuildMask<WALL_FORCE,WALL_FIRE,FIELD_ANTIMAGIC,CLOUD_STINK,CLOUD_SLEEP,WALL_ICE,WALL_BLADES> FadingFields;
+typedef util::TestInSet<eFieldType,OBJECT_CRATE,OBJECT_BARREL> ContainerFields;
 }
-
-//MORE TEMPLATE SUPPORT FOR CONSISTENT FIELD EFFECT APPLICATION
-template<eFieldType... Fields> struct FieldApplication
-{
-    template<typename Type, typename TestSource> static void inflict(Type& target, short x, short y, TestSource& source, eFieldType ignoreField = SPECIAL_EXPLORED) {}
-};
-
-template<eFieldType Field> struct FieldApplication<Field>
-{
-    template<typename Type, typename TestSource> static void inflict(Type& target, short x, short y, TestSource& source, eFieldType ignoreField = SPECIAL_EXPLORED)
-    {
-        if(Field != ignoreField && source.template testField<Field>(x,y))
-	{
-            FieldControls<Field>::template applyFieldEffect<Type,false>(target);
-	    if(FieldControls<Field>::TriggeringClears) source.template clearFields<Field>(x,y);
-	}
-    }
-};
-
-template<eFieldType Field, eFieldType... Fields> struct FieldApplication<Field,Fields...>
-{
-    template<typename Type, typename TestSource> static void inflict(Type& target, short x, short y, TestSource& source, eFieldType ignoreField = SPECIAL_EXPLORED)
-    {
-        if(Field != ignoreField && source.template testField<Field>(x,y))
-	{
-            FieldControls<Field>::template applyFieldEffect<Type,false>(target);
-	    if(FieldControls<Field>::TriggeringClears) source.template clearFields<Field>(x,y);
-	}
-	FieldApplication<Fields...>::inflict(target,x,y,source,ignoreField);
-    }
-};
-
-typedef FieldApplication<WALL_FORCE,WALL_FIRE,CLOUD_STINK,CLOUD_SLEEP,WALL_ICE,WALL_BLADES,FIELD_QUICKFIRE,FIELD_WEB> FieldApplier;
 
 #endif

@@ -16,6 +16,8 @@
 #include "boe.main.hpp"
 #include "mathutil.hpp"
 #include "gfxsheets.hpp"
+#include "fieldInflicts.hpp"
+#include "fieldPushableObjects.hpp"
 
 extern eGameMode overall_mode;
 extern short which_combat_type;
@@ -272,7 +274,7 @@ void do_monsters() {
 
 bool monst_hate_spot(short which_m,location *good_loc) {
 	location prospect,loc;
-	
+	//TODO: This needs some rework to account for stacked fields
 	loc = univ.town.monst[which_m].cur_loc;
 	bool have_radiate = univ.town.monst[which_m].abil[eMonstAbil::RADIATE].active;
 	eFieldType which_radiate = univ.town.monst[which_m].abil[eMonstAbil::RADIATE].radiate.type;
@@ -796,7 +798,7 @@ void monst_inflict_fields(short which_monst) {
 	which_m = &univ.town.monst[which_monst];
 	bool have_radiate = which_m->abil[eMonstAbil::RADIATE].active;
 	eFieldType which_radiate = have_radiate ? which_m->abil[eMonstAbil::RADIATE].radiate.type : SPECIAL_EXPLORED;
-	for(short i = 0; i < univ.town.monst[which_monst].x_width; i++)
+	for(short i = 0; i < univ.town.monst[which_monst].x_width; i++) //NOTE: Solve problem of >1 space monsters
 		for(short j = 0; j < univ.town.monst[which_monst].y_width; j++)
 			if(univ.town.monst[which_monst].active > 0) {
 				where_check.x = univ.town.monst[which_monst].cur_loc.x + i;
@@ -921,33 +923,12 @@ bool monst_check_special_terrain(location where_check,short mode,short which_mon
 		else can_enter = false;
 	}
 	if(univ.town.testField<BARRIER_CAGE>(where_check.x,where_check.y)) can_enter = false;
-	if(univ.town.testField<OBJECT_CRATE>(where_check.x,where_check.y)) {
+	if(univ.town.testField<OBJECT_CRATE,OBJECT_BLOCK,OBJECT_BARREL>(where_check.x,where_check.y))
+	{
 		if(monster_placid(which_monst))
 			can_enter = false;
 		else {
-			to_loc = push_loc(from_loc,where_check);
-			univ.town.clearFields<OBJECT_CRATE>(where_check.x,where_check.y);
-			if(to_loc.x > 0)
-				univ.town.setField<OBJECT_CRATE>(to_loc.x,to_loc.y);
-			for(short i = 0; i < univ.town.items.size(); i++)
-				if(univ.town.items[i].variety != eItemType::NO_ITEM && univ.town.items[i].item_loc == where_check
-				   && univ.town.items[i].contained && univ.town.items[i].held)
-					univ.town.items[i].item_loc = to_loc;
-		}
-	}
-	if(univ.town.testField<OBJECT_BARREL>(where_check.x,where_check.y)) {
-		if(monster_placid(which_monst))
-			can_enter = false;
-		else {
-			to_loc = push_loc(from_loc,where_check);
-			univ.town.clearFields<OBJECT_BARREL>(where_check.x,where_check.y);
-			if(to_loc.x > 0)
-				univ.town.setField<OBJECT_BARREL>(to_loc.x,to_loc.y);
-			for(short i = 0; i < univ.town.items.size(); i++)
-				if(univ.town.items[i].variety != eItemType::NO_ITEM && univ.town.items[i].item_loc == where_check
-				   && univ.town.items[i].contained && univ.town.items[i].held)
-					univ.town.items[i].item_loc = to_loc;
-			
+			PushableObjects::template push<false,false>(from_loc,where_check,univ.town);
 		}
 	}
 	if(monster_placid(which_monst) && // monsters don't hop into bed when things are calm

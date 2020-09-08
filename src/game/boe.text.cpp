@@ -22,6 +22,7 @@ const int TEXT_BUF_LEN = 70;
 #include "res_font.hpp"
 #include "spell.hpp"
 #include "enum_map.hpp"
+#include "fieldInflicts.hpp"
 
 typedef struct {
 	char line[50];
@@ -736,47 +737,8 @@ short do_look(location space) {
 			add_string_to_buf("    Boat");
 		if(town_horse_there(space))
 			add_string_to_buf("    Horse");
-		
-		if(univ.town.testField<FIELD_WEB>(space.x,space.y))
-			add_string_to_buf("    Web");
-		if(univ.town.testField<OBJECT_CRATE>(space.x,space.y))
-			add_string_to_buf("    Crate");
-		if(univ.town.testField<OBJECT_BARREL>(space.x,space.y))
-			add_string_to_buf("    Barrel");
-		if(univ.town.testField<OBJECT_BLOCK>(space.x,space.y))
-			add_string_to_buf("    Stone Block");
-		if(univ.town.testField<BARRIER_FIRE,BARRIER_FORCE>(space.x,space.y))
-			add_string_to_buf("    Magic Barrier");
-		if(univ.town.testField<FIELD_QUICKFIRE>(space.x,space.y))
-			add_string_to_buf("    Quickfire");
-		if(univ.town.testField<WALL_FIRE>(space.x,space.y))
-			add_string_to_buf("    Wall of Fire");
-		if(univ.town.testField<WALL_FORCE>(space.x,space.y))
-			add_string_to_buf("    Wall of Force");
-		if(univ.town.testField<FIELD_ANTIMAGIC>(space.x,space.y))
-			add_string_to_buf("    Antimagic Field");
-		if(univ.town.testField<CLOUD_STINK>(space.x,space.y))
-			add_string_to_buf("    Stinking Cloud");
-		if(univ.town.testField<CLOUD_SLEEP>(space.x,space.y))
-			add_string_to_buf("    Sleep Cloud");
-		if(univ.town.testField<WALL_ICE>(space.x,space.y))
-			add_string_to_buf("    Ice Wall");
-		if(univ.town.testField<WALL_BLADES>(space.x,space.y))
-			add_string_to_buf("    Blade Wall");
-		if(univ.town.testField<BARRIER_CAGE>(space.x,space.y))
-			add_string_to_buf("    Force Cage");
-		
-		if(univ.town.testField<SFX_SMALL_BLOOD,SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD>(space.x,space.y))
-			add_string_to_buf("    Blood stain");
-		if(univ.town.testField<SFX_SMALL_SLIME,SFX_LARGE_SLIME>(space.x,space.y))
-			add_string_to_buf("    Smears of slime");
-		if(univ.town.testField<SFX_ASH>(space.x,space.y))
-			add_string_to_buf("    Ashes");
-		if(univ.town.testField<SFX_BONES>(space.x,space.y))
-			add_string_to_buf("    Bones");
-		if(univ.town.testField<SFX_RUBBLE>(space.x,space.y))
-			add_string_to_buf("    Rubble");
-		
+		VisibleFieldApplication::buildLook(univ.town,space.x,space.y);
+
 		for(short i = 0; i < univ.town.items.size(); i++) {
 			if(univ.town.items[i].variety != eItemType::NO_ITEM && space == univ.town.items[i].item_loc
 			   && (is_lit)) {

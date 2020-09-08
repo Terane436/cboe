@@ -31,6 +31,8 @@
 #include <array>
 #include "spell.hpp"
 #include "boe.menus.hpp"
+#include "fieldInflicts.hpp"
+#include "fieldPushableObjects.hpp"
 
 extern sf::RenderWindow mainPtr;
 extern eGameMode overall_mode;
@@ -261,48 +263,41 @@ bool check_special_terrain(location where_check,eSpecCtx mode,cPlayer& which_pc,
 	
 	if(!is_out()) {
 		check_fields(where_check,mode,which_pc);
-		
-		if(univ.town.testField<FIELD_WEB>(where_check.x,where_check.y) && univ.current_pc().race != eRace::BUG) {
-			add_string_to_buf("  Webs!");
-			if(mode != eSpecCtx::COMBAT_MOVE) {
-				for(short i = 0; i < 6; i++) {
-					r1 = get_ran(1,2,3);
-					univ.party[i].web(r1);
-				}
-			}
-			else univ.current_pc().web(get_ran(1,2,3));
-			put_pc_screen();
-			univ.town.clearFields<FIELD_WEB>(where_check.x,where_check.y);
-		}
+		PushableObjects::template push<true,true>(from_loc,where_check,univ.town);
+#if 0
 		if(univ.town.testField<OBJECT_CRATE>(where_check.x,where_check.y)) {
 			add_string_to_buf("  You push the crate.");
 			to_loc = push_loc(from_loc,where_check);
-			univ.town.clearFields<OBJECT_CRATE>(where_check.x,where_check.y);
+			executePush<OBJECT_CRATE>(to_loc,where_check,univ.town);
+			/*univ.town.clearFields<OBJECT_CRATE>(where_check.x,where_check.y);
 			if(to_loc.x > 0)
 				univ.town.setField<OBJECT_CRATE>(to_loc.x,to_loc.y);
 			for(short i = 0; i < univ.town.items.size(); i++)
 				if(univ.town.items[i].variety != eItemType::NO_ITEM && univ.town.items[i].item_loc == where_check
 				   && univ.town.items[i].contained && univ.town.items[i].held)
-					univ.town.items[i].item_loc = to_loc;
+					univ.town.items[i].item_loc = to_loc;*/
 		}
 		if(univ.town.testField<OBJECT_BARREL>(where_check.x,where_check.y)) {
 			add_string_to_buf("  You push the barrel.");
 			to_loc = push_loc(from_loc,where_check);
-			univ.town.clearFields<OBJECT_BARREL>(where_check.x,where_check.y);
+			executePush<OBJECT_BARREL>(to_loc,where_check,univ.town);
+			/*univ.town.clearFields<OBJECT_BARREL>(where_check.x,where_check.y);
 			if(to_loc.x > 0)
 				univ.town.setField<OBJECT_BARREL>(to_loc.x,to_loc.y);
 			for(short i = 0; i < univ.town.items.size(); i++)
 				if(univ.town.items[i].variety != eItemType::NO_ITEM && univ.town.items[i].item_loc == where_check
 				   && univ.town.items[i].contained && univ.town.items[i].held)
-					univ.town.items[i].item_loc = to_loc;
+					univ.town.items[i].item_loc = to_loc;*/
 		}
 		if(univ.town.testField<OBJECT_BLOCK>(where_check.x,where_check.y)) {
 			add_string_to_buf("  You push the stone block.");
 			to_loc = push_loc(from_loc,where_check);
-			univ.town.clearFields<OBJECT_BLOCK>(where_check.x,where_check.y);
+			executePush<OBJECT_BLOCK>(to_loc,where_check,univ.town);
+			/*univ.town.clearFields<OBJECT_BLOCK>(where_check.x,where_check.y);
 			if(to_loc.x > 0)
-				univ.town.setField<OBJECT_BLOCK>(to_loc.x,to_loc.y);
+				univ.town.setField<OBJECT_BLOCK>(to_loc.x,to_loc.y);*/
 		}
+#endif
 	}
 	
 	switch(ter_special) {
@@ -515,55 +510,8 @@ void check_fields(location where_check,eSpecCtx mode,cPlayer& which_pc) {
 	}
 	if(is_out())
 		return;
-	if(univ.town.testField<WALL_FIRE>(where_check.x,where_check.y)) {
-		add_string_to_buf("  Fire wall!");
-		r1 = get_ran(1,1,6) + 1;
-		if(mode == eSpecCtx::COMBAT_MOVE)
-			damage_pc(which_pc,r1,eDamageType::FIRE,eRace::UNKNOWN,0);
-	}
-	if(univ.town.testField<WALL_FORCE>(where_check.x,where_check.y)) {
-		add_string_to_buf("  Force wall!");
-		r1 = get_ran(2,1,6);
-		if(mode == eSpecCtx::COMBAT_MOVE)
-			damage_pc(which_pc,r1,eDamageType::MAGIC,eRace::UNKNOWN,0);
-	}
-	if(univ.town.testField<WALL_ICE>(where_check.x,where_check.y)) {
-		add_string_to_buf("  Ice wall!");
-		r1 = get_ran(2,1,6);
-		if(mode == eSpecCtx::COMBAT_MOVE)
-			damage_pc(which_pc,r1,eDamageType::COLD,eRace::UNKNOWN,0);
-		if(!is_combat())
-			boom_space(univ.party.town_loc,overall_mode,4,r1,7);
-	}
-	if(univ.town.testField<WALL_BLADES>(where_check.x,where_check.y)) {
-		add_string_to_buf("  Blade wall!");
-		r1 = get_ran(4,1,8);
-		if(mode == eSpecCtx::COMBAT_MOVE)
-			damage_pc(which_pc,r1,eDamageType::WEAPON,eRace::UNKNOWN,0);
-	}
-	if(univ.town.testField<FIELD_QUICKFIRE>(where_check.x,where_check.y)) {
-		add_string_to_buf("  Quickfire!");
-		r1 = get_ran(2,1,8);
-		if(mode == eSpecCtx::COMBAT_MOVE)
-			damage_pc(which_pc,r1,eDamageType::FIRE,eRace::UNKNOWN,0);
-	}
-	if(univ.town.testField<CLOUD_STINK>(where_check.x,where_check.y)) {
-		add_string_to_buf("  Stinking cloud!");
-		which_pc.curse(get_ran(1,2,3));
-	}
-	if(univ.town.testField<CLOUD_SLEEP>(where_check.x,where_check.y)) {
-		add_string_to_buf("  Sleep cloud!");
-		which_pc.sleep(eStatus::ASLEEP,3,0);
-	}
-	if(univ.town.testField<BARRIER_FIRE>(where_check.x,where_check.y)) {
-		add_string_to_buf("  Magic barrier!");
-		r1 = get_ran(2,1,10);
-		if(is_town()) fast_bang = 1;
-		if(mode == eSpecCtx::COMBAT_MOVE)
-			damage_pc(which_pc,r1,eDamageType::MAGIC,eRace::UNKNOWN,0);
-		else hit_party(r1,eDamageType::MAGIC,0);
-		fast_bang = 0;
-	}
+	if(mode == eSpecCtx::COMBAT_MOVE) FieldApplier::template inflict<cPlayer,cCurTown,true,true>(which_pc,where_check.x,where_check.y,univ.town);
+	else FieldApplier::buildLog(univ.town,where_check.x,where_check.y);//Builds log message only
 	put_pc_screen();
 }
 
@@ -1204,45 +1152,8 @@ bool use_space(location where) {
 		univ.town.clearFields<FIELD_WEB>(where.x,where.y);
 		return true;
 	}
-	if(univ.town.testField<OBJECT_CRATE>(where.x,where.y)) {
-		to_loc = push_loc(from_loc,where);
-		if(from_loc == to_loc) {
-			add_string_to_buf("  Can't push crate.");
-			return false;
-		}
-		add_string_to_buf("  You push the crate.");
-		univ.town.clearFields<OBJECT_CRATE>(where.x,where.y);
-		univ.town.setField<OBJECT_CRATE>(to_loc.x,to_loc.y);
-		for(short i = 0; i < univ.town.items.size(); i++)
-			if(univ.town.items[i].variety != eItemType::NO_ITEM && univ.town.items[i].item_loc == where
-			   && univ.town.items[i].contained && univ.town.items[i].held)
-			 	univ.town.items[i].item_loc = to_loc;
-	}
-	if(univ.town.testField<OBJECT_BARREL>(where.x,where.y)) {
-		to_loc = push_loc(from_loc,where);
-		if(from_loc == to_loc) {
-			add_string_to_buf("  Can't push barrel.");
-			return false;
-		}
-		add_string_to_buf("  You push the barrel.");
-		univ.town.clearFields<OBJECT_BARREL>(where.x, where.y);
-		univ.town.setField<OBJECT_BARREL>(to_loc.x,to_loc.y);
-		for(short i = 0; i < univ.town.items.size(); i++)
-			if(univ.town.items[i].variety != eItemType::NO_ITEM && univ.town.items[i].item_loc == where
-			   && univ.town.items[i].contained && univ.town.items[i].held)
-			 	univ.town.items[i].item_loc = to_loc;
-	}
-	if(univ.town.testField<OBJECT_BLOCK>(where.x,where.y)) {
-		to_loc = push_loc(from_loc,where);
-		if(from_loc == to_loc) {
-			add_string_to_buf("  Can't push block.");
-			return false;
-		}
-		add_string_to_buf("  You push the block.");
-		univ.town.clearFields<OBJECT_BLOCK>(where.x,where.y);
-		univ.town.setField<OBJECT_BLOCK>(to_loc.x,to_loc.y);
-	}
-	
+	if(!PushableObjects::push<true,false>(from_loc,where,univ.town)) return false;
+
 	if(univ.scenario.ter_types[ter].special == eTerSpec::CHANGE_WHEN_USED) {
 		if(where == from_loc) {
 			add_string_to_buf("  Not while on space.");
@@ -3346,7 +3257,7 @@ void ifthen_spec(const runtime_state& ctx) {
 				int i = 0;
 				for(short j = spec.ex1b; j < min(spec.ex2b, univ.town->max_dim); j++)
 					for(short k = spec.ex1a; k < min(spec.ex2a, univ.town->max_dim); k++) {
-						switch(eFieldType(spec.m1)) {
+						switch(eFieldType(spec.m1)) { //TODO: Migrate to field templates
 							// These values are not allowed
 							case SPECIAL_EXPLORED: case SPECIAL_SPOT: case SPECIAL_ROAD:
 							case FIELD_DISPEL: case FIELD_SMASH:
