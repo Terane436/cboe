@@ -231,7 +231,7 @@ void cCreature::sleep(eStatus which_status,int amount,int penalty) {
 		r1 -= 25;
 	if(which_status == eStatus::PARALYZED)
 		r1 -= 15;
-	if(which_status == eStatus::ASLEEP && abil[eMonstAbil::FIELD].active && abil[eMonstAbil::FIELD].gen.fld == eFieldType::CLOUD_SLEEP)
+	if(which_status == eStatus::ASLEEP && abil[eMonstAbil::FIELD].active && abil[eMonstAbil::FIELD].gen.fld == fields::CLOUD_SLEEP)
 		return;
 	
 	if(r1 > charm_odds[level / 2]) {

@@ -348,7 +348,7 @@ std::istream& operator>>(std::istream& in, eDirection& dir) {
 }
 
 // MARK: eFieldType
-
+namespace fields {
 cEnumLookup field_names = {
 	"explored", "wall-force", "wall-fire", "field-antimagic", "cloud-stink", "wall-ice", "wall-blades", "cloud-sleep",
 	"obj-block", "spec-spot", "field-web", "obj-crate", "obj-barrel", "barr-fire", "barr-force", "field-quickfire",
@@ -357,15 +357,16 @@ cEnumLookup field_names = {
 	"dispel", "smash",
 };
 
-std::ostream& operator << (std::ostream& out, eFieldType e) {
+std::ostream& operator << (std::ostream& out, fields::eFieldType e) {
 	writeEnum(out, e, field_names, "dispel");
 	return out;
 }
 
-std::istream& operator >> (std::istream& in, eFieldType& e) {
-	if(!readEnum(in, e, field_names, FIELD_DISPEL))
+std::istream& operator >> (std::istream& in, fields::eFieldType& e) {
+	if(!readEnum(in, e, field_names, fields::FIELD_DISPEL))
 		in.setstate(std::ios::failbit);
 	return in;
+}
 }
 
 // MARK: eDamageType

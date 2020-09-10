@@ -92,27 +92,27 @@ TEST_CASE("Saving map data to file") {
 		CHECK(map.getFeatures(3, 3) == test);
 	}
 	SECTION("With fields") {
-		map.addFeature(0, 0, eMapFeature::FIELD, FIELD_WEB);
-		map.addFeature(1, 1, eMapFeature::FIELD, SPECIAL_SPOT);
-		map.addFeature(2, 2, eMapFeature::FIELD, BARRIER_CAGE);
-		map.addFeature(3, 3, eMapFeature::FIELD, OBJECT_BLOCK);
+		map.addFeature(0, 0, eMapFeature::FIELD, fields::FIELD_WEB);
+		map.addFeature(1, 1, eMapFeature::FIELD, fields::SPECIAL_SPOT);
+		map.addFeature(2, 2, eMapFeature::FIELD, fields::BARRIER_CAGE);
+		map.addFeature(3, 3, eMapFeature::FIELD, fields::OBJECT_BLOCK);
 		in_and_out("fields", map, true);
-		test.emplace_back(make_pair(eMapFeature::FIELD, FIELD_WEB));
+		test.emplace_back(make_pair(eMapFeature::FIELD, fields::FIELD_WEB));
 		CHECK(map.getFeatures(0, 0) == test);
-		test[0].second = SPECIAL_SPOT;
+		test[0].second = fields::SPECIAL_SPOT;
 		CHECK(map.getFeatures(1, 1) == test);
-		test[0].second = BARRIER_CAGE;
+		test[0].second = fields::BARRIER_CAGE;
 		CHECK(map.getFeatures(2, 2) == test);
-		test[0].second = OBJECT_BLOCK;
+		test[0].second = fields::OBJECT_BLOCK;
 		CHECK(map.getFeatures(3, 3) == test);
 	}
 	SECTION("With fields outdoors") {
-		map.addFeature(0, 0, eMapFeature::FIELD, SPECIAL_SPOT);
-		map.addFeature(1, 1, eMapFeature::FIELD, SPECIAL_ROAD);
+		map.addFeature(0, 0, eMapFeature::FIELD, fields::SPECIAL_SPOT);
+		map.addFeature(1, 1, eMapFeature::FIELD, fields::SPECIAL_ROAD);
 		in_and_out("fields outdoors", map, false);
-		test.emplace_back(make_pair(eMapFeature::FIELD, SPECIAL_SPOT));
+		test.emplace_back(make_pair(eMapFeature::FIELD, fields::SPECIAL_SPOT));
 		CHECK(map.getFeatures(0, 0) == test);
-		test[0].second = SPECIAL_ROAD;
+		test[0].second = fields::SPECIAL_ROAD;
 		CHECK(map.getFeatures(1, 1) == test);
 	}
 	SECTION("With town entrance") {
@@ -242,16 +242,16 @@ TEST_CASE("Building map data") {
 		}
 	}
 	SECTION("With fields") {
-		scen.towns[0]->preset_fields.emplace_back(loc(0,0), FIELD_WEB);
-		scen.towns[0]->preset_fields.emplace_back(loc(1,1), OBJECT_BLOCK);
-		scen.towns[0]->preset_fields.emplace_back(loc(2,2), BARRIER_CAGE);
-		scen.towns[0]->preset_fields.emplace_back(loc(3,3), SPECIAL_SPOT);
+		scen.towns[0]->preset_fields.emplace_back(loc(0,0), fields::FIELD_WEB);
+		scen.towns[0]->preset_fields.emplace_back(loc(1,1), fields::OBJECT_BLOCK);
+		scen.towns[0]->preset_fields.emplace_back(loc(2,2), fields::BARRIER_CAGE);
+		scen.towns[0]->preset_fields.emplace_back(loc(3,3), fields::SPECIAL_SPOT);
 		in_and_out(scen, true);
 		REQUIRE(scen.towns[0]->preset_fields.size() == 4);
-		static const std::map<eFieldType, location> check = {
-			{OBJECT_BLOCK, {1,1}}, {SPECIAL_SPOT, {3,3}}, {FIELD_WEB, {0,0}}, {BARRIER_CAGE, {2,2}},
+		static const std::map<fields::eFieldType, location> check = {
+			{fields::OBJECT_BLOCK, {1,1}}, {fields::SPECIAL_SPOT, {3,3}}, {fields::FIELD_WEB, {0,0}}, {fields::BARRIER_CAGE, {2,2}},
 		};
-		set<eFieldType> found;
+		set<fields::eFieldType> found;
 		for(const auto& fld : scen.towns[0]->preset_fields) {
 			if(found.count(fld.type))
 				FAIL("Error: Two fields of the same type found!");

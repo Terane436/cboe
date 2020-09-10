@@ -27,8 +27,8 @@ void cTown::import_legacy(T& old, int){
 	typedef import_helper<T> sizes;
 	assert(max_dim == sizes::dim && "Tried to import legacy town into wrong-sized town");
 	cField the_field, the_road;
-	the_field.type = SPECIAL_SPOT;
-	the_road.type = SPECIAL_ROAD;
+	the_field.type = fields::SPECIAL_SPOT;
+	the_road.type = fields::SPECIAL_ROAD;
 	// Collect a list of unused special nodes, to be used for fixing specials that could be triggered in a boat.
 	std::vector<int> unused_special_slots;
 	for(short i = 0; i < 100; i++) {

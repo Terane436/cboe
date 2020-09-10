@@ -892,35 +892,35 @@ static bool handle_terrain_action(location the_point, bool ctrl_hit) {
 				overall_mode = MODE_DRAWING;
 				break;
 			case MODE_PLACE_WEB:
-				make_field_type(spot_hit.x,spot_hit.y,FIELD_WEB);
+				make_field_type(spot_hit.x,spot_hit.y,fields::FIELD_WEB);
 				mouse_button_held = true;
 				break;
 			case MODE_PLACE_CRATE:
-				make_field_type(spot_hit.x,spot_hit.y,OBJECT_CRATE);
+				make_field_type(spot_hit.x,spot_hit.y,fields::OBJECT_CRATE);
 				mouse_button_held = true;
 				break;
 			case MODE_PLACE_BARREL:
-				make_field_type(spot_hit.x,spot_hit.y,OBJECT_BARREL);
+				make_field_type(spot_hit.x,spot_hit.y,fields::OBJECT_BARREL);
 				mouse_button_held = true;
 				break;
 			case MODE_PLACE_FIRE_BARRIER:
-				make_field_type(spot_hit.x,spot_hit.y,BARRIER_FIRE);
+				make_field_type(spot_hit.x,spot_hit.y,fields::BARRIER_FIRE);
 				mouse_button_held = true;
 				break;
 			case MODE_PLACE_FORCE_BARRIER:
-				make_field_type(spot_hit.x,spot_hit.y,BARRIER_FORCE);
+				make_field_type(spot_hit.x,spot_hit.y,fields::BARRIER_FORCE);
 				mouse_button_held = true;
 				break;
 			case MODE_PLACE_QUICKFIRE:
-				make_field_type(spot_hit.x,spot_hit.y,FIELD_QUICKFIRE);
+				make_field_type(spot_hit.x,spot_hit.y,fields::FIELD_QUICKFIRE);
 				mouse_button_held = true;
 				break;
 			case MODE_PLACE_STONE_BLOCK:
-				make_field_type(spot_hit.x,spot_hit.y,OBJECT_BLOCK);
+				make_field_type(spot_hit.x,spot_hit.y,fields::OBJECT_BLOCK);
 				mouse_button_held = true;
 				break;
 			case MODE_PLACE_FORCECAGE:
-				make_field_type(spot_hit.x,spot_hit.y,BARRIER_CAGE);
+				make_field_type(spot_hit.x,spot_hit.y,fields::BARRIER_CAGE);
 				mouse_button_held = true;
 				break;
 			case MODE_TOGGLE_SPECIAL_DOT:
@@ -931,7 +931,7 @@ static bool handle_terrain_action(location the_point, bool ctrl_hit) {
 					mouse_button_held = true;
 					break;
 				}
-				make_field_type(spot_hit.x, spot_hit.y, SPECIAL_SPOT);
+				make_field_type(spot_hit.x, spot_hit.y, fields::SPECIAL_SPOT);
 				mouse_button_held = true;
 				break;
 			case MODE_TOGGLE_ROAD:
@@ -942,16 +942,16 @@ static bool handle_terrain_action(location the_point, bool ctrl_hit) {
 					mouse_button_held = true;
 					break;
 				}
-				make_field_type(spot_hit.x, spot_hit.y, SPECIAL_ROAD);
+				make_field_type(spot_hit.x, spot_hit.y, fields::SPECIAL_ROAD);
 				mouse_button_held = true;
 				break;
 			case MODE_CLEAR_FIELDS:
-				for(int i = 8; i <= SPECIAL_ROAD; i++)
-					take_field_type(spot_hit.x,spot_hit.y, eFieldType(i));
+				for(int i = 8; i <= fields::SPECIAL_ROAD; i++)
+					take_field_type(spot_hit.x,spot_hit.y, fields::eFieldType(i));
 				mouse_button_held = true;
 				break;
 			case MODE_PLACE_SFX:
-				make_field_type(spot_hit.x,spot_hit.y,eFieldType(SFX_SMALL_BLOOD + mode_count));
+				make_field_type(spot_hit.x,spot_hit.y,fields::eFieldType(fields::SFX_SMALL_BLOOD + mode_count));
 				mouse_button_held = true;
 				break;
 			case MODE_EYEDROPPER:

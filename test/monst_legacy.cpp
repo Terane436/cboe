@@ -289,7 +289,7 @@ TEST_CASE("Converting monsters from legacy scenarios") {
 			CHECK(new_monst.abil[eMonstAbil::FIELD].gen.strength == PAT_SINGLE);
 			CHECK(new_monst.abil[eMonstAbil::FIELD].gen.range == 6);
 			CHECK(new_monst.abil[eMonstAbil::FIELD].gen.odds == 375);
-			CHECK(new_monst.abil[eMonstAbil::FIELD].gen.fld == CLOUD_STINK);
+			CHECK(new_monst.abil[eMonstAbil::FIELD].gen.fld == fields::CLOUD_STINK);
 		}
 		SECTION("Icy Touch") {
 			old_monst.spec_skill = 15;
@@ -470,7 +470,7 @@ TEST_CASE("Converting monsters from legacy scenarios") {
 			CHECK(new_monst.abil[eMonstAbil::FIELD].gen.strength == PAT_RAD2);
 			CHECK(new_monst.abil[eMonstAbil::FIELD].gen.range == 8);
 			CHECK(new_monst.abil[eMonstAbil::FIELD].gen.odds == 750);
-			CHECK(new_monst.abil[eMonstAbil::FIELD].gen.fld == CLOUD_SLEEP);
+			CHECK(new_monst.abil[eMonstAbil::FIELD].gen.fld == fields::CLOUD_SLEEP);
 		}
 		SECTION("Acid Spit") {
 			old_monst.spec_skill = 33;
@@ -526,7 +526,7 @@ TEST_CASE("Converting monsters from legacy scenarios") {
 			new_monst.import_legacy(old_monst);
 			REQUIRE(new_monst.abil.size() == 1);
 			REQUIRE(new_monst.abil[eMonstAbil::RADIATE].active);
-			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.type == WALL_FIRE);
+			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.type == fields::WALL_FIRE);
 			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.chance == 50);
 			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.pat == PAT_SQ);
 		}
@@ -535,7 +535,7 @@ TEST_CASE("Converting monsters from legacy scenarios") {
 			new_monst.import_legacy(old_monst);
 			REQUIRE(new_monst.abil.size() == 1);
 			REQUIRE(new_monst.abil[eMonstAbil::RADIATE].active);
-			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.type == WALL_ICE);
+			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.type == fields::WALL_ICE);
 			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.chance == 50);
 			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.pat == PAT_SQ);
 		}
@@ -544,7 +544,7 @@ TEST_CASE("Converting monsters from legacy scenarios") {
 			new_monst.import_legacy(old_monst);
 			REQUIRE(new_monst.abil.size() == 1);
 			REQUIRE(new_monst.abil[eMonstAbil::RADIATE].active);
-			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.type == WALL_FORCE);
+			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.type == fields::WALL_FORCE);
 			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.chance == 50);
 			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.pat == PAT_SQ);
 		}
@@ -553,7 +553,7 @@ TEST_CASE("Converting monsters from legacy scenarios") {
 			new_monst.import_legacy(old_monst);
 			REQUIRE(new_monst.abil.size() == 1);
 			REQUIRE(new_monst.abil[eMonstAbil::RADIATE].active);
-			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.type == FIELD_ANTIMAGIC);
+			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.type == fields::FIELD_ANTIMAGIC);
 			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.chance == 50);
 			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.pat == PAT_SQ);
 		}
@@ -562,7 +562,7 @@ TEST_CASE("Converting monsters from legacy scenarios") {
 			new_monst.import_legacy(old_monst);
 			REQUIRE(new_monst.abil.size() == 1);
 			REQUIRE(new_monst.abil[eMonstAbil::RADIATE].active);
-			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.type == CLOUD_SLEEP);
+			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.type == fields::CLOUD_SLEEP);
 			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.chance == 50);
 			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.pat == PAT_SQ);
 		}
@@ -571,7 +571,7 @@ TEST_CASE("Converting monsters from legacy scenarios") {
 			new_monst.import_legacy(old_monst);
 			REQUIRE(new_monst.abil.size() == 1);
 			REQUIRE(new_monst.abil[eMonstAbil::RADIATE].active);
-			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.type == CLOUD_STINK);
+			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.type == fields::CLOUD_STINK);
 			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.chance == 50);
 			CHECK(new_monst.abil[eMonstAbil::RADIATE].radiate.pat == PAT_SQ);
 		}

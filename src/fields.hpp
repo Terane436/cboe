@@ -13,6 +13,9 @@
 #include "damage.hpp"
 #include "mathutil.hpp"
 
+namespace fields
+{
+
 // This is a slight misnomer, as a couple of these are not true fields.
 enum eFieldType {
 	SPECIAL_EXPLORED = 0,
@@ -75,6 +78,8 @@ struct BaseFieldsControl //BARRIER_CAGE, SPECIAL_ROAD, SPECIAL_SPOT
     static constexpr short FadeChance = 0;
     static std::string log() {return "";}
     static std::string look() {return "";}
+    static constexpr short guts = 8;
+    static constexpr bool gutsSpecial = false;//Set this flag to skip guts in FieldApplier::testGuts
 };
 
 template<eFieldType Field> struct FieldControls : public BaseFieldsControl {};
@@ -103,6 +108,7 @@ template<> struct FieldControls<WALL_FORCE> : public BaseFieldsControl
     static constexpr short FadeChance = 6;
     static std::string log() {return "  Force wall!";}
     static std::string look() {return "    Wall of Force";}
+    static constexpr short guts = 4;
 };
 
 template<> struct FieldControls<WALL_FIRE> : public BaseFieldsControl
@@ -113,6 +119,7 @@ template<> struct FieldControls<WALL_FIRE> : public BaseFieldsControl
     static constexpr short FadeChance = 4;
     static std::string log() {return "  Fire wall!";}
     static std::string look() {return "    Wall of Fire";}
+    static constexpr short guts = 3;
 };
 
 template<> struct FieldControls<FIELD_ANTIMAGIC> : public BaseFieldsControl
@@ -131,6 +138,7 @@ template<> struct FieldControls<CLOUD_STINK> : public BaseFieldsControl
     static constexpr short FadeChance = 4;
     static std::string log() {return "  Stinking cloud!";}
     static std::string look() {return "    Stinking Cloud";}
+    static constexpr short guts = 4;
 };
 
 template<> struct FieldControls<WALL_ICE> : public BaseFieldsControl
@@ -141,6 +149,7 @@ template<> struct FieldControls<WALL_ICE> : public BaseFieldsControl
     static constexpr short FadeChance = 6;
     static std::string log() {return "  Ice wall!";}
     static std::string look() {return "    Wall of Ice";}
+    static constexpr short guts = 5;
 };
 
 template<> struct FieldControls<WALL_BLADES> : public BaseFieldsControl
@@ -169,6 +178,8 @@ template<> struct FieldControls<FIELD_WEB> : public BaseFieldsControl
     static constexpr bool TriggeringClears = true;
     static std::string log() {return "  Webs!";}
     static std::string look() {return "    Web";}
+    static constexpr short guts = 3;
+    static constexpr bool gutsSpecial = true;
 };
 
 template<> struct FieldControls<OBJECT_BLOCK> : public FieldControlsObject
@@ -193,6 +204,8 @@ template<> struct FieldControls<BARRIER_FIRE> : public BaseFieldsControl
     static constexpr short AntimagicChance = 3;
     static std::string log() {return "  Magic barrier!";}
     static std::string look() {return "    Magic Barrier";}
+    static constexpr short guts = 6;
+    static constexpr bool gutsSpecial = true;
 };
 
 template<> struct FieldControls<BARRIER_FORCE> : public BaseFieldsControl
@@ -261,6 +274,8 @@ namespace fieldgroups {
 typedef util::BuildMask<SPECIAL_SPOT,OBJECT_CRATE,OBJECT_BARREL,OBJECT_BLOCK,FIELD_QUICKFIRE,WALL_FORCE,WALL_FIRE,FIELD_ANTIMAGIC,CLOUD_STINK,WALL_ICE,WALL_BLADES,CLOUD_SLEEP> NonClearFields;
 typedef util::BuildMask<WALL_FORCE,WALL_FIRE,FIELD_ANTIMAGIC,CLOUD_STINK,CLOUD_SLEEP,WALL_ICE,WALL_BLADES> FadingFields;
 typedef util::TestInSet<eFieldType,OBJECT_CRATE,OBJECT_BARREL> ContainerFields;
+typedef util::BuildMask<FIELD_ANTIMAGIC> MageAvoidedFields;
+}
 }
 
 #endif

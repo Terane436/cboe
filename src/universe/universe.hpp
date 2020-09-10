@@ -41,24 +41,24 @@ class cCurTown {
 	cTown* arena;
 	cTown*const record() const;
 public:
-        FieldBitmap savedFields(short x, short y) {return (fields[x][y]>>8) & 0x0FF;}
+	fields::FieldBitmap savedFields(short x, short y) {return (fields[x][y]>>8) & 0x0FF;}
 	void zeroField(short x, short y) {fields[x][y] = 0;}
-        void directSetFields(short x, short y, FieldBitmap mask) {fields[x][y] |= mask;}
+        void directSetFields(short x, short y, fields::FieldBitmap mask) {fields[x][y] |= mask;}
         template<typename Fields> bool testFields(short x, short y) const
         {
             if(x > record()->max_dim || y > record()->max_dim) return false;
             return fields[x][y] & Fields::mask;
         }
-        template<eFieldType... Fields> bool testField(short x, short y) const
+        template<fields::eFieldType... Fields> bool testField(short x, short y) const
         {
             if(x > record()->max_dim || y > record()->max_dim) return false;
             return fields[x][y] & util::BuildMask<Fields...>::mask;
         }
-        template<eFieldType... Fields> bool testFieldUnchecked(short x, short y) const
+        template<fields::eFieldType... Fields> bool testFieldUnchecked(short x, short y) const
         {
             return fields[x][y] & util::BuildMask<Fields...>::mask;
         }
-	template<eFieldType... Fields> bool testFieldAll(short x, short y) const
+	template<fields::eFieldType... Fields> bool testFieldAll(short x, short y) const
         {
             if(x > record()->max_dim || y > record()->max_dim) return false;
             return (fields[x][y] & util::BuildMask<Fields...>::mask) == util::BuildMask<Fields...>::mask;
@@ -76,22 +76,22 @@ public:
 	    fields[x][y] |= SetField::mask;
 	    return true;
 	}
-	template<eFieldType... Fields> void clearFields(short x, short y)
+	template<fields::eFieldType... Fields> void clearFields(short x, short y)
         {
             fields[x][y] &= ~util::BuildMask<Fields...>::mask;
         }
-	template<eFieldType Field, bool Set = true> bool setField(short x, short y)
+	template<fields::eFieldType Field, bool Set = true> bool setField(short x, short y)
 	{
 	    if(Set)
             { //If really important, consider special extra check for QUICKFIRE here
                 bool r = setFields<util::BuildMask<Field>,
-		     typename FieldControls<Field>::BlockFields,
-		     typename FieldControls<Field>::ClearFields,
-		     FieldControls<Field>::Checked,
-		     FieldControls<Field>::AvoidImpassable,
-		     FieldControls<Field>::AntimagicChance,
-		     FieldControls<Field>::IsSfx>(x,y);
-		if(Field == FIELD_QUICKFIRE && r) quickfire_present = true;
+		     typename fields::FieldControls<Field>::BlockFields,
+		     typename fields::FieldControls<Field>::ClearFields,
+		     fields::FieldControls<Field>::Checked,
+		     fields::FieldControls<Field>::AvoidImpassable,
+		     fields::FieldControls<Field>::AntimagicChance,
+		     fields::FieldControls<Field>::IsSfx>(x,y);
+		if(Field == fields::FIELD_QUICKFIRE && r) quickfire_present = true;
 		return r;
             }
 	    else
@@ -101,13 +101,34 @@ public:
 		return true;
 	    }
 	}
-	template<eFieldType Field> void fadeField(short x, short y)
+	template<fields::eFieldType Field> void fadeField(short x, short y)
 	{
-            if(FieldControls<Field>::FadeChance == 0) return;
+            if(fields::FieldControls<Field>::FadeChance == 0) return;
 	    if(!testField<Field>(x,y)) return;
-            if(get_ran(1,1,FieldControls<Field>::FadeChance) == 1)
+            if(get_ran(1,1,fields::FieldControls<Field>::FadeChance) == 1)
                 clearFields<Field>(x,y);
 	}
+        template<bool RequireContained>
+	void moveItems(location from, location to)
+	{
+            for(auto& item : items)
+            {
+                if(item.variety != eItemType::NO_ITEM && item.item_loc == from)
+                {
+                    if(!RequireContained || (item.contained && item.held))
+                        item.item_loc = to;
+                }
+            }
+	}
+        void uncontainItems(location loc)
+        {
+            for(auto& item : items)
+            {
+                if(item.variety != eItemType::NO_ITEM && item.item_loc == loc && item.contained)
+                    item.contained = item.held = false;
+            }
+        }
+        const std::vector<cItem>& getItems() const {return items;}
 
 	bool quickfire_present = false, belt_present = false;
 	// formerly current_town_type
@@ -116,7 +137,7 @@ public:
 	
 	std::vector<cItem> items; // formerly town_item_list type
 private:
-	FieldBitmap fields[64][64];
+	fields::FieldBitmap fields[64][64];
 public:
 	void import_legacy(legacy::current_town_type& old);
 	void import_legacy(legacy::town_item_list& old);

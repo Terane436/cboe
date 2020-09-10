@@ -27,9 +27,12 @@ void get_strs(std::string& str1, std::string& str2,eSpecCtxType cur_type,short w
 
 void set_campaign_flag(short sdf_a, short sdf_b, short cpf_a, short cpf_b, short str, bool get_send);
 
+namespace fields
+{
 template<> struct FieldDamager<cCreature>
 {
     static void damage(cCreature& monster, short amount, eDamageType type, short source = 7)
     {damage_monst(monster,source,amount,type,0);}
 };
+}
 

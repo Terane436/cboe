@@ -162,7 +162,7 @@ TEST_CASE("Saving monster types") {
 	}
 	SECTION("With an ability of every type") {
 		MissileAbil missile = {true, eMonstMissile::SPINE, 5, 1, 8, 7, 10, 500};
-		RadiateAbil radiate = {true, WALL_FIRE, 450, PAT_RAD3};
+		RadiateAbil radiate = {true, fields::WALL_FIRE, 450, PAT_RAD3};
 		SummonAbil summon = {true, eMonstSummon::TYPE, 128, 1, 8, 50, 580};
 		SpecialAbil
 			split = {true, 1, 2, 3},
@@ -190,7 +190,7 @@ TEST_CASE("Saving monster types") {
 		damage2.dmg = eDamageType::COLD;
 		status.stat = eStatus::PARALYZED;
 		status2.stat = eStatus::POISON;
-		field.fld = FIELD_ANTIMAGIC;
+		field.fld = fields::FIELD_ANTIMAGIC;
 		stun.stat = eStatus::HASTE_SLOW;
 		scen.scen_monsters[1].abil[eMonstAbil::MISSILE].missile = missile;
 		scen.scen_monsters[1].abil[eMonstAbil::DAMAGE].gen = damage;

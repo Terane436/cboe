@@ -706,7 +706,7 @@ short choose_field_type(short cur, cDialog* parent, bool includeSpec) {
 	}
 	short prev = cur;
 	cur--;
-	if(cur >= SPECIAL_SPOT) cur--;
+	if(cur >= fields::SPECIAL_SPOT) cur--;
 	if(cur >= 25) cur -= 7;
 	if(cur < 0 || cur >= pics.size()) cur = 0;
 	cPictChoice pic_dlg(pics, parent);
@@ -718,7 +718,7 @@ short choose_field_type(short cur, cDialog* parent, bool includeSpec) {
 	bool made_choice = pic_dlg.show(cur);
 	size_t item_hit = pic_dlg.getSelected();
 	item_hit++;
-	if(item_hit >= SPECIAL_SPOT)
+	if(item_hit >= fields::SPECIAL_SPOT)
 		item_hit++;
 	if(item_hit >= 25)
 		item_hit += 7;

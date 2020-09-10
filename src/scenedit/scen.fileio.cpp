@@ -889,9 +889,9 @@ map_data buildOutMapData(location which, cScenario& scenario) {
 		for(size_t y = 0; y < 48; y++) {
 			terrain.set(x, y, sector.terrain[x][y]);
 			if(sector.special_spot[x][y])
-				terrain.addFeature(x, y, eMapFeature::FIELD, SPECIAL_SPOT);
+				terrain.addFeature(x, y, eMapFeature::FIELD, fields::SPECIAL_SPOT);
 			if(sector.roads[x][y])
-				terrain.addFeature(x, y, eMapFeature::FIELD, SPECIAL_ROAD);
+				terrain.addFeature(x, y, eMapFeature::FIELD, fields::SPECIAL_ROAD);
 		}
 	}
 	for(size_t i = 0; i < sector.special_locs.size(); i++) {
@@ -950,7 +950,7 @@ map_data buildTownMapData(size_t which, cScenario& scenario) {
 			terrain.addFeature(town.preset_items[i].loc.x, town.preset_items[i].loc.y, eMapFeature::ITEM, i);
 	}
 	for(size_t i = 0; i < town.preset_fields.size(); i++) {
-		if(town.preset_fields[i].type > 0 && town.preset_fields[i].type < FIELD_DISPEL)
+		if(town.preset_fields[i].type > 0 && town.preset_fields[i].type < fields::FIELD_DISPEL)
 			terrain.addFeature(town.preset_fields[i].loc.x,town.preset_fields[i].loc.y,eMapFeature::FIELD,town.preset_fields[i].type);
 	}
 	for(size_t i = 0; i < town.creatures.size(); i++) {

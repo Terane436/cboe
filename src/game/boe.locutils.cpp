@@ -26,19 +26,19 @@ char d_s[60];
 bool is_explored(short i,short j) {
 	if(is_out())
 		return (univ.out.out_e[i][j] != 0) ? true : false;
-	else return univ.town.testField<SPECIAL_EXPLORED>(i,j);
+	else return univ.town.testField<fields::SPECIAL_EXPLORED>(i,j);
 }
 
 void make_explored(short i,short j) {
 	if(is_out())
 		univ.out.out_e[i][j] = 1;
-	else univ.town.setField<SPECIAL_EXPLORED>(i,j);
+	else univ.town.setField<fields::SPECIAL_EXPLORED>(i,j);
 }
 
 void take_explored(short i,short j) {
 	if(is_out())
 		univ.out.out_e[i][j] = 0;
-	else univ.town.clearFields<SPECIAL_EXPLORED>(i,j);
+	else univ.town.clearFields<fields::SPECIAL_EXPLORED>(i,j);
 }
 
 bool is_out() {
@@ -197,11 +197,11 @@ short sight_obscurity(short x,short y) {
 	}
 	
 	if((is_town()) || (is_combat())) {
-		if(univ.town.testField<FIELD_WEB>(x,y))
+		if(univ.town.testField<fields::FIELD_WEB>(x,y))
 			store += 2;
-		if(univ.town.testField<BARRIER_FIRE,BARRIER_FORCE>(x,y))
+		if(univ.town.testField<fields::BARRIER_FIRE,fields::BARRIER_FORCE>(x,y))
 			return 5;
-		if(univ.town.testField<OBJECT_BARREL,OBJECT_CRATE,OBJECT_BLOCK>(x,y))
+		if(univ.town.testField<fields::OBJECT_BARREL,fields::OBJECT_CRATE,fields::OBJECT_BLOCK>(x,y))
 			store++;
 		
 	}
@@ -221,7 +221,7 @@ ter_num_t coord_to_ter(short x,short y) {
 ////
 bool is_container(location loc) {
 	ter_num_t ter;
-	if(univ.town.testField<OBJECT_CRATE,OBJECT_BARREL>(loc.x,loc.y))
+	if(univ.town.testField<fields::OBJECT_CRATE,fields::OBJECT_BARREL>(loc.x,loc.y))
 		return true;
 	ter = coord_to_ter(loc.x,loc.y);
 	if(univ.scenario.ter_types[ter].special == eTerSpec::IS_A_CONTAINER)
@@ -291,7 +291,7 @@ bool is_blocked(location to_check) {
 		}
 		
 		// Keep away from marked specials during combat
-		if((is_combat()) && univ.town.testFieldUnchecked<SPECIAL_SPOT>(to_check.x, to_check.y))
+		if((is_combat()) && univ.town.testFieldUnchecked<fields::SPECIAL_SPOT>(to_check.x, to_check.y))
 			return true;
 		if((is_combat()) && (univ.scenario.ter_types[coord_to_ter(to_check.x,to_check.y)].trim_type == eTrimType::CITY))
 			return true; // TODO: Maybe replace eTrimType::CITY with a blockage == clear/special && is_special() check
@@ -311,7 +311,7 @@ bool is_blocked(location to_check) {
 			return true;
 		
 		// Magic barrier?
-		if(univ.town.testField<BARRIER_FORCE,BARRIER_CAGE>(to_check.x,to_check.y))
+		if(univ.town.testField<fields::BARRIER_FORCE,fields::BARRIER_CAGE>(to_check.x,to_check.y))
 			return true;
 		
 		return false;

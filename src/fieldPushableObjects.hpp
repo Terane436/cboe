@@ -5,7 +5,8 @@
 #include "game/boe.locutils.hpp"
 #include "fields.hpp"
 
-//May need to move this
+namespace fields
+{
 
 template<eFieldType Type> struct PushableObjectStrings
 {
@@ -46,10 +47,7 @@ template<eFieldType Type, bool IsPc, bool Moving, typename Source> bool executeP
         source.template clearFields<Type>(where_check.x,where_check.y);
         if(to_loc.x > 0) source.template setField<Type>(to_loc.x,to_loc.y);
         if(!fieldgroups::ContainerFields::template test<Type>()) return true;
-        for(short i = 0; i < source.items.size(); i++)
-            if(source.items[i].variety != eItemType::NO_ITEM && source.items[i].item_loc == where_check
-              && source.items[i].contained && source.items[i].held)
-                source.items[i].item_loc = to_loc;
+        source.template moveItems<true>(where_check,to_loc);
     }
     return true;
 }
@@ -60,18 +58,30 @@ template<eFieldType... Objects> struct PushObjects
     {
         return true;
     }
+    template<typename Source> static void breakContainer(Source& source, location loc) {}
 };
 
 template<eFieldType Object, eFieldType... Objects> struct PushObjects<Object,Objects...>
 {
+    static constexpr uint64_t mask = util::BuildMask<Object,Objects...>::mask;
     template<bool IsPc, bool Moving, typename Source> static bool push(location from_loc, location where, Source& source)
     {
         if(!executePush<Object,IsPc,Moving>(from_loc,where,source)) return false;
         return PushObjects<Objects...>::template push<IsPc,Moving>(from_loc,where,source);
     }
+    template<typename Source> static void breakContainer(Source& source, location loc)
+    {
+        if(fieldgroups::ContainerFields::template test<Object>() && source.template testField<Object>(loc.x,loc.y))
+        {
+            source.template clearFields<Object>(loc.x,loc.y);
+            source.uncontainItems(loc);
+        }
+    }
 };
 
 typedef PushObjects<OBJECT_CRATE,OBJECT_BARREL,OBJECT_BLOCK> PushableObjects;
+
+}//End namespace fields
 
 #endif
 

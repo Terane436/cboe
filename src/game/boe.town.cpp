@@ -30,6 +30,7 @@
 #include "winutil.hpp"
 #include "res_image.hpp"
 #include "cursors.hpp"
+#include "fieldPushableObjects.hpp"
 
 extern short store_spell_target,which_combat_type,combat_active_pc;
 extern eGameMode overall_mode;
@@ -233,8 +234,8 @@ void start_town_mode(short which_town, short entry_dir) {
 					// except that pushable things restore to orig locs
 					// TODO: THIS IS A TEMPORARY HACK TO GET i VALUE
 					int i = std::find_if(univ.party.creature_save.begin(), univ.party.creature_save.end(), [&pop](cPopulation& p) {return &p == &pop;}) - univ.party.creature_save.begin();
-					FieldBitmap temp = univ.party.setup[i][j][k] << 8;
-					temp &= ~(util::BuildMask<OBJECT_CRATE,OBJECT_BARREL,OBJECT_BLOCK>::mask);
+					fields::FieldBitmap temp = univ.party.setup[i][j][k] << 8;
+					temp &= ~(fields::PushableObjects::mask);
 					univ.town.directSetFields(j,k,temp);
 				}
 		}
@@ -296,7 +297,7 @@ void start_town_mode(short which_town, short entry_dir) {
 				
 				if(monst.active) {
 					// In forcecage?
-					if(univ.town.testField<BARRIER_CAGE>(monst.cur_loc.x, monst.cur_loc.y))
+					if(univ.town.testField<fields::BARRIER_CAGE>(monst.cur_loc.x, monst.cur_loc.y))
 						monst.status[eStatus::FORCECAGE] = 1000;
 				}
 			}
@@ -347,9 +348,9 @@ void start_town_mode(short which_town, short entry_dir) {
 		for(short k = 0; k < univ.town->max_dim; k++) {
 			loc.x = j; loc.y = k;
 			if(is_door(loc)) {
-				univ.town.clearFields<FIELD_WEB,OBJECT_CRATE,OBJECT_BARREL,BARRIER_FIRE,BARRIER_FORCE,FIELD_QUICKFIRE>(j,k);
+				univ.town.clearFields<fields::FIELD_WEB,fields::OBJECT_CRATE,fields::OBJECT_BARREL,fields::BARRIER_FIRE,fields::BARRIER_FORCE,fields::FIELD_QUICKFIRE>(j,k);
 			}
-			if(univ.town.testField<FIELD_QUICKFIRE>(j,k))
+			if(univ.town.testField<fields::FIELD_QUICKFIRE>(j,k))
 				univ.town.quickfire_present = true;
 		}
 	
@@ -418,7 +419,7 @@ void start_town_mode(short which_town, short entry_dir) {
 				item.property = preset.property;
 			item.contained = preset.contained;
 			int x = item.item_loc.x, y = item.item_loc.y;
-			if(item.contained && univ.town.testField<OBJECT_BARREL,OBJECT_CRATE>(x,y))
+			if(item.contained && univ.town.testField<fields::OBJECT_BARREL,fields::OBJECT_CRATE>(x,y))
 				item.held = true;
 			item.is_special = i + 1;
 		}
@@ -468,7 +469,7 @@ void start_town_mode(short which_town, short entry_dir) {
 	
 	
 	// clear entry space, and check exploration
-	univ.town.clearFields<FIELD_WEB,OBJECT_CRATE,OBJECT_BARREL,BARRIER_FIRE,BARRIER_FORCE,FIELD_QUICKFIRE>(univ.party.town_loc.x,univ.party.town_loc.y);
+	univ.town.clearFields<fields::FIELD_WEB,fields::OBJECT_CRATE,fields::OBJECT_BARREL,fields::BARRIER_FIRE,fields::BARRIER_FORCE,fields::FIELD_QUICKFIRE>(univ.party.town_loc.x,univ.party.town_loc.y);
 	update_explored(univ.party.town_loc);
 	
 	// If a PC dead, drop his items
@@ -1212,7 +1213,7 @@ void erase_town_specials() {
 		return;
 	
 	erase_completed_specials(*univ.town, [](location where){
-		univ.town.clearFields<SPECIAL_SPOT>(where.x, where.y);
+		univ.town.clearFields<fields::SPECIAL_SPOT>(where.x, where.y);
 	});
 }
 
@@ -1453,7 +1454,7 @@ void draw_map(bool need_refresh) {
 						rect_draw_some_item(small_ter_gworld,ter_temp_from,map_gworld,draw_rect);
 					}
 					
-					if(is_out() ? univ.out->roads[where.x][where.y] : univ.town.testFieldUnchecked<SPECIAL_ROAD>(where.x,where.y)) {
+					if(is_out() ? univ.out->roads[where.x][where.y] : univ.town.testFieldUnchecked<fields::SPECIAL_ROAD>(where.x,where.y)) {
 						draw_rect.inset(1,1);
 						rect_draw_some_item(*ResMgr::graphics.get("trim"),{8,112,12,116},map_gworld,draw_rect);
 					}

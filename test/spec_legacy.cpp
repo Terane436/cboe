@@ -952,7 +952,7 @@ TEST_CASE("When converting legacy special nodes (if-then)") {
 		newSpec.import_legacy(oldSpec);
 		CHECK(newSpec.type == eSpecType::IF_FIELDS);
 		CHECK(newSpec.sd1 == 1); CHECK(newSpec.sd2 >= 64 * 64);
-		CHECK(newSpec.m1 == int(OBJECT_BARREL)); CHECK(newSpec.m2 == 13);
+		CHECK(newSpec.m1 == int(fields::OBJECT_BARREL)); CHECK(newSpec.m2 == 13);
 		CHECK(newSpec.ex1a == 0); CHECK(newSpec.ex1b == 0);
 		CHECK(newSpec.ex2a == 64); CHECK(newSpec.ex2b == 64);
 		CHECK(newSpec.jumpto == 12);
@@ -963,7 +963,7 @@ TEST_CASE("When converting legacy special nodes (if-then)") {
 		newSpec.import_legacy(oldSpec);
 		CHECK(newSpec.type == eSpecType::IF_FIELDS);
 		CHECK(newSpec.sd1 == 1); CHECK(newSpec.sd2 >= 64 * 64);
-		CHECK(newSpec.m1 == int(OBJECT_CRATE)); CHECK(newSpec.m2 == 13);
+		CHECK(newSpec.m1 == int(fields::OBJECT_CRATE)); CHECK(newSpec.m2 == 13);
 		CHECK(newSpec.ex1a == 0); CHECK(newSpec.ex1b == 0);
 		CHECK(newSpec.ex2a == 64); CHECK(newSpec.ex2b == 64);
 		CHECK(newSpec.jumpto == 12);
@@ -1337,7 +1337,7 @@ TEST_CASE("When converting legacy special nodes (rect)") {
 		CHECK(newSpec.m1 == 4); CHECK(newSpec.m2 == 5);
 		CHECK(newSpec.pic == 1);
 		CHECK(newSpec.sd1 == 75);
-		CHECK(newSpec.sd2 == WALL_FIRE);
+		CHECK(newSpec.sd2 == fields::WALL_FIRE);
 		CHECK(newSpec.ex1a == 2);
 		CHECK(newSpec.ex1b == 10);
 		CHECK(newSpec.ex2a == 4);
@@ -1352,7 +1352,7 @@ TEST_CASE("When converting legacy special nodes (rect)") {
 		CHECK(newSpec.m1 == 4); CHECK(newSpec.m2 == 5);
 		CHECK(newSpec.pic == 1);
 		CHECK(newSpec.sd1 == 75);
-		CHECK(newSpec.sd2 == WALL_FORCE);
+		CHECK(newSpec.sd2 == fields::WALL_FORCE);
 		CHECK(newSpec.ex1a == 2);
 		CHECK(newSpec.ex1b == 10);
 		CHECK(newSpec.ex2a == 4);
@@ -1367,7 +1367,7 @@ TEST_CASE("When converting legacy special nodes (rect)") {
 		CHECK(newSpec.m1 == 4); CHECK(newSpec.m2 == 5);
 		CHECK(newSpec.pic == 1);
 		CHECK(newSpec.sd1 == 75);
-		CHECK(newSpec.sd2 == WALL_ICE);
+		CHECK(newSpec.sd2 == fields::WALL_ICE);
 		CHECK(newSpec.ex1a == 2);
 		CHECK(newSpec.ex1b == 10);
 		CHECK(newSpec.ex2a == 4);
@@ -1382,7 +1382,7 @@ TEST_CASE("When converting legacy special nodes (rect)") {
 		CHECK(newSpec.m1 == 4); CHECK(newSpec.m2 == 5);
 		CHECK(newSpec.pic == 1);
 		CHECK(newSpec.sd1 == 75);
-		CHECK(newSpec.sd2 == WALL_BLADES);
+		CHECK(newSpec.sd2 == fields::WALL_BLADES);
 		CHECK(newSpec.ex1a == 2);
 		CHECK(newSpec.ex1b == 10);
 		CHECK(newSpec.ex2a == 4);
@@ -1397,7 +1397,7 @@ TEST_CASE("When converting legacy special nodes (rect)") {
 		CHECK(newSpec.m1 == 4); CHECK(newSpec.m2 == 5);
 		CHECK(newSpec.pic == 1);
 		CHECK(newSpec.sd1 == 75);
-		CHECK(newSpec.sd2 == CLOUD_STINK);
+		CHECK(newSpec.sd2 == fields::CLOUD_STINK);
 		CHECK(newSpec.ex1a == 2);
 		CHECK(newSpec.ex1b == 10);
 		CHECK(newSpec.ex2a == 4);
@@ -1412,7 +1412,7 @@ TEST_CASE("When converting legacy special nodes (rect)") {
 		CHECK(newSpec.m1 == 4); CHECK(newSpec.m2 == 5);
 		CHECK(newSpec.pic == 1);
 		CHECK(newSpec.sd1 == 75);
-		CHECK(newSpec.sd2 == CLOUD_SLEEP);
+		CHECK(newSpec.sd2 == fields::CLOUD_SLEEP);
 		CHECK(newSpec.ex1a == 2);
 		CHECK(newSpec.ex1b == 10);
 		CHECK(newSpec.ex2a == 4);
@@ -1427,7 +1427,7 @@ TEST_CASE("When converting legacy special nodes (rect)") {
 		CHECK(newSpec.m1 == 4); CHECK(newSpec.m2 == 5);
 		CHECK(newSpec.pic == 1);
 		CHECK(newSpec.sd1 == 75);
-		CHECK(newSpec.sd2 == FIELD_QUICKFIRE);
+		CHECK(newSpec.sd2 == fields::FIELD_QUICKFIRE);
 		CHECK(newSpec.ex1a == 2);
 		CHECK(newSpec.ex1b == 10);
 		CHECK(newSpec.ex2a == 4);
@@ -1442,7 +1442,7 @@ TEST_CASE("When converting legacy special nodes (rect)") {
 		CHECK(newSpec.m1 == 4); CHECK(newSpec.m2 == 5);
 		CHECK(newSpec.pic == 1);
 		CHECK(newSpec.sd1 == 75);
-		CHECK(newSpec.sd2 == BARRIER_FIRE);
+		CHECK(newSpec.sd2 == fields::BARRIER_FIRE);
 		CHECK(newSpec.ex1a == 2);
 		CHECK(newSpec.ex1b == 10);
 		CHECK(newSpec.ex2a == 4);
@@ -1457,7 +1457,7 @@ TEST_CASE("When converting legacy special nodes (rect)") {
 		CHECK(newSpec.m1 == 4); CHECK(newSpec.m2 == 5);
 		CHECK(newSpec.pic == 1);
 		CHECK(newSpec.sd1 == 75);
-		CHECK(newSpec.sd2 == BARRIER_FORCE);
+		CHECK(newSpec.sd2 == fields::BARRIER_FORCE);
 		CHECK(newSpec.ex1a == 2);
 		CHECK(newSpec.ex1b == 10);
 		CHECK(newSpec.ex2a == 4);
@@ -1472,7 +1472,7 @@ TEST_CASE("When converting legacy special nodes (rect)") {
 		CHECK(newSpec.m1 == 4); CHECK(newSpec.m2 == 5);
 		CHECK(newSpec.pic == 1);
 		CHECK(newSpec.sd1 == 1);
-		CHECK(newSpec.sd2 == FIELD_DISPEL);
+		CHECK(newSpec.sd2 == fields::FIELD_DISPEL);
 		CHECK(newSpec.ex1a == 2);
 		CHECK(newSpec.ex1b == 10);
 		CHECK(newSpec.ex2a == 4);
@@ -1488,7 +1488,7 @@ TEST_CASE("When converting legacy special nodes (rect)") {
 		CHECK(newSpec.m1 == 4); CHECK(newSpec.m2 == 5);
 		CHECK(newSpec.pic == 1);
 		CHECK(newSpec.sd1 == 75);
-		CHECK(newSpec.sd2 == SFX_LARGE_SLIME);
+		CHECK(newSpec.sd2 == fields::SFX_LARGE_SLIME);
 		CHECK(newSpec.ex1a == 2);
 		CHECK(newSpec.ex1b == 10);
 		CHECK(newSpec.ex2a == 4);
@@ -1504,7 +1504,7 @@ TEST_CASE("When converting legacy special nodes (rect)") {
 		CHECK(newSpec.m1 == 4); CHECK(newSpec.m2 == 5);
 		CHECK(newSpec.pic == 1);
 		CHECK(newSpec.sd1 == 75);
-		CHECK(newSpec.sd2 == OBJECT_BARREL);
+		CHECK(newSpec.sd2 == fields::OBJECT_BARREL);
 		CHECK(newSpec.ex1a == 2);
 		CHECK(newSpec.ex1b == 10);
 		CHECK(newSpec.ex2a == 4);

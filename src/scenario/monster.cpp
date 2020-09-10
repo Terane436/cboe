@@ -222,11 +222,11 @@ std::map<eMonstAbil,uAbility>::iterator cMonster::addAbil(eMonstAbilTemplate wha
 			return abil.find(eMonstAbil::DAMAGE2);
 		case eMonstAbilTemplate::BREATH_FOUL:
 			abil[eMonstAbil::FIELD].gen = {true, eMonstGen::BREATH, 12, PAT_SINGLE, 6, 375};
-			abil[eMonstAbil::FIELD].gen.fld = eFieldType::CLOUD_STINK;
+			abil[eMonstAbil::FIELD].gen.fld = fields::CLOUD_STINK;
 			return abil.find(eMonstAbil::FIELD);
 		case eMonstAbilTemplate::BREATH_SLEEP:
 			abil[eMonstAbil::FIELD].gen = {true, eMonstGen::BREATH, 0, PAT_RAD2, 8, 750};
-			abil[eMonstAbil::FIELD].gen.fld = eFieldType::CLOUD_SLEEP;
+			abil[eMonstAbil::FIELD].gen.fld = fields::CLOUD_SLEEP;
 			return abil.find(eMonstAbil::FIELD);
 		case eMonstAbilTemplate::SPIT_ACID:
 			abil[eMonstAbil::STATUS].gen = {true, eMonstGen::SPIT, 0, 6, 6, 500};
@@ -320,28 +320,28 @@ std::map<eMonstAbil,uAbility>::iterator cMonster::addAbil(eMonstAbilTemplate wha
 			return abil.find(eMonstAbil::DEATH_TRIGGER);
 			// Radiate abilities
 		case eMonstAbilTemplate::RADIATE_FIRE:
-			abil[eMonstAbil::RADIATE].radiate = {true, eFieldType::WALL_FIRE, param, PAT_SQ};
+			abil[eMonstAbil::RADIATE].radiate = {true, fields::WALL_FIRE, param, PAT_SQ};
 			return abil.find(eMonstAbil::RADIATE);
 		case eMonstAbilTemplate::RADIATE_ICE:
-			abil[eMonstAbil::RADIATE].radiate = {true, eFieldType::WALL_ICE, param, PAT_SQ};
+			abil[eMonstAbil::RADIATE].radiate = {true, fields::WALL_ICE, param, PAT_SQ};
 			return abil.find(eMonstAbil::RADIATE);
 		case eMonstAbilTemplate::RADIATE_SHOCK:
-			abil[eMonstAbil::RADIATE].radiate = {true, eFieldType::WALL_FORCE, param, PAT_SQ};
+			abil[eMonstAbil::RADIATE].radiate = {true, fields::WALL_FORCE, param, PAT_SQ};
 			return abil.find(eMonstAbil::RADIATE);
 		case eMonstAbilTemplate::RADIATE_ANTIMAGIC:
-			abil[eMonstAbil::RADIATE].radiate = {true, eFieldType::FIELD_ANTIMAGIC, param, PAT_SQ};
+			abil[eMonstAbil::RADIATE].radiate = {true, fields::FIELD_ANTIMAGIC, param, PAT_SQ};
 			return abil.find(eMonstAbil::RADIATE);
 		case eMonstAbilTemplate::RADIATE_SLEEP:
-			abil[eMonstAbil::RADIATE].radiate = {true, eFieldType::CLOUD_SLEEP, param, PAT_SQ};
+			abil[eMonstAbil::RADIATE].radiate = {true, fields::CLOUD_SLEEP, param, PAT_SQ};
 			return abil.find(eMonstAbil::RADIATE);
 		case eMonstAbilTemplate::RADIATE_STINK:
-			abil[eMonstAbil::RADIATE].radiate = {true, eFieldType::CLOUD_STINK, param, PAT_SQ};
+			abil[eMonstAbil::RADIATE].radiate = {true, fields::CLOUD_STINK, param, PAT_SQ};
 			return abil.find(eMonstAbil::RADIATE);
 		case eMonstAbilTemplate::RADIATE_BLADE:
-			abil[eMonstAbil::RADIATE].radiate = {true, eFieldType::WALL_BLADES, param, PAT_SQ};
+			abil[eMonstAbil::RADIATE].radiate = {true, fields::WALL_BLADES, param, PAT_SQ};
 			return abil.find(eMonstAbil::RADIATE);
 		case eMonstAbilTemplate::RADIATE_WEB:
-			abil[eMonstAbil::RADIATE].radiate = {true, eFieldType::FIELD_WEB, param, PAT_SQ};
+			abil[eMonstAbil::RADIATE].radiate = {true, fields::FIELD_WEB, param, PAT_SQ};
 			return abil.find(eMonstAbil::RADIATE);
 			// Advanced abilities
 		case eMonstAbilTemplate::CUSTOM_MISSILE:
@@ -526,7 +526,7 @@ std::string uAbility::to_string(eMonstAbil key) const {
 				case eMonstAbil::STEAL_FOOD: sout << "Steals food"; break;
 				case eMonstAbil::STEAL_GOLD: sout << "Steals gold"; break;
 				case eMonstAbil::FIELD:
-                                        nameField<true>(gen.fld,sout);
+					fields::nameField<true>(gen.fld,sout);
 					break;
 				case eMonstAbil::DAMAGE: case eMonstAbil::DAMAGE2:
 					switch(gen.dmg) {
@@ -683,7 +683,7 @@ std::string uAbility::to_string(eMonstAbil key) const {
 			break;
 		case eMonstAbilCat::RADIATE:
 			sout << "Radiates ";
-			nameField<false>(radiate.type,sout);
+			fields::nameField<false>(radiate.type,sout);
 			break;
 	}
 	return sout.str();

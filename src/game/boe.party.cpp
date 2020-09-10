@@ -458,7 +458,7 @@ bool is_poisonable_weap(cItem& weap) {
 void cast_spell(eSkill type) {
 	eSpell spell;
 	
-	if((is_town()) && (univ.town.testField<FIELD_ANTIMAGIC>(univ.party.town_loc.x,univ.party.town_loc.y))) {
+	if((is_town()) && (univ.town.testField<fields::FIELD_ANTIMAGIC>(univ.party.town_loc.x,univ.party.town_loc.y))) {
 		add_string_to_buf("  Not in antimagic field.");
 		return;
 	}
@@ -1216,7 +1216,7 @@ void cast_town_spell(location where) {
 		queue_special(eSpecCtx::TARGET, spec_target_type, spec_target_fail, where);
 		return;
 	}
-	if(spec_target_options / 10 == 1 && univ.town.testField<FIELD_ANTIMAGIC>(where.x,where.y)) {
+	if(spec_target_options / 10 == 1 && univ.town.testField<fields::FIELD_ANTIMAGIC>(where.x,where.y)) {
 		add_string_to_buf("  Target in antimagic field.");
 		queue_special(eSpecCtx::TARGET, spec_target_type, spec_target_fail, where);
 		return;
@@ -1246,12 +1246,12 @@ void cast_town_spell(location where) {
 			
 		case eSpell::DISPEL_FIELD: case eSpell::DISPEL_SPHERE: case eSpell::DISPEL_SQUARE:
 			add_string_to_buf("  You attempt to dispel.");
-			place_spell_pattern(current_pat,where,FIELD_DISPEL,7);
+			place_spell_pattern(current_pat,where,fields::FIELD_DISPEL,7);
 			break;
 		case eSpell::MOVE_MOUNTAINS:
 		case eSpell::MOVE_MOUNTAINS_MASS:
 			add_string_to_buf("  You blast the area.");
-			place_spell_pattern(current_pat, where, FIELD_SMASH, 7);
+			place_spell_pattern(current_pat, where, fields::FIELD_SMASH, 7);
 			update_explored(univ.party.town_loc);
 			break;
 		case eSpell::BARRIER_FIRE:
@@ -1259,7 +1259,7 @@ void cast_town_spell(location where) {
 				add_string_to_buf("  Target space obstructed.");
 				break;
 			}
-			if(univ.town.setField<BARRIER_FIRE>(where.x,where.y))
+			if(univ.town.setField<fields::BARRIER_FIRE>(where.x,where.y))
 				add_string_to_buf("  You create the barrier.");
 			else add_string_to_buf("  Failed.");
 			break;
@@ -1268,12 +1268,12 @@ void cast_town_spell(location where) {
 				add_string_to_buf("  Target space obstructed.");
 				break;
 			}
-			if(univ.town.setField<BARRIER_FORCE>(where.x,where.y))
+			if(univ.town.setField<fields::BARRIER_FORCE>(where.x,where.y))
 				add_string_to_buf("  You create the barrier.");
 			else add_string_to_buf("  Failed.");
 			break;
 		case eSpell::QUICKFIRE:
-			if(univ.town.setField<FIELD_QUICKFIRE>(where.x,where.y))
+			if(univ.town.setField<fields::FIELD_QUICKFIRE>(where.x,where.y))
 				add_string_to_buf("  You create quickfire.");
 			else add_string_to_buf("  Failed.");
 			break;
@@ -1284,7 +1284,7 @@ void cast_town_spell(location where) {
 				for(loc.y = 0; loc.y < univ.town->max_dim; loc.y++)
 					if(dist(where,loc) <= 2 && can_see(where,loc,sight_obscurity) < 5 &&
 					   ((abs(loc.x - where.x) < 2) || (abs(loc.y - where.y) < 2)))
-						univ.town.setField<FIELD_ANTIMAGIC>(loc.x,loc.y);
+						univ.town.setField<fields::FIELD_ANTIMAGIC>(loc.x,loc.y);
 			break;
 			
 		case eSpell::RITUAL_SANCTIFY:
@@ -1314,14 +1314,14 @@ void cast_town_spell(location where) {
 			break;
 			
 		case eSpell::DISPEL_BARRIER:
-			if(univ.town.testField<BARRIER_FORCE,BARRIER_FIRE>(where.x,where.y))
+			if(univ.town.testField<fields::BARRIER_FORCE,fields::BARRIER_FIRE>(where.x,where.y))
 			{
 				r1 = get_ran(1,1,100) - 5 * adj + 5 * (univ.town.difficulty / 10) + 25 * univ.town->strong_barriers;
-				if(univ.town.testField<BARRIER_FIRE>(where.x,where.y))
+				if(univ.town.testField<fields::BARRIER_FIRE>(where.x,where.y))
 					r1 -= 8;
 				if(r1 < (120 - combat_percent[min(19,level)])) {
 					add_string_to_buf("  Barrier broken.");
-					univ.town.clearFields<BARRIER_FIRE,BARRIER_FORCE>(where.x,where.y);
+					univ.town.clearFields<fields::BARRIER_FIRE,fields::BARRIER_FORCE>(where.x,where.y);
 					
 					// Now, show party new things
 					update_explored(univ.party.town_loc);
@@ -1331,7 +1331,7 @@ void cast_town_spell(location where) {
 					play_sound(41);
 					add_string_to_buf("  Didn't work.");
 				}
-			} else if(univ.town.testField<BARRIER_CAGE>(where.x,where.y)) {
+			} else if(univ.town.testField<fields::BARRIER_CAGE>(where.x,where.y)) {
 				add_string_to_buf("  Cage broken.");
 				break_force_cage(where);
 			}
@@ -1449,25 +1449,25 @@ void dispel_fields(short i,short j,short mode) {
 	short r1;
 	
 	if(mode == 2)
-		univ.town.clearFields<BARRIER_FIRE,BARRIER_FORCE,OBJECT_BARREL,OBJECT_CRATE,FIELD_WEB>(i,j);
+		univ.town.clearFields<fields::BARRIER_FIRE,fields::BARRIER_FORCE,fields::OBJECT_BARREL,fields::OBJECT_CRATE,fields::FIELD_WEB>(i,j);
 	if(mode >= 1)
 		mode = -10;
-	univ.town.clearFields<WALL_FORCE,WALL_FIRE,CLOUD_STINK>(i,j);
+	univ.town.clearFields<fields::WALL_FORCE,fields::WALL_FIRE,fields::CLOUD_STINK>(i,j);
 	r1 = get_ran(1,1,6) + mode;
 	if(r1 <= 1)
-		univ.town.clearFields<FIELD_WEB>(i,j);
+		univ.town.clearFields<fields::FIELD_WEB>(i,j);
 	r1 = get_ran(1,1,6) + mode;
 	if(r1 < 6)
-		univ.town.clearFields<WALL_ICE>(i,j);
+		univ.town.clearFields<fields::WALL_ICE>(i,j);
 	r1 = get_ran(1,1,6) + mode;
 	if(r1 < 5)
-		univ.town.clearFields<CLOUD_SLEEP>(i,j);
+		univ.town.clearFields<fields::CLOUD_SLEEP>(i,j);
 	r1 = get_ran(1,1,8) + mode;
 	if(r1 <= 1)
-		univ.town.clearFields<FIELD_QUICKFIRE>(i,j);
+		univ.town.clearFields<fields::FIELD_QUICKFIRE>(i,j);
 	r1 = get_ran(1,1,7) + mode;
 	if(r1 < 5)
-		univ.town.clearFields<WALL_BLADES>(i,j);
+		univ.town.clearFields<fields::WALL_BLADES>(i,j);
 	r1 = get_ran(1,1,12) + mode;
 	if(r1 < 3)
 		break_force_cage(loc(i,j));
@@ -2455,25 +2455,25 @@ void kill_pc(cPlayer& which_pc,eMainStatus type) {
 		item_loc = is_combat() ? which_pc.combat_pos : univ.party.town_loc;
 		if(!is_out()) {
 			if(type == eMainStatus::DUST)
-				univ.town.setField<SFX_ASH>(item_loc.x,item_loc.y);
+				univ.town.setField<fields::SFX_ASH>(item_loc.x,item_loc.y);
 			else if(type == eMainStatus::ABSENT) {}
 			else switch(which_pc.race) {
 				case eRace::DEMON:
-					univ.town.setField<SFX_ASH>(item_loc.x,item_loc.y);
+					univ.town.setField<fields::SFX_ASH>(item_loc.x,item_loc.y);
 					break;
 				case eRace::UNDEAD:
 					break;
 				case eRace::SKELETAL:
-					univ.town.setField<SFX_BONES>(item_loc.x,item_loc.y);
+					univ.town.setField<fields::SFX_BONES>(item_loc.x,item_loc.y);
 					break;
 				case eRace::SLIME: case eRace::PLANT: case eRace::BUG:
-					univ.town.setField<SFX_LARGE_SLIME>(item_loc.x,item_loc.y);
+					univ.town.setField<fields::SFX_LARGE_SLIME>(item_loc.x,item_loc.y);
 					break;
 				case eRace::STONE:
-					univ.town.setField<SFX_RUBBLE>(item_loc.x,item_loc.y);
+					univ.town.setField<fields::SFX_RUBBLE>(item_loc.x,item_loc.y);
 					break;
 				default:
-					univ.town.setField<SFX_LARGE_BLOOD>(item_loc.x,item_loc.y);
+					univ.town.setField<fields::SFX_LARGE_BLOOD>(item_loc.x,item_loc.y);
 					break;
 			}
 		}

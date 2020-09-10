@@ -990,7 +990,7 @@ void place_target(location target) {
 			add_string_to_buf("  Target space obstructed.");
 			return;
 		}
-		if(univ.town.testField<FIELD_ANTIMAGIC>(target.x,target.y) && !allow_antimagic) {
+		if(univ.town.testField<fields::FIELD_ANTIMAGIC>(target.x,target.y) && !allow_antimagic) {
 			add_string_to_buf("  Target in antimagic field.");
 			return;
 		}
@@ -1025,13 +1025,13 @@ void do_combat_cast(location target) {
 	bool freebie = false,ap_taken = false,cost_taken = false;
 	short num_targets = 1;
 	miss_num_t store_m_type = 2;
-	eFieldType spray_type_array[15] = {
-		FIELD_WEB,FIELD_WEB,FIELD_WEB,
-		WALL_FORCE,WALL_FORCE,
-		WALL_FIRE,WALL_FIRE,WALL_FIRE,
-		FIELD_ANTIMAGIC,FIELD_ANTIMAGIC,
-		CLOUD_STINK,CLOUD_STINK,
-		WALL_ICE,WALL_ICE,WALL_BLADES,
+	fields::eFieldType spray_type_array[15] = {
+		fields::FIELD_WEB,fields::FIELD_WEB,fields::FIELD_WEB,
+		fields::WALL_FORCE,fields::WALL_FORCE,
+		fields::WALL_FIRE,fields::WALL_FIRE,fields::WALL_FIRE,
+		fields::FIELD_ANTIMAGIC,fields::FIELD_ANTIMAGIC,
+		fields::CLOUD_STINK,fields::CLOUD_STINK,
+		fields::WALL_ICE,fields::WALL_ICE,fields::WALL_BLADES,
 	};
 	mon_num_t summon;
 	iLiving* victim;
@@ -1119,7 +1119,7 @@ void do_combat_cast(location target) {
 				add_string_to_buf("  Target out of range.");
 			else if(sight_obscurity(target.x,target.y) == 5 && !allow_obstructed)
 				add_string_to_buf("  Target space obstructed.");
-			else if(univ.town.testField<FIELD_ANTIMAGIC>(target.x,target.y) && !allow_antimagic)
+			else if(univ.town.testField<fields::FIELD_ANTIMAGIC>(target.x,target.y) && !allow_antimagic)
 				add_string_to_buf("  Target in antimagic field.");
 			else {
 				failed = false;
@@ -1139,44 +1139,44 @@ void do_combat_cast(location target) {
 						if(need_redraw) redraw_screen(REFRESH_ALL);
 						break;
 					case eSpell::GOO: case eSpell::WEB: case eSpell::GOO_BOMB:
-						place_spell_pattern(current_pat,target,FIELD_WEB,univ.cur_pc);
+						place_spell_pattern(current_pat,target,fields::FIELD_WEB,univ.cur_pc);
 						break;
 					case eSpell::CLOUD_FLAME: case eSpell::CONFLAGRATION:
-						place_spell_pattern(current_pat,target,WALL_FIRE,univ.cur_pc);
+						place_spell_pattern(current_pat,target,fields::WALL_FIRE,univ.cur_pc);
 						break;
 					case eSpell::CLOUD_STINK: case eSpell::FOUL_VAPOR:
-						place_spell_pattern(current_pat,target,CLOUD_STINK,univ.cur_pc);
+						place_spell_pattern(current_pat,target,fields::CLOUD_STINK,univ.cur_pc);
 						break;
 					case eSpell::WALL_FORCE: case eSpell::SHOCKSTORM: case eSpell::FORCEFIELD:
-						place_spell_pattern(current_pat,target,WALL_FORCE,univ.cur_pc);
+						place_spell_pattern(current_pat,target,fields::WALL_FORCE,univ.cur_pc);
 						break;
 					case eSpell::WALL_ICE: case eSpell::WALL_ICE_BALL:
-						place_spell_pattern(current_pat,target,WALL_ICE,univ.cur_pc);
+						place_spell_pattern(current_pat,target,fields::WALL_ICE,univ.cur_pc);
 						break;
 					case eSpell::ANTIMAGIC:
-						place_spell_pattern(current_pat,target,FIELD_ANTIMAGIC,univ.cur_pc);
+						place_spell_pattern(current_pat,target,fields::FIELD_ANTIMAGIC,univ.cur_pc);
 						break;
 					case eSpell::CLOUD_SLEEP: case eSpell::CLOUD_SLEEP_LARGE:
-						place_spell_pattern(current_pat,target,CLOUD_SLEEP,univ.cur_pc);
+						place_spell_pattern(current_pat,target,fields::CLOUD_SLEEP,univ.cur_pc);
 						break;
 					case eSpell::QUICKFIRE:
-						univ.town.setField<FIELD_QUICKFIRE>(target.x,target.y);
+						univ.town.setField<fields::FIELD_QUICKFIRE>(target.x,target.y);
 						break;
 					case eSpell::SPRAY_FIELDS:
 						r1 = get_ran(1,0,14);
 						place_spell_pattern(current_pat,target,spray_type_array[r1],univ.cur_pc);
 						break;
 					case eSpell::WALL_BLADES:
-						place_spell_pattern(current_pat,target,WALL_BLADES,univ.cur_pc);
+						place_spell_pattern(current_pat,target,fields::WALL_BLADES,univ.cur_pc);
 						break;
 					case eSpell::DISPEL_FIELD: case eSpell::DISPEL_SPHERE: case eSpell::DISPEL_SQUARE:
-						place_spell_pattern(current_pat,target,FIELD_DISPEL,univ.cur_pc);
+						place_spell_pattern(current_pat,target,fields::FIELD_DISPEL,univ.cur_pc);
 						break;
 					case eSpell::BARRIER_FIRE:
 						play_sound(68);
 						r1 = get_ran(3,2,7);
 						hit_space(target,r1,eDamageType::FIRE,true,true);
-						if(univ.town.setField<BARRIER_FIRE>(target.x,target.y))
+						if(univ.town.setField<fields::BARRIER_FIRE>(target.x,target.y))
 							add_string_to_buf("  You create the barrier.");
 						else add_string_to_buf("  Failed.");
 						break;
@@ -1184,7 +1184,7 @@ void do_combat_cast(location target) {
 						play_sound(68);
 						r1 = get_ran(7,2,7);
 						hit_space(target,r1,eDamageType::FIRE,true,true);
-						if(univ.town.setField<BARRIER_FORCE>(target.x,target.y))
+						if(univ.town.setField<fields::BARRIER_FORCE>(target.x,target.y))
 							add_string_to_buf("  You create the barrier.");
 						else add_string_to_buf("  Failed.");
 						break;
@@ -1598,7 +1598,7 @@ void do_combat_cast(location target) {
 			hit_space(boom_targ[i],boom_dam[i],boom_type[i],1,0);
 	
 	if(ashes_loc.x > 0)
-		univ.town.setField<SFX_ASH>(ashes_loc.x,ashes_loc.y);
+		univ.town.setField<fields::SFX_ASH>(ashes_loc.x,ashes_loc.y);
 	
 	do_explosion_anim(5,0);
 	
@@ -1930,8 +1930,8 @@ static bool sync_force_cages() {
 		location loc = who.get_loc();
 		if(who.status[eStatus::FORCECAGE] > 0) {
 			was_change = true;
-			univ.town.setField<BARRIER_CAGE>(loc.x, loc.y);
-		} else if(univ.town.testField<BARRIER_CAGE>(loc.x, loc.y) && who.status[eStatus::FORCECAGE] == 0) {
+			univ.town.setField<fields::BARRIER_CAGE>(loc.x, loc.y);
+		} else if(univ.town.testField<fields::BARRIER_CAGE>(loc.x, loc.y) && who.status[eStatus::FORCECAGE] == 0) {
 			was_change = true;
 			who.status[eStatus::FORCECAGE] = get_ran(2, 2, 7) * fc_multipliers[get_ran(1,1,10)];
 		}
@@ -1941,8 +1941,8 @@ static bool sync_force_cages() {
 		location loc = who.get_loc();
 		if(who.status[eStatus::FORCECAGE] > 0) {
 			was_change = true;
-			univ.town.setField<BARRIER_CAGE>(loc.x, loc.y);
-		} else if(univ.town.testField<BARRIER_CAGE>(loc.x, loc.y) && who.status[eStatus::FORCECAGE] == 0) {
+			univ.town.setField<fields::BARRIER_CAGE>(loc.x, loc.y);
+		} else if(univ.town.testField<fields::BARRIER_CAGE>(loc.x, loc.y) && who.status[eStatus::FORCECAGE] == 0) {
 			was_change = true;
 			who.status[eStatus::FORCECAGE] = get_ran(2, 2, 7) * fc_multipliers[get_ran(1,1,10)];
 		}
@@ -3425,7 +3425,7 @@ bool monst_cast_mage(cCreature *caster,short targ) {
 		eSpell::CLOUD_STINK, eSpell::CONFLAGRATION, eSpell::FIREBALL, eSpell::WEB, eSpell::FIRESTORM, eSpell::SHOCKSTORM,
 	};
 	
-	if(univ.town.testField<FIELD_ANTIMAGIC>(caster->cur_loc.x,caster->cur_loc.y)) {
+	if(univ.town.testField<fields::FIELD_ANTIMAGIC>(caster->cur_loc.x,caster->cur_loc.y)) {
 		return false;
 	}
 	// is target dead?
@@ -3475,15 +3475,15 @@ bool monst_cast_mage(cCreature *caster,short targ) {
 	location vict_loc = victim.get_loc();
 	
 	// check antimagic
-	if(targ == 6 && univ.town.testField<FIELD_ANTIMAGIC>(target.x,target.y))
+	if(targ == 6 && univ.town.testField<fields::FIELD_ANTIMAGIC>(target.x,target.y))
 		return false;
 	if(is_combat())
-		if(targ < 6 && univ.town.testField<FIELD_ANTIMAGIC>(univ.party[targ].combat_pos.x,univ.party[targ].combat_pos.y))
+		if(targ < 6 && univ.town.testField<fields::FIELD_ANTIMAGIC>(univ.party[targ].combat_pos.x,univ.party[targ].combat_pos.y))
 			return false;
 	if(is_town())
-		if(targ < 6 && univ.town.testField<FIELD_ANTIMAGIC>(univ.party.town_loc.x,univ.party.town_loc.y))
+		if(targ < 6 && univ.town.testField<fields::FIELD_ANTIMAGIC>(univ.party.town_loc.x,univ.party.town_loc.y))
 			return false;
-	if(targ >= 100 && univ.town.testField<FIELD_ANTIMAGIC>(univ.town.monst[targ - 100].cur_loc.x, univ.town.monst[targ - 100].cur_loc.y))
+	if(targ >= 100 && univ.town.testField<fields::FIELD_ANTIMAGIC>(univ.town.monst[targ - 100].cur_loc.x, univ.town.monst[targ - 100].cur_loc.y))
 		return false;
 	
 	// How about shockwave? Good idea?
@@ -3522,7 +3522,7 @@ bool monst_cast_mage(cCreature *caster,short targ) {
 				break;
 			case eSpell::CLOUD_FLAME:
 				run_a_missile(l,vict_loc,2,1,11,0,0,80);
-				place_spell_pattern(single,vict_loc,WALL_FIRE,7);
+				place_spell_pattern(single,vict_loc,fields::WALL_FIRE,7);
 				break;
 			case eSpell::FLAME:
 				run_a_missile(l,vict_loc,2,1,11,0,0,80);
@@ -3544,7 +3544,7 @@ bool monst_cast_mage(cCreature *caster,short targ) {
 				break;
 			case eSpell::CLOUD_STINK:
 				run_a_missile(l,target,0,0,25,0,0,80);
-				place_spell_pattern(square,target,CLOUD_STINK,7);
+				place_spell_pattern(square,target,fields::CLOUD_STINK,7);
 				break;
 			case eSpell::SUMMON_BEAST:
 				r1 = get_summon_monster(1);
@@ -3557,7 +3557,7 @@ bool monst_cast_mage(cCreature *caster,short targ) {
 				break;
 			case eSpell::CONFLAGRATION:
 				run_a_missile(l,target,13,1,25,0,0,80);
-				place_spell_pattern(radius2,target,WALL_FIRE,7);
+				place_spell_pattern(radius2,target,fields::WALL_FIRE,7);
 				break;
 			case eSpell::FIREBALL:
 				r1 = 1 + (caster->level * 3) / 4;
@@ -3599,7 +3599,7 @@ bool monst_cast_mage(cCreature *caster,short targ) {
 			}
 			case eSpell::WEB:
 				play_sound(25);
-				place_spell_pattern(radius2,target,FIELD_WEB,7);
+				place_spell_pattern(radius2,target,fields::FIELD_WEB,7);
 				break;
 			case eSpell::POISON:
 				run_a_missile(l,vict_loc,11,0,25,0,0,80);
@@ -3644,7 +3644,7 @@ bool monst_cast_mage(cCreature *caster,short targ) {
 				break;
 			case eSpell::SHOCKSTORM:
 				run_a_missile(l,target,6,1,11,0,0,80);
-				place_spell_pattern(radius2,target,WALL_FORCE,7);
+				place_spell_pattern(radius2,target,fields::WALL_FORCE,7);
 				break;
 			case eSpell::POISON_MAJOR:
 				run_a_missile(l,vict_loc,11,1,11,0,0,80);
@@ -3691,7 +3691,7 @@ bool monst_cast_mage(cCreature *caster,short targ) {
 	else caster->mp++;
 	
 	if(ashes_loc.x > 0)
-		univ.town.setField<SFX_ASH>(ashes_loc.x,ashes_loc.y);
+		univ.town.setField<fields::SFX_ASH>(ashes_loc.x,ashes_loc.y);
 	do_explosion_anim(5,0);
 	end_missile_anim();
 	handle_marked_damage();
@@ -3752,7 +3752,7 @@ bool monst_cast_priest(cCreature *caster,short targ) {
 		return false;
 	if((targ >= 100) && (univ.town.monst[targ - 100].active == 0))
 		return false;
-	if(univ.town.testField<FIELD_ANTIMAGIC>(caster->cur_loc.x,caster->cur_loc.y)) {
+	if(univ.town.testField<fields::FIELD_ANTIMAGIC>(caster->cur_loc.x,caster->cur_loc.y)) {
 		return false;
 	}
 	level = minmax(1,7,caster->cl - caster->status[eStatus::DUMB]) - 1;
@@ -3792,11 +3792,11 @@ bool monst_cast_priest(cCreature *caster,short targ) {
 	if(targ >= 100)
 		vict_loc = univ.town.monst[targ - 100].cur_loc;
 	
-	if(targ == 6 && univ.town.testField<FIELD_ANTIMAGIC>(target.x,target.y))
+	if(targ == 6 && univ.town.testField<fields::FIELD_ANTIMAGIC>(target.x,target.y))
 		return false;
-	if(targ < 6 && univ.town.testField<FIELD_ANTIMAGIC>(univ.party[targ].combat_pos.x,univ.party[targ].combat_pos.y))
+	if(targ < 6 && univ.town.testField<fields::FIELD_ANTIMAGIC>(univ.party[targ].combat_pos.x,univ.party[targ].combat_pos.y))
 		return false;
-	if(targ >= 100 && univ.town.testField<FIELD_ANTIMAGIC>(univ.town.monst[targ - 100].cur_loc.x,univ.town.monst[targ - 100].cur_loc.y))
+	if(targ >= 100 && univ.town.testField<fields::FIELD_ANTIMAGIC>(univ.town.monst[targ - 100].cur_loc.x,univ.town.monst[targ - 100].cur_loc.y))
 		return false;
 	
 	
@@ -3835,7 +3835,7 @@ bool monst_cast_priest(cCreature *caster,short targ) {
 				break;
 			case eSpell::GOO:
 				play_sound(24);
-				place_spell_pattern(single,vict_loc,FIELD_WEB,7);
+				place_spell_pattern(single,vict_loc,fields::FIELD_WEB,7);
 				break;
 			case eSpell::BLESS_MINOR: case eSpell::BLESS:
 				play_sound(24);
@@ -4000,7 +4000,7 @@ bool monst_cast_priest(cCreature *caster,short targ) {
 	}
 	else caster->mp++;
 	if(ashes_loc.x > 0)
-		univ.town.setField<SFX_ASH>(ashes_loc.x,ashes_loc.y);
+		univ.town.setField<fields::SFX_ASH>(ashes_loc.x,ashes_loc.y);
 	do_explosion_anim(5,0);
 	end_missile_anim();
 	handle_marked_damage();
@@ -4127,82 +4127,82 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 	for(short i = minmax(0,univ.town->max_dim - 1,center.x - 4); i <= minmax(0,univ.town->max_dim - 1,center.x + 4); i++)
 		for(short j = minmax(0,univ.town->max_dim - 1,center.y - 4); j <= minmax(0,univ.town->max_dim - 1,center.y + 4); j++) {
 			effect = pat.pattern[i - center.x + 4][j - center.y + 4];
-			if(effect == FIELD_SMASH || sight_obscurity(i,j) < 5) {
+			if(effect == fields::FIELD_SMASH || sight_obscurity(i,j) < 5) {
 				switch(effect) {
-					case FIELD_WEB:
-						univ.town.setField<FIELD_WEB>(i,j);
+					case fields::FIELD_WEB:
+						univ.town.setField<fields::FIELD_WEB>(i,j);
 						break;
-					case BARRIER_FIRE:
-						univ.town.setField<BARRIER_FIRE>(i,j);
+					case fields::BARRIER_FIRE:
+						univ.town.setField<fields::BARRIER_FIRE>(i,j);
 						break;
-					case BARRIER_FORCE:
-						univ.town.setField<BARRIER_FORCE>(i,j);
+					case fields::BARRIER_FORCE:
+						univ.town.setField<fields::BARRIER_FORCE>(i,j);
 						break;
-					case WALL_FORCE:
-						univ.town.setField<WALL_FORCE>(i, j);
+					case fields::WALL_FORCE:
+						univ.town.setField<fields::WALL_FORCE>(i, j);
 						break;
-					case WALL_FIRE:
-						univ.town.setField<WALL_FIRE>(i,j);
+					case fields::WALL_FIRE:
+						univ.town.setField<fields::WALL_FIRE>(i,j);
 						break;
-					case FIELD_ANTIMAGIC:
-						univ.town.setField<FIELD_ANTIMAGIC>(i,j);
+					case fields::FIELD_ANTIMAGIC:
+						univ.town.setField<fields::FIELD_ANTIMAGIC>(i,j);
 						break;
-					case CLOUD_STINK:
-						univ.town.setField<CLOUD_STINK>(i,j);
+					case fields::CLOUD_STINK:
+						univ.town.setField<fields::CLOUD_STINK>(i,j);
 						break;
-					case WALL_ICE:
-						univ.town.setField<WALL_ICE>(i,j);
+					case fields::WALL_ICE:
+						univ.town.setField<fields::WALL_ICE>(i,j);
 						break;
-					case WALL_BLADES:
-						univ.town.setField<WALL_BLADES>(i,j);
+					case fields::WALL_BLADES:
+						univ.town.setField<fields::WALL_BLADES>(i,j);
 						break;
-					case FIELD_QUICKFIRE:
-						univ.town.setField<FIELD_QUICKFIRE>(i,j);
+					case fields::FIELD_QUICKFIRE:
+						univ.town.setField<fields::FIELD_QUICKFIRE>(i,j);
 						break;
-					case FIELD_DISPEL:
+					case fields::FIELD_DISPEL:
 						dispel_fields(i,j,0);
 						break;
-					case CLOUD_SLEEP:
-						univ.town.setField<CLOUD_SLEEP>(i,j);
+					case fields::CLOUD_SLEEP:
+						univ.town.setField<fields::CLOUD_SLEEP>(i,j);
 						break;
-					case FIELD_SMASH:
+					case fields::FIELD_SMASH:
 						crumble_wall(loc(i,j));
 						break;
-					case OBJECT_CRATE:
-						univ.town.setField<OBJECT_CRATE>(i,j);
+					case fields::OBJECT_CRATE:
+						univ.town.setField<fields::OBJECT_CRATE>(i,j);
 						break;
-					case OBJECT_BARREL:
-						univ.town.setField<OBJECT_BARREL>(i,j);
+					case fields::OBJECT_BARREL:
+						univ.town.setField<fields::OBJECT_BARREL>(i,j);
 						break;
-					case OBJECT_BLOCK:
-						univ.town.setField<OBJECT_BLOCK>(i,j);
+					case fields::OBJECT_BLOCK:
+						univ.town.setField<fields::OBJECT_BLOCK>(i,j);
 						break;
-					case BARRIER_CAGE:
-						univ.town.setField<BARRIER_CAGE>(i, j);
+					case fields::BARRIER_CAGE:
+						univ.town.setField<fields::BARRIER_CAGE>(i, j);
 						break;
-					case SFX_SMALL_BLOOD:
-						univ.town.setField<SFX_SMALL_BLOOD>(i,j);
+					case fields::SFX_SMALL_BLOOD:
+						univ.town.setField<fields::SFX_SMALL_BLOOD>(i,j);
 						break;
-					case SFX_MEDIUM_BLOOD:
-						univ.town.setField<SFX_MEDIUM_BLOOD>(i,j);
+					case fields::SFX_MEDIUM_BLOOD:
+						univ.town.setField<fields::SFX_MEDIUM_BLOOD>(i,j);
 						break;
-					case SFX_LARGE_BLOOD:
-						univ.town.setField<SFX_LARGE_BLOOD>(i,j);
+					case fields::SFX_LARGE_BLOOD:
+						univ.town.setField<fields::SFX_LARGE_BLOOD>(i,j);
 						break;
-					case SFX_SMALL_SLIME:
-						univ.town.setField<SFX_SMALL_SLIME>(i,j);
+					case fields::SFX_SMALL_SLIME:
+						univ.town.setField<fields::SFX_SMALL_SLIME>(i,j);
 						break;
-					case SFX_LARGE_SLIME:
-						univ.town.setField<SFX_LARGE_SLIME>(i,j);
+					case fields::SFX_LARGE_SLIME:
+						univ.town.setField<fields::SFX_LARGE_SLIME>(i,j);
 						break;
-					case SFX_ASH:
-						univ.town.setField<SFX_ASH>(i,j);
+					case fields::SFX_ASH:
+						univ.town.setField<fields::SFX_ASH>(i,j);
 						break;
-					case SFX_BONES:
-						univ.town.setField<SFX_BONES>(i,j);
+					case fields::SFX_BONES:
+						univ.town.setField<fields::SFX_BONES>(i,j);
 						break;
-					case SFX_RUBBLE:
-						univ.town.setField<SFX_RUBBLE>(i,j);
+					case fields::SFX_RUBBLE:
+						univ.town.setField<fields::SFX_RUBBLE>(i,j);
 						break;
 				}
 			}
@@ -4221,7 +4221,7 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 					&& (((is_combat()) && (pc.combat_pos == spot_hit)) ||
 						((is_town()) && (univ.party.town_loc == spot_hit)))) {
 					effect = pat.pattern[i - center.x + 4][j - center.y + 4];
-                                        executeEffects<cPlayer>(effect,pc,0);
+					fields::executeEffects<cPlayer>(effect,pc,0);
 				}
 			}
 	put_pc_screen();
@@ -4246,7 +4246,7 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 						which_m = &univ.town.monst[k];
 						if(which_m->abil[eMonstAbil::RADIATE].active && effect == which_m->abil[eMonstAbil::RADIATE].radiate.type)
 							continue;
-                                                executeEffects<cCreature>(effect,univ.town.monst[k],who_hit);
+						fields::executeEffects<cCreature>(effect,univ.town.monst[k],who_hit);
 					}
 				}
 		}
@@ -4256,7 +4256,7 @@ void place_spell_pattern(effect_pat_type pat,location center,short who_hit) {
 	place_spell_pattern(pat, center, 0, who_hit);
 }
 
-void place_spell_pattern(effect_pat_type pat,location center,eFieldType type,short who_hit) {
+void place_spell_pattern(effect_pat_type pat,location center,fields::eFieldType type,short who_hit) {
 	unsigned short code = type;
 	place_spell_pattern(pat, center, code, who_hit);
 }
@@ -4341,7 +4341,7 @@ void hit_space(location target,short dam,eDamageType type,short report,short hit
 		hit_all -= 10;
 	}
 	
-	if(univ.town.testField<FIELD_ANTIMAGIC>(target.x,target.y) && (type == eDamageType::FIRE || type == eDamageType::MAGIC || type == eDamageType::COLD)) {
+	if(univ.town.testField<fields::FIELD_ANTIMAGIC>(target.x,target.y) && (type == eDamageType::FIRE || type == eDamageType::MAGIC || type == eDamageType::COLD)) {
 		return;
 	}
 	
@@ -4534,7 +4534,7 @@ bool combat_cast_mage_spell() {
 		return false;
 	}
 	
-	if(univ.town.testField<FIELD_ANTIMAGIC>(univ.current_pc().combat_pos.x,univ.current_pc().combat_pos.y)) {
+	if(univ.town.testField<fields::FIELD_ANTIMAGIC>(univ.current_pc().combat_pos.x,univ.current_pc().combat_pos.y)) {
 		add_string_to_buf("  Not in antimagic field.");
 		return false;
 	}
@@ -4741,7 +4741,7 @@ void combat_immed_mage_cast(short current_pc, eSpell spell_num, bool freebie) {
 			break;
 			
 		case eSpell::BLADE_AURA: // Pyhrrus effect
-			place_spell_pattern(radius2,caster.combat_pos,WALL_BLADES,6);
+			place_spell_pattern(radius2,caster.combat_pos,fields::WALL_BLADES,6);
 			break;
 		case eSpell::FLAME_AURA:
 			place_spell_pattern(open_square, caster.combat_pos, eDamageType::FIRE, 6, current_pc);
@@ -4760,7 +4760,7 @@ bool combat_cast_priest_spell() {
 	short store_sp;
 	eSpell spell_num;
 	
-	if(univ.town.testField<FIELD_ANTIMAGIC>(univ.current_pc().combat_pos.x,univ.current_pc().combat_pos.y)) {
+	if(univ.town.testField<fields::FIELD_ANTIMAGIC>(univ.current_pc().combat_pos.x,univ.current_pc().combat_pos.y)) {
 		add_string_to_buf("  Not in antimagic field.");
 		return false;
 	}
@@ -5094,11 +5094,11 @@ void break_force_cage(location loc) {
 		if(univ.town.monst[j].get_loc() == loc)
 			univ.town.monst[j].status[eStatus::FORCECAGE] = 0;
 	}
-	univ.town.clearFields<BARRIER_CAGE>(loc.x, loc.y);
+	univ.town.clearFields<fields::BARRIER_CAGE>(loc.x, loc.y);
 }
 
 void process_force_cage(location loc, short i, short adjust) {
-	if(!univ.town.testField<BARRIER_CAGE>(loc.x,loc.y)) return;
+	if(!univ.town.testField<fields::BARRIER_CAGE>(loc.x,loc.y)) return;
 	if(i >= 100) {
 		short m = i - 100;
 		cCreature& which_m = univ.town.monst[m];
@@ -5149,11 +5149,11 @@ void process_fields() {
 		r = univ.town->in_town_rect;
 		for(short i = 0; i < univ.town->max_dim; i++)
 			for(short j = 0; j < univ.town->max_dim; j++)
-				qf[i][j] = (univ.town.testField<FIELD_QUICKFIRE>(i,j)) ? 2 : 0;
+				qf[i][j] = (univ.town.testField<fields::FIELD_QUICKFIRE>(i,j)) ? 2 : 0;
 		for(short k = 0; k < ((is_combat()) ? 4 : 1); k++) {
 			for(short i = r.left + 1; i < r.right ; i++)
 				for(short j = r.top + 1; j < r.bottom ; j++)
-					if(univ.town.testField<FIELD_QUICKFIRE>(i,j)) {
+					if(univ.town.testField<fields::FIELD_QUICKFIRE>(i,j)) {
 						r1 = get_ran(1,1,8);
 						if(r1 != 1) {
 							qf[i - 1][j] = 1;
@@ -5172,7 +5172,7 @@ void process_fields() {
 							univ.town->terrain(i,j) = univ.scenario.ter_types[ter].flag1;
 							add_string_to_buf("  Quickfire burns through barrier.");
 						}
-						univ.town.setField<FIELD_QUICKFIRE>(i,j);
+						univ.town.setField<fields::FIELD_QUICKFIRE>(i,j);
 					}
 		}
 	}
@@ -5187,27 +5187,27 @@ void process_fields() {
 	processing_fields = true; // this, in hit_space, makes damage considered to come from whole party
 	for(auto& pc : univ.party)
 	{
-            if(is_combat()) FieldApplier::template inflict<cPlayer>(pc,pc.combat_pos.x,pc.combat_pos.y,univ.town);
-	    else FieldApplier::template inflict<cPlayer,cCurTown,false,false,true>(pc,univ.party.town_loc.x,univ.party.town_loc.y,univ.town);
+            if(is_combat()) fields::FieldApplier::template inflict<cPlayer>(pc,pc.combat_pos.x,pc.combat_pos.y,univ.town);
+	    else fields::FieldApplier::template inflict<cPlayer,cCurTown,false,false,true>(pc,univ.party.town_loc.x,univ.party.town_loc.y,univ.town);
 	}
-	if(!is_combat()) FieldApplier::clearTriggeredFields(univ.town,univ.party.town_loc.x,univ.party.town_loc.y);
+	if(!is_combat()) fields::FieldApplier::clearTriggeredFields(univ.town,univ.party.town_loc.x,univ.party.town_loc.y);
 	for(short i = 0; i < univ.town->max_dim; i++)
 		for(short j = 0; j < univ.town->max_dim; j++) {
-                        if(univ.town.testFields<fieldgroups::FadingFields>(i,j)) {
-                            univ.town.fadeField<WALL_FORCE>(i,j);
-                            univ.town.fadeField<WALL_FIRE>(i,j);
-                            univ.town.fadeField<FIELD_ANTIMAGIC>(i,j);
-                            univ.town.fadeField<CLOUD_STINK>(i,j);
-                            univ.town.fadeField<CLOUD_SLEEP>(i,j);
-                            univ.town.fadeField<WALL_ICE>(i,j);
-                            univ.town.fadeField<WALL_BLADES>(i,j);
+                        if(univ.town.testFields<fields::fieldgroups::FadingFields>(i,j)) {
+                            univ.town.fadeField<fields::WALL_FORCE>(i,j);
+                            univ.town.fadeField<fields::WALL_FIRE>(i,j);
+                            univ.town.fadeField<fields::FIELD_ANTIMAGIC>(i,j);
+                            univ.town.fadeField<fields::CLOUD_STINK>(i,j);
+                            univ.town.fadeField<fields::CLOUD_SLEEP>(i,j);
+                            univ.town.fadeField<fields::WALL_ICE>(i,j);
+                            univ.town.fadeField<fields::WALL_BLADES>(i,j);
 			}
-			if(univ.town.testField<BARRIER_CAGE>(i,j)) { //LEAVING FORCECAGE HERE FOR NOW
+			if(univ.town.testField<fields::BARRIER_CAGE>(i,j)) { //LEAVING FORCECAGE HERE FOR NOW
 				loc.x = i; loc.y = j;
 				short who = univ.get_target_i(*univ.target_there(loc));
 				process_force_cage(loc, who);
 				// If we got a PC, check the others too, in case they're on the same space
-				while(++who > 0 && who < 6 && univ.town.testField<BARRIER_CAGE>(i,j)) {
+				while(++who > 0 && who < 6 && univ.town.testField<fields::BARRIER_CAGE>(i,j)) {
 					loc = univ.party[who].get_loc();
 					process_force_cage(loc, who);
 				}
@@ -5224,7 +5224,7 @@ void scloud_space(short m,short n) {
 	target.x = (char) m;
 	target.y = (char) n;
 	
-	univ.town.setField<CLOUD_STINK>(m,n);
+	univ.town.setField<fields::CLOUD_STINK>(m,n);
 	
 	if(is_combat()) {
 		for(cPlayer& pc : univ.party)
@@ -5242,7 +5242,7 @@ void scloud_space(short m,short n) {
 void web_space(short m,short n) {
 	location target(m, n);
 	
-	univ.town.setField<FIELD_WEB>(m,n);
+	univ.town.setField<fields::FIELD_WEB>(m,n);
 	
 	if(is_combat()) {
 		for(cPlayer& pc : univ.party)
@@ -5258,7 +5258,7 @@ void web_space(short m,short n) {
 void sleep_cloud_space(short m,short n) {
 	location target(m, n);
 	
-	univ.town.setField<CLOUD_SLEEP>(m,n);
+	univ.town.setField<fields::CLOUD_SLEEP>(m,n);
 	
 	if(is_combat()) {
 		for(cPlayer& pc : univ.party)

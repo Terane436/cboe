@@ -277,51 +277,51 @@ bool monst_hate_spot(short which_m,location *good_loc) {
 	//TODO: This needs some rework to account for stacked fields
 	loc = univ.town.monst[which_m].cur_loc;
 	bool have_radiate = univ.town.monst[which_m].abil[eMonstAbil::RADIATE].active;
-	eFieldType which_radiate = univ.town.monst[which_m].abil[eMonstAbil::RADIATE].radiate.type;
+	fields::eFieldType which_radiate = univ.town.monst[which_m].abil[eMonstAbil::RADIATE].radiate.type;
 	bool hate_spot = false;
 	// Hate barriers
-	if(univ.town.testField<BARRIER_FIRE,BARRIER_FORCE>(loc.x,loc.y)) hate_spot = true;
+	if(univ.town.testField<fields::BARRIER_FIRE,fields::BARRIER_FORCE>(loc.x,loc.y)) hate_spot = true;
 	// Hate quickfire
-	else if(univ.town.testField<FIELD_QUICKFIRE>(loc.x,loc.y)) hate_spot = true;
+	else if(univ.town.testField<fields::FIELD_QUICKFIRE>(loc.x,loc.y)) hate_spot = true;
 	// Hate blade wall?
-	else if(univ.town.testField<WALL_BLADES>(loc.x,loc.y)) {
+	else if(univ.town.testField<fields::WALL_BLADES>(loc.x,loc.y)) {
 		hate_spot = true;
-		if(have_radiate && which_radiate == eFieldType::WALL_BLADES) hate_spot = false;
+		if(have_radiate && which_radiate == fields::WALL_BLADES) hate_spot = false;
 		else if(univ.town.monst[which_m].invuln) hate_spot = false;
 	}
 	// Hate ice wall?
-	else if(univ.town.testField<WALL_ICE>(loc.x,loc.y)) {
+	else if(univ.town.testField<fields::WALL_ICE>(loc.x,loc.y)) {
 		hate_spot = true;
-		if(have_radiate && which_radiate == eFieldType::WALL_ICE) hate_spot = false;
+		if(have_radiate && which_radiate == fields::WALL_ICE) hate_spot = false;
 		else if(univ.town.monst[which_m].resist[eDamageType::COLD] == 0) hate_spot = false;
 	}
 	// Hate fire wall?
-	else if(univ.town.testField<WALL_FIRE>(loc.x,loc.y)) {
+	else if(univ.town.testField<fields::WALL_FIRE>(loc.x,loc.y)) {
 		hate_spot = true;
-		if(have_radiate && which_radiate == eFieldType::WALL_FIRE) hate_spot = false;
+		if(have_radiate && which_radiate == fields::WALL_FIRE) hate_spot = false;
 		else if(univ.town.monst[which_m].resist[eDamageType::FIRE] == 0) hate_spot = false;
 	}
 	// Note: Monsters used to enter shock walls even if they were merely resistant to magic
 	// Hate shock wall?
-	else if(univ.town.testField<WALL_FORCE>(loc.x,loc.y)) {
+	else if(univ.town.testField<fields::WALL_FORCE>(loc.x,loc.y)) {
 		hate_spot = true;
-		if(have_radiate && which_radiate == eFieldType::WALL_FORCE) hate_spot = false;
+		if(have_radiate && which_radiate == fields::WALL_FORCE) hate_spot = false;
 		else if(univ.town.monst[which_m].resist[eDamageType::MAGIC] == 0) hate_spot = false;
 	}
 	// Hate stink cloud?
-	else if(univ.town.testField<CLOUD_STINK>(loc.x,loc.y)) {
+	else if(univ.town.testField<fields::CLOUD_STINK>(loc.x,loc.y)) {
 		hate_spot = true;
-		if(have_radiate && which_radiate == eFieldType::CLOUD_STINK) hate_spot = false;
+		if(have_radiate && which_radiate == fields::CLOUD_STINK) hate_spot = false;
 		else if(univ.town.monst[which_m].resist[eDamageType::MAGIC] <= 50) hate_spot = false;
 	}
 	// Hate sleep cloud?
-	else if(univ.town.testField<CLOUD_SLEEP>(loc.x,loc.y)) {
+	else if(univ.town.testField<fields::CLOUD_SLEEP>(loc.x,loc.y)) {
 		hate_spot = true;
-		if(have_radiate && which_radiate == eFieldType::CLOUD_SLEEP) hate_spot = false;
+		if(have_radiate && which_radiate == fields::CLOUD_SLEEP) hate_spot = false;
 		else if(univ.town.monst[which_m].resist[eDamageType::MAGIC] <= 50) hate_spot = false;
 	}
 	// Hate antimagic?
-	else if(univ.town.testField<FIELD_ANTIMAGIC>(loc.x,loc.y)) {
+	else if(univ.town.testField<fields::FIELD_ANTIMAGIC>(loc.x,loc.y)) {
 		if(univ.town.monst[which_m].mu > 0 || univ.town.monst[which_m].cl > 0)
 			hate_spot = true;
 	}
@@ -678,7 +678,7 @@ bool try_move(short i,location start,short x,short y) {
 	dest.x = dest.x + x;
 	dest.y = dest.y + y;
 	
-	if((overall_mode == MODE_TOWN || overall_mode == MODE_COMBAT) && univ.town.testField<BARRIER_CAGE>(start.x,start.y))
+	if((overall_mode == MODE_TOWN || overall_mode == MODE_COMBAT) && univ.town.testField<fields::BARRIER_CAGE>(start.x,start.y))
 		return false;
 	
 	if(overall_mode == MODE_TOWN)
@@ -730,7 +730,7 @@ location find_clear_spot(location from_where,short mode) {
 			&& can_see_light(from_where,loc,combat_obscurity) == 0
 			&& (!is_combat() || univ.target_there(loc,TARG_PC) == nullptr)
 			&& (!(is_town()) || (loc != univ.party.town_loc))
-			&& (!univ.town.testFields<fieldgroups::NonClearFields>(loc.x,loc.y))) {
+			&& (!univ.town.testFields<fields::fieldgroups::NonClearFields>(loc.x,loc.y))) {
 			if((mode == 0) || ((mode == 1) && (adjacent(from_where,loc))))
 				return loc;
 			else store_loc = loc;
@@ -787,46 +787,49 @@ bool monster_placid(short m_num) {
 
 // This damages a monster by any fields it's in, and destroys any barrels or crates
 // it's sitting on.
-void monst_inflict_fields(short which_monst) {
-	short r1;
-	location where_check;
-	cCreature *which_m;
+void monst_inflict_fields(short which_monst)
+{
+    location where_check;
+    cCreature *which_m;
 	
-	if(univ.town.monst[which_monst].active == 0)
-		return;
+    if(univ.town.monst[which_monst].active == 0) return;
 	
-	which_m = &univ.town.monst[which_monst];
-	bool have_radiate = which_m->abil[eMonstAbil::RADIATE].active;
-	eFieldType which_radiate = have_radiate ? which_m->abil[eMonstAbil::RADIATE].radiate.type : SPECIAL_EXPLORED;
-	for(short i = 0; i < univ.town.monst[which_monst].x_width; i++) //NOTE: Solve problem of >1 space monsters
-		for(short j = 0; j < univ.town.monst[which_monst].y_width; j++)
-			if(univ.town.monst[which_monst].active > 0) {
-				where_check.x = univ.town.monst[which_monst].cur_loc.x + i;
-				where_check.y = univ.town.monst[which_monst].cur_loc.y + j;
-				// TODO: If the goal is to damage the monster by any fields it's on, why all the break statements?
-				FieldApplier::template inflict<cCreature>(*which_m,where_check.x,where_check.y,univ.town,which_radiate);
-				if(univ.town.testField<BARRIER_CAGE>(where_check.x,where_check.y))
-					process_force_cage(where_check, univ.get_target_i(*which_m));
-			}
-	if(univ.town.monst[which_monst].active > 0)
-		for(short i = 0; i < univ.town.monst[which_monst].x_width; i++)
-			for(short j = 0; j < univ.town.monst[which_monst].y_width; j++) {
-				where_check.x = univ.town.monst[which_monst].cur_loc.x + i;
-				where_check.y = univ.town.monst[which_monst].cur_loc.y + j;
-				if(univ.town.testField<OBJECT_CRATE,OBJECT_BARREL>(where_check.x,where_check.y))
-					for(short k = 0; k < univ.town.items.size(); k++)
+    which_m = &univ.town.monst[which_monst];
+    bool have_radiate = which_m->abil[eMonstAbil::RADIATE].active;
+    fields::eFieldType which_radiate = have_radiate ? which_m->abil[eMonstAbil::RADIATE].radiate.type : fields::SPECIAL_EXPLORED;
+    if(univ.town.monst[which_monst].active > 0)
+    {
+        for(short i = 0; i < univ.town.monst[which_monst].x_width; i++) //NOTE: Solve problem of >1 space monsters
+        {
+            for(short j = 0; j < univ.town.monst[which_monst].y_width; j++)
+            {
+                where_check.x = univ.town.monst[which_monst].cur_loc.x + i;
+                where_check.y = univ.town.monst[which_monst].cur_loc.y + j;
+		fields::FieldApplier::template inflict<cCreature>(*which_m,where_check.x,where_check.y,univ.town,which_radiate);
+		fields::PushableObjects::breakContainer(univ.town,where_check);
+                if(univ.town.testField<fields::BARRIER_CAGE>(where_check.x,where_check.y))
+                    process_force_cage(where_check, univ.get_target_i(*which_m));
+            }
+        }
+    }
+    /*if(univ.town.monst[which_monst].active > 0)
+    {
+        for(short i = 0; i < univ.town.monst[which_monst].x_width; i++)
+        {
+            for(short j = 0; j < univ.town.monst[which_monst].y_width; j++)
+            {
+                where_check.x = univ.town.monst[which_monst].cur_loc.x + i;
+                where_check.y = univ.town.monst[which_monst].cur_loc.y + j;
+                if(univ.town.testField<OBJECT_CRATE,OBJECT_BARREL>(where_check.x,where_check.y))
+                    for(short k = 0; k < univ.town.items.size(); k++)
 						if(univ.town.items[k].variety != eItemType::NO_ITEM && univ.town.items[k].contained
 						   && (univ.town.items[k].item_loc == where_check))
 							univ.town.items[k].contained = univ.town.items[k].held = false;
 				univ.town.clearFields<OBJECT_CRATE,OBJECT_BARREL>(where_check.x,where_check.y);
 				if(univ.town.testField<BARRIER_FIRE>(where_check.x,where_check.y)) {
-					r1 = get_ran(2,1,10);
-					damage_monst(*which_m,7,r1,eDamageType::FIRE,0);
+					damage_monst(*which_m,7,get_ran(2,1,10),eDamageType::FIRE,0);
 				}
-			}
-	
-	
-	
+			}*/
 }
 
 //mode; // 1 - town 2 - combat
@@ -859,52 +862,30 @@ bool monst_check_special_terrain(location where_check,short mode,short which_mon
 	
 	// begin determining guts, which determines how enthused the monst is about entering
 	// nasty barriers
-	if((which_m->mu > 0) || (which_m->cl > 0))
-		mage = true;
-	if(which_m->mindless)
-		guts = 20;
+	if((which_m->mu > 0) || (which_m->cl > 0)) mage = true;
+	if(which_m->mindless) guts = 20;
 	else guts = get_ran(1,1,(which_m->level / 2));
 	guts += which_m->health / 20;
-	if(mage)
-		guts = guts / 2;
-	if(which_m->attitude == eAttitude::DOCILE)
-		guts = guts / 2;
+	if(mage) guts /= 2;
+	if(which_m->attitude == eAttitude::DOCILE) guts /= 2;
 	
-	if((univ.town.testField<FIELD_ANTIMAGIC>(where_check.x,where_check.y)) && (mage))
-		return false;
+	if(mage && univ.town.testFields<fields::fieldgroups::MageAvoidedFields>(where_check.x,where_check.y)) return false;
 	bool have_radiate = which_m->abil[eMonstAbil::RADIATE].active;
-	eFieldType which_radiate = which_m->abil[eMonstAbil::RADIATE].radiate.type;
-	if(univ.town.testField<WALL_FIRE>(where_check.x,where_check.y) && !(have_radiate && which_radiate == eFieldType::WALL_FIRE)) {
+	fields::eFieldType which_radiate = have_radiate ? which_m->abil[eMonstAbil::RADIATE].radiate.type : fields::SPECIAL_EXPLORED;
+	if(fields::FieldApplier::testGuts(univ.town,where_check.x,where_check.y,guts,which_radiate) == false)
+	    return false;
+
+	if(   univ.town.testField<fields::FIELD_WEB>(where_check.x,where_check.y)
+           && which_m->m_type != eRace::BUG
+           && which_radiate != fields::FIELD_WEB) {
 		if(guts < 3) return false;
 	}
-	if(univ.town.testField<WALL_FORCE>(where_check.x,where_check.y) && !(have_radiate && which_radiate == eFieldType::WALL_FORCE)) {
-		if(guts < 4) return false;
-	}
-	if(univ.town.testField<WALL_ICE>(where_check.x,where_check.y) && !(have_radiate && which_radiate == eFieldType::WALL_ICE)) {
-		if(guts < 5) return false;
-	}
-	if(univ.town.testField<CLOUD_SLEEP>(where_check.x,where_check.y) && !(have_radiate && which_radiate == eFieldType::CLOUD_SLEEP)) {
-		if(guts < 8) return false;
-	}
-	if(univ.town.testField<WALL_BLADES>(where_check.x,where_check.y) && !(have_radiate && which_radiate == eFieldType::WALL_BLADES)) {
-		if(guts < 8) return false;
-	}
-	if(univ.town.testField<FIELD_QUICKFIRE>(where_check.x,where_check.y)) {
-		if(guts < 8) return false;
-	}
-	if(univ.town.testField<CLOUD_STINK>(where_check.x,where_check.y) && !(have_radiate && which_radiate == eFieldType::CLOUD_STINK)) {
-		if(guts < 4) return false;
-	}
-	if(univ.town.testField<FIELD_WEB>(where_check.x,where_check.y) && which_m->m_type != eRace::BUG
-		&& !(have_radiate && which_radiate == eFieldType::FIELD_WEB)) {
-		if(guts < 3) return false;
-	}
-	if(univ.town.testField<BARRIER_FIRE>(where_check.x,where_check.y)) {
-		if(!which_m->is_friendly() && get_ran(1,1,100) < which_m->mu * 10 + which_m->cl * 4) {
+	if(univ.town.testField<fields::BARRIER_FIRE>(where_check.x,where_check.y)) {
+		if(!which_m->is_friendly() && get_ran(1,1,100) < (which_m->mu * 10 + which_m->cl * 4)) {
 			// TODO: Are these barrier sounds right?
 			play_sound(60);
 			which_m->spell_note(49);
-			univ.town.clearFields<BARRIER_FIRE>(where_check.x,where_check.y);
+			univ.town.clearFields<fields::BARRIER_FIRE>(where_check.x,where_check.y);
 		}
 		else {
 			if(guts < 6) return false;
@@ -913,28 +894,25 @@ bool monst_check_special_terrain(location where_check,short mode,short which_mon
 				can_enter = false;
 		}
 	}
-	if(univ.town.testField<BARRIER_FORCE>(where_check.x,where_check.y)) { /// Not in big towns
-		if(!which_m->is_friendly() && get_ran(1,1,100) < which_m->mu * 10 + which_m->cl * 4
+	if(univ.town.testField<fields::BARRIER_FORCE>(where_check.x,where_check.y)) { /// Not in big towns
+		if(!which_m->is_friendly() && get_ran(1,1,100) < (which_m->mu * 10 + which_m->cl * 4)
 			&& (!univ.town->strong_barriers)) {
 			play_sound(60);
 			which_m->spell_note(49);
-			univ.town.clearFields<BARRIER_FORCE>(where_check.x,where_check.y);
+			univ.town.clearFields<fields::BARRIER_FORCE>(where_check.x,where_check.y);
 		}
 		else can_enter = false;
 	}
-	if(univ.town.testField<BARRIER_CAGE>(where_check.x,where_check.y)) can_enter = false;
-	if(univ.town.testField<OBJECT_CRATE,OBJECT_BLOCK,OBJECT_BARREL>(where_check.x,where_check.y))
+	if(univ.town.testField<fields::BARRIER_CAGE>(where_check.x,where_check.y)) can_enter = false;
+	if(univ.town.testFields<fields::PushableObjects>(where_check.x,where_check.y))
 	{
-		if(monster_placid(which_monst))
-			can_enter = false;
-		else {
-			PushableObjects::template push<false,false>(from_loc,where_check,univ.town);
-		}
+		if(monster_placid(which_monst)) can_enter = false;
+		else fields::PushableObjects::template push<false,false>(from_loc,where_check,univ.town);
 	}
 	if(monster_placid(which_monst) && // monsters don't hop into bed when things are calm
 		univ.scenario.ter_types[ter].special == eTerSpec::BED)
 		can_enter = false;
-	if(mode == 1 && univ.town.testFieldUnchecked<SPECIAL_SPOT>(where_check.x, where_check.y))
+	if(mode == 1 && univ.town.testFieldUnchecked<fields::SPECIAL_SPOT>(where_check.x, where_check.y))
 		can_enter = false;
 	if(ter == 90) {
 		if((is_combat()) && (which_combat_type == 0)) {
@@ -1048,7 +1026,7 @@ short place_monster(mon_num_t which,location where,bool forced) {
 	univ.town.monst[i].cur_loc = where;
 	univ.town.monst[i].summon_time = 0;
 	univ.town.monst[i].target = 6;
-	univ.town.clearFields<OBJECT_CRATE,OBJECT_BARREL,OBJECT_BLOCK>(where.x,where.y);
+	univ.town.clearFields<fields::OBJECT_CRATE,fields::OBJECT_BARREL,fields::OBJECT_BLOCK>(where.x,where.y);
 	
 	return i;
 }
@@ -1074,7 +1052,7 @@ bool summon_monster(mon_num_t which,location where,short duration,eAttitude give
 			if(where.x == 0)
 				return false;
 		}
-		if(univ.town.testField<OBJECT_BARREL,OBJECT_CRATE,OBJECT_BLOCK>(where.x,where.y))
+		if(univ.town.testField<fields::OBJECT_BARREL,fields::OBJECT_CRATE,fields::OBJECT_BLOCK>(where.x,where.y))
 			return false;
 		loc = where;
 	}
@@ -1108,7 +1086,7 @@ void activate_monsters(short code,short /*attitude*/) {
 			
 			univ.town.monst[i].summon_time = 0;
 			univ.town.monst[i].target = 6;
-			univ.town.clearFields<OBJECT_CRATE,OBJECT_BARREL>(univ.town.monst[i].cur_loc.x,univ.town.monst[i].cur_loc.y);
+			univ.town.clearFields<fields::OBJECT_CRATE,fields::OBJECT_BARREL>(univ.town.monst[i].cur_loc.x,univ.town.monst[i].cur_loc.y);
 		}
 }
 

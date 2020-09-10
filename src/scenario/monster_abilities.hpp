@@ -92,7 +92,7 @@ union uAbility {
 		union {
 			eDamageType dmg;
 			eStatus stat;
-			eFieldType fld;
+			fields::eFieldType fld;
 		};
 	} gen;
 	struct {
@@ -103,7 +103,7 @@ union uAbility {
 	} summon;
 	struct {
 		bool active;
-		eFieldType type;
+		fields::eFieldType type;
 		int chance;
 		eSpellPat pat;
 	} radiate;

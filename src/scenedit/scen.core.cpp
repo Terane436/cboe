@@ -1287,7 +1287,7 @@ static bool edit_monst_abil_detail(cDialog& me, std::string hit, cMonster& monst
 				// Although SMASH/DISPEL is supported, the AI doesn't understand how to use it.
 				// Thus I won't expose it in the UI.
 				i = choose_field_type(i, &me, false);
-				abil_params.gen.fld = eFieldType(i);
+				abil_params.gen.fld = fields::eFieldType(i);
 			} else if(abil == eMonstAbil::DAMAGE || abil == eMonstAbil::DAMAGE2) {
 				i = int(abil_params.gen.dmg);
 				i = choose_damage_type(i, &me, false);
@@ -1315,7 +1315,7 @@ static bool edit_monst_abil_detail(cDialog& me, std::string hit, cMonster& monst
 			save_monst_abil_detail(me, abil, abil_params);
 			int i = abil_params.radiate.type;
 			i = choose_field_type(i, &me, true);
-			abil_params.radiate.type = eFieldType(i);
+			abil_params.radiate.type = fields::eFieldType(i);
 			fill_monst_abil_detail(me, monst, abil, abil_params);
 			return true;
 		});

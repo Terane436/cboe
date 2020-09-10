@@ -39,7 +39,7 @@ TEST_CASE("Enum text conversions") {
 	test_enum(eRace::HUMAN, "human", eRace::MAGICAL, "magic", eRace::GOBLIN, "goblin");
 	test_enum(eMonstTime::ALWAYS, "always", eMonstTime::APPEAR_AFTER_CHOP, "after-death");
 	test_enum(DIR_N, "n", DIR_HERE, "?");
-	test_enum(SPECIAL_EXPLORED, "explored", BARRIER_CAGE, "barr-cage", FIELD_DISPEL, "dispel", FIELD_SMASH, "smash");
+	test_enum(fields::SPECIAL_EXPLORED, "explored", fields::BARRIER_CAGE, "barr-cage", fields::FIELD_DISPEL, "dispel", fields::FIELD_SMASH, "smash");
 	test_enum(eDamageType::WEAPON, "weap", eDamageType::DEMON, "demon", eDamageType::SPECIAL, "spec");
 	test_enum(eMonstAbil::NO_ABIL, "none", eMonstAbil::STUN, "stun", eMonstAbil::SUMMON, "summon");
 	test_enum(eMonstGen::RAY, "ray", eMonstGen::SPIT, "spit");

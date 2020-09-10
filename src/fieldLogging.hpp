@@ -5,6 +5,9 @@
 #include "fields.hpp"
 #include <sstream>
 
+namespace fields
+{
+
 template<bool FieldNaming> void nameField(short type, std::ostringstream& sout)
 {
     switch(type)
@@ -42,6 +45,8 @@ template<bool FieldNaming> void nameField(short type, std::ostringstream& sout)
         break;
     }
 }
+
+}//End namespace fields
 
 #endif
 

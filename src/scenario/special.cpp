@@ -265,7 +265,7 @@ void cSpecial::import_legacy(legacy::special_node_type& old){
 			break;
 		case 148: case 149: // if barrels or crates
 			type = eSpecType::IF_FIELDS;
-			m1 = old.type == 148 ? OBJECT_BARREL : OBJECT_CRATE;
+			m1 = old.type == 148 ? fields::OBJECT_BARREL : fields::OBJECT_CRATE;
 			m2 = ex1b;
 			ex1a = ex1b = 0;
 			ex2a = ex2b = 64;
@@ -391,54 +391,54 @@ void cSpecial::import_legacy(legacy::special_node_type& old){
 			// Place fields (twelve individual node types were collapsed into one)
 		case 200:
 			type = eSpecType::RECT_PLACE_FIELD;
-			sd2 = WALL_FIRE;
+			sd2 = fields::WALL_FIRE;
 			break;
 		case 201:
 			type = eSpecType::RECT_PLACE_FIELD;
-			sd2 = WALL_FORCE;
+			sd2 = fields::WALL_FORCE;
 			break;
 		case 202:
 			type = eSpecType::RECT_PLACE_FIELD;
-			sd2 = WALL_ICE;
+			sd2 = fields::WALL_ICE;
 			break;
 		case 203:
 			type = eSpecType::RECT_PLACE_FIELD;
-			sd2 = WALL_BLADES;
+			sd2 = fields::WALL_BLADES;
 			break;
 		case 204:
 			type = eSpecType::RECT_PLACE_FIELD;
-			sd2 = CLOUD_STINK;
+			sd2 = fields::CLOUD_STINK;
 			break;
 		case 205:
 			type = eSpecType::RECT_PLACE_FIELD;
-			sd2 = CLOUD_SLEEP;
+			sd2 = fields::CLOUD_SLEEP;
 			break;
 		case 206:
 			type = eSpecType::RECT_PLACE_FIELD;
-			sd2 = FIELD_QUICKFIRE;
+			sd2 = fields::FIELD_QUICKFIRE;
 			break;
 		case 207:
 			type = eSpecType::RECT_PLACE_FIELD;
-			sd2 = BARRIER_FIRE;
+			sd2 = fields::BARRIER_FIRE;
 			break;
 		case 208:
 			type = eSpecType::RECT_PLACE_FIELD;
-			sd2 = BARRIER_FORCE;
+			sd2 = fields::BARRIER_FORCE;
 			break;
 		case 209:
 			type = eSpecType::RECT_PLACE_FIELD;
-			sd2 = FIELD_DISPEL;
+			sd2 = fields::FIELD_DISPEL;
 			break;
 		case 210:
 			type = eSpecType::RECT_PLACE_FIELD;
-			sd2 += SFX_SMALL_BLOOD;
+			sd2 += fields::SFX_SMALL_BLOOD;
 			break;
 		case 211:
 			type = eSpecType::RECT_PLACE_FIELD;
 			switch(old.sd2) {
-				case 0: sd2 = FIELD_WEB; break;
-				case 1: sd2 = OBJECT_BARREL; break;
-				case 2: sd2 = OBJECT_CRATE; break;
+				case 0: sd2 = fields::FIELD_WEB; break;
+				case 1: sd2 = fields::OBJECT_BARREL; break;
+				case 2: sd2 = fields::OBJECT_CRATE; break;
 			}
 			break;
 			// Affect status effect (eleven individual node types were collapsed into one)

@@ -53,10 +53,13 @@ short party_size(bool only_living);
 // This is defined in pc.editors.cpp since it is also used by the character editor
 bool spend_xp(short pc_num, short mode, cDialog* parent);
 
+namespace fields
+{
 template<> struct FieldDamager<cPlayer>
 {
     static void damage(cPlayer& pc, short amount, eDamageType type, short = 7)
     {damage_pc(pc,amount,type,eRace::UNKNOWN,0);}
 };
+}
 
 #endif

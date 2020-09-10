@@ -50,63 +50,63 @@ TEST_CASE("Loading map data from file") {
 	SECTION("With fields") {
 		fin.open("files/maps/fields.map");
 		map = load_map(fin, true, "fields.map");
-		test.emplace_back(make_pair(eMapFeature::FIELD, WALL_FORCE));
+		test.emplace_back(make_pair(eMapFeature::FIELD, fields::WALL_FORCE));
 		CHECK(map.getFeatures(0, 0) == test);
-		test[0].second = WALL_FIRE;
+		test[0].second = fields::WALL_FIRE;
 		CHECK(map.getFeatures(1, 0) == test);
-		test[0].second = FIELD_ANTIMAGIC;
+		test[0].second = fields::FIELD_ANTIMAGIC;
 		CHECK(map.getFeatures(2, 0) == test);
-		test[0].second = CLOUD_STINK;
+		test[0].second = fields::CLOUD_STINK;
 		CHECK(map.getFeatures(3, 0) == test);
-		test[0].second = WALL_ICE;
+		test[0].second = fields::WALL_ICE;
 		CHECK(map.getFeatures(0, 1) == test);
-		test[0].second = WALL_BLADES;
+		test[0].second = fields::WALL_BLADES;
 		CHECK(map.getFeatures(1, 1) == test);
-		test[0].second = CLOUD_SLEEP;
+		test[0].second = fields::CLOUD_SLEEP;
 		CHECK(map.getFeatures(2, 1) == test);
-		test[0].second = OBJECT_BLOCK;
+		test[0].second = fields::OBJECT_BLOCK;
 		CHECK(map.getFeatures(3, 1) == test);
-		test[0].second = SPECIAL_SPOT;
+		test[0].second = fields::SPECIAL_SPOT;
 		CHECK(map.getFeatures(0, 2) == test);
-		test[0].second = FIELD_WEB;
+		test[0].second = fields::FIELD_WEB;
 		CHECK(map.getFeatures(1, 2) == test);
-		test[0].second = OBJECT_CRATE;
+		test[0].second = fields::OBJECT_CRATE;
 		CHECK(map.getFeatures(2, 2) == test);
-		test[0].second = OBJECT_BARREL;
+		test[0].second = fields::OBJECT_BARREL;
 		CHECK(map.getFeatures(3, 2) == test);
-		test[0].second = BARRIER_FIRE;
+		test[0].second = fields::BARRIER_FIRE;
 		CHECK(map.getFeatures(0, 3) == test);
-		test[0].second = BARRIER_FORCE;
+		test[0].second = fields::BARRIER_FORCE;
 		CHECK(map.getFeatures(1, 3) == test);
-		test[0].second = FIELD_QUICKFIRE;
+		test[0].second = fields::FIELD_QUICKFIRE;
 		CHECK(map.getFeatures(2, 3) == test);
-		test[0].second = SFX_SMALL_BLOOD;
+		test[0].second = fields::SFX_SMALL_BLOOD;
 		CHECK(map.getFeatures(3, 3) == test);
-		test[0].second = SFX_MEDIUM_BLOOD;
+		test[0].second = fields::SFX_MEDIUM_BLOOD;
 		CHECK(map.getFeatures(0, 4) == test);
-		test[0].second = SFX_LARGE_BLOOD;
+		test[0].second = fields::SFX_LARGE_BLOOD;
 		CHECK(map.getFeatures(1, 4) == test);
-		test[0].second = SFX_SMALL_SLIME;
+		test[0].second = fields::SFX_SMALL_SLIME;
 		CHECK(map.getFeatures(2, 4) == test);
-		test[0].second = SFX_LARGE_SLIME;
+		test[0].second = fields::SFX_LARGE_SLIME;
 		CHECK(map.getFeatures(3, 4) == test);
-		test[0].second = SFX_ASH;
+		test[0].second = fields::SFX_ASH;
 		CHECK(map.getFeatures(0, 5) == test);
-		test[0].second = SFX_BONES;
+		test[0].second = fields::SFX_BONES;
 		CHECK(map.getFeatures(1, 5) == test);
-		test[0].second = SFX_RUBBLE;
+		test[0].second = fields::SFX_RUBBLE;
 		CHECK(map.getFeatures(2, 5) == test);
-		test[0].second = BARRIER_CAGE;
+		test[0].second = fields::BARRIER_CAGE;
 		CHECK(map.getFeatures(3, 5) == test);
-		test[0].second = SPECIAL_ROAD;
+		test[0].second = fields::SPECIAL_ROAD;
 		CHECK(map.getFeatures(0, 6) == test);
 	}
 	SECTION("With fields outdoors") {
 		fin.open("files/maps/fields_out.map");
 		map = load_map(fin, false, "fields_out.map");
-		test.emplace_back(make_pair(eMapFeature::FIELD, SPECIAL_SPOT));
+		test.emplace_back(make_pair(eMapFeature::FIELD, fields::SPECIAL_SPOT));
 		CHECK(map.getFeatures(2, 2) == test);
-		test[0].second = SPECIAL_ROAD;
+		test[0].second = fields::SPECIAL_ROAD;
 		CHECK(map.getFeatures(2, 3) == test);
 		CHECK(map.getFeatures(2, 4) == test);
 	}
@@ -226,18 +226,18 @@ TEST_CASE("Interpreting loaded map data") {
 		fin.open("files/maps/fields.map");
 		map = load_map(fin, true, "fields.map");
 		loadTownMapData(move(map), 0, scen);
-		static const std::map<eFieldType, location> check = {
-			{WALL_FORCE, {0,0}}, {WALL_FIRE, {1,0}}, {FIELD_ANTIMAGIC, {2,0}}, {CLOUD_STINK, {3,0}},
-			{WALL_ICE, {0,1}}, {WALL_BLADES, {1,1}}, {CLOUD_SLEEP, {2,1}}, {OBJECT_BLOCK, {3,1}},
-			{SPECIAL_SPOT, {0,2}}, {FIELD_WEB, {1,2}}, {OBJECT_CRATE, {2,2}}, {OBJECT_BARREL, {3,2}},
-			{BARRIER_FIRE, {0,3}}, {BARRIER_FORCE, {1,3}}, {FIELD_QUICKFIRE, {2,3}}, {SFX_SMALL_BLOOD, {3,3}},
-			{SFX_MEDIUM_BLOOD, {0,4}}, {SFX_LARGE_BLOOD, {1,4}}, {SFX_SMALL_SLIME, {2,4}}, {SFX_LARGE_SLIME, {3,4}},
-			{SFX_ASH, {0,5}}, {SFX_BONES, {1,5}}, {SFX_RUBBLE, {2,5}}, {BARRIER_CAGE, {3,5}},
-			{SPECIAL_ROAD, {0,6}},
+		static const std::map<fields::eFieldType, location> check = {
+			{fields::WALL_FORCE, {0,0}}, {fields::WALL_FIRE, {1,0}}, {fields::FIELD_ANTIMAGIC, {2,0}}, {fields::CLOUD_STINK, {3,0}},
+			{fields::WALL_ICE, {0,1}}, {fields::WALL_BLADES, {1,1}}, {fields::CLOUD_SLEEP, {2,1}}, {fields::OBJECT_BLOCK, {3,1}},
+			{fields::SPECIAL_SPOT, {0,2}}, {fields::FIELD_WEB, {1,2}}, {fields::OBJECT_CRATE, {2,2}}, {fields::OBJECT_BARREL, {3,2}},
+			{fields::BARRIER_FIRE, {0,3}}, {fields::BARRIER_FORCE, {1,3}}, {fields::FIELD_QUICKFIRE, {2,3}}, {fields::SFX_SMALL_BLOOD, {3,3}},
+			{fields::SFX_MEDIUM_BLOOD, {0,4}}, {fields::SFX_LARGE_BLOOD, {1,4}}, {fields::SFX_SMALL_SLIME, {2,4}}, {fields::SFX_LARGE_SLIME, {3,4}},
+			{fields::SFX_ASH, {0,5}}, {fields::SFX_BONES, {1,5}}, {fields::SFX_RUBBLE, {2,5}}, {fields::BARRIER_CAGE, {3,5}},
+			{fields::SPECIAL_ROAD, {0,6}},
 		};
 		CAPTURE(check.size());
 		REQUIRE(scen.towns[0]->preset_fields.size() == check.size());
-		set<eFieldType> found;
+		set<fields::eFieldType> found;
 		for(const auto& fld : scen.towns[0]->preset_fields) {
 			if(found.count(fld.type))
 				FAIL("Error: Two fields of the same type found!");

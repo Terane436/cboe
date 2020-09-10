@@ -731,13 +731,13 @@ short do_look(location space) {
 	}
 	
 	if((overall_mode == MODE_LOOK_TOWN) || (overall_mode == MODE_LOOK_COMBAT)) {
-		if(univ.town.testFieldUnchecked<SPECIAL_ROAD>(space.x,space.y))
+		if(univ.town.testFieldUnchecked<fields::SPECIAL_ROAD>(space.x,space.y))
 			add_string_to_buf("    Track");
 		if(town_boat_there(space))
 			add_string_to_buf("    Boat");
 		if(town_horse_there(space))
 			add_string_to_buf("    Horse");
-		VisibleFieldApplication::buildLook(univ.town,space.x,space.y);
+		fields::VisibleFieldApplication::buildLook(univ.town,space.x,space.y);
 
 		for(short i = 0; i < univ.town.items.size(); i++) {
 			if(univ.town.items[i].variety != eItemType::NO_ITEM && space == univ.town.items[i].item_loc
@@ -764,7 +764,7 @@ short do_look(location space) {
 				add_string_to_buf((char *) msg.c_str());
 			}
 		}
-		if(univ.town.testFieldUnchecked<SPECIAL_SPOT>(space.x,space.y))
+		if(univ.town.testFieldUnchecked<fields::SPECIAL_SPOT>(space.x,space.y))
 			add_string_to_buf("    Special Encounter");
 	}
 	

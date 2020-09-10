@@ -301,7 +301,7 @@ TEST_CASE("Loading monster abilities") {
 			CHECK(scen.scen_monsters[1].abil[eMonstAbil::FIELD].gen.odds == 600);
 			CHECK(scen.scen_monsters[1].abil[eMonstAbil::FIELD].gen.pic == 2);
 			CHECK(scen.scen_monsters[1].abil[eMonstAbil::FIELD].gen.range == 10);
-			CHECK(scen.scen_monsters[1].abil[eMonstAbil::FIELD].gen.fld == CLOUD_SLEEP);
+			CHECK(scen.scen_monsters[1].abil[eMonstAbil::FIELD].gen.fld == fields::CLOUD_SLEEP);
 		}
 		SECTION("Ranged status ability") {
 			fin.open("files/monsters/abil_gen/minimal_status.xml");
@@ -370,7 +370,7 @@ TEST_CASE("Loading monster abilities") {
 			REQUIRE_NOTHROW(readMonstersFromXml(move(doc), scen));
 			REQUIRE(scen.scen_monsters.size() >= 2);
 			CHECK(scen.scen_monsters[1].abil[eMonstAbil::RADIATE].active);
-			CHECK(scen.scen_monsters[1].abil[eMonstAbil::RADIATE].radiate.type == CLOUD_SLEEP);
+			CHECK(scen.scen_monsters[1].abil[eMonstAbil::RADIATE].radiate.type == fields::CLOUD_SLEEP);
 			CHECK(scen.scen_monsters[1].abil[eMonstAbil::RADIATE].radiate.pat == PAT_SQ);
 			CHECK(scen.scen_monsters[1].abil[eMonstAbil::RADIATE].radiate.chance == 75);
 		}
@@ -380,7 +380,7 @@ TEST_CASE("Loading monster abilities") {
 			REQUIRE_NOTHROW(readMonstersFromXml(move(doc), scen));
 			REQUIRE(scen.scen_monsters.size() >= 2);
 			CHECK(scen.scen_monsters[1].abil[eMonstAbil::RADIATE].active);
-			CHECK(scen.scen_monsters[1].abil[eMonstAbil::RADIATE].radiate.type == CLOUD_SLEEP);
+			CHECK(scen.scen_monsters[1].abil[eMonstAbil::RADIATE].radiate.type == fields::CLOUD_SLEEP);
 			CHECK(scen.scen_monsters[1].abil[eMonstAbil::RADIATE].radiate.pat == PAT_PLUS);
 			CHECK(scen.scen_monsters[1].abil[eMonstAbil::RADIATE].radiate.chance == 75);
 		}

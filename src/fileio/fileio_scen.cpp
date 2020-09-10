@@ -1950,9 +1950,9 @@ void loadOutMapData(map_data&& data, location which, cScenario& scen) {
 						what->exists = true;
 						break;
 					case eMapFeature::FIELD:
-						if(feat.second == SPECIAL_SPOT)
+						if(feat.second == fields::SPECIAL_SPOT)
 							out.special_spot[x][y] = true;
-						else if(feat.second == SPECIAL_ROAD)
+						else if(feat.second == fields::SPECIAL_ROAD)
 							out.roads[x][y] = true;
 						else throw xMapParseError(map_out_bad_field, feat.second, y, x, data.file);
 						break;
@@ -2022,7 +2022,7 @@ void loadTownMapData(map_data&& data, int which, cScenario& scen) {
 					case eMapFeature::FIELD:
 						town.preset_fields.emplace_back();
 						town.preset_fields.back().loc = loc(x,y);
-						town.preset_fields.back().type = eFieldType(feat.second);
+						town.preset_fields.back().type = fields::eFieldType(feat.second);
 						break;
 					case eMapFeature::ITEM:
 						if(feat.second >= town.preset_items.size())

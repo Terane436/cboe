@@ -66,11 +66,11 @@ public:
 	class cField { // formerly preset_field_type
 	public:
 		location loc;
-		eFieldType type;
+		fields::eFieldType type;
 		
 		void import_legacy(legacy::preset_field_type old);
-		cField() : type(FIELD_DISPEL) {}
-		cField(location l, eFieldType t) : loc(l), type(t) {}
+		cField() : type(fields::FIELD_DISPEL) {}
+		cField(location l, fields::eFieldType t) : loc(l), type(t) {}
 	};
 	short town_chop_time,town_chop_key;
 	int bg_town, bg_fight;

@@ -302,10 +302,10 @@ static std::vector<short> get_small_icons(location at, ter_num_t t_to_draw) {
 			if(at == town->wandering_locs[i]) {
 				icons.push_back(86);
 			}
-		if(is_field_type(at.x, at.y, BARRIER_FIRE)) {
+		if(is_field_type(at.x, at.y, fields::BARRIER_FIRE)) {
 			icons.push_back(33);
 		}
-		if(is_field_type(at.x, at.y, BARRIER_FORCE)) {
+		if(is_field_type(at.x, at.y, fields::BARRIER_FORCE)) {
 			icons.push_back(34);
 		}
 	} else {
@@ -798,40 +798,40 @@ void draw_terrain(){
 							rect_draw_some_item(vehicle_gworld,source_rect,mainPtr,destrec,sf::BlendAlpha);
 						
 					}
-					if(is_field_type(cen_x + q - 4,cen_y + r - 4, FIELD_WEB)) {
+					if(is_field_type(cen_x + q - 4,cen_y + r - 4, fields::FIELD_WEB)) {
 						from_rect = calc_rect(5,0);
 						rect_draw_some_item(fields_gworld,from_rect,mainPtr,destrec,sf::BlendAlpha);
 					}
-					if(is_field_type(cen_x + q - 4,cen_y + r - 4, OBJECT_CRATE)) {
+					if(is_field_type(cen_x + q - 4,cen_y + r - 4, fields::OBJECT_CRATE)) {
 						from_rect = calc_rect(6,0);
 						rect_draw_some_item(fields_gworld,from_rect,mainPtr,destrec,sf::BlendAlpha);
 					}
-					if(is_field_type(cen_x + q - 4,cen_y + r - 4, OBJECT_BARREL)) {
+					if(is_field_type(cen_x + q - 4,cen_y + r - 4, fields::OBJECT_BARREL)) {
 						from_rect = calc_rect(7,0);
 						rect_draw_some_item(fields_gworld,from_rect,mainPtr,destrec,sf::BlendAlpha);
 					}
-					if(is_field_type(cen_x + q - 4,cen_y + r - 4, BARRIER_FIRE)) {
+					if(is_field_type(cen_x + q - 4,cen_y + r - 4, fields::BARRIER_FIRE)) {
 						from_rect = calc_rect(8,4);
 						rect_draw_some_item(*ResMgr::graphics.get("teranim"),from_rect,mainPtr,destrec,sf::BlendAlpha);
 					}
-					if(is_field_type(cen_x + q - 4,cen_y + r - 4, FIELD_QUICKFIRE)) {
+					if(is_field_type(cen_x + q - 4,cen_y + r - 4, fields::FIELD_QUICKFIRE)) {
 						from_rect = calc_rect(7,1);
 						rect_draw_some_item(fields_gworld,from_rect,mainPtr,destrec,sf::BlendAlpha);
 					}
-					if(is_field_type(cen_x + q - 4,cen_y + r - 4, BARRIER_FORCE)) {
+					if(is_field_type(cen_x + q - 4,cen_y + r - 4, fields::BARRIER_FORCE)) {
 						from_rect = calc_rect(10,4);
 						rect_draw_some_item(*ResMgr::graphics.get("teranim"),from_rect,mainPtr,destrec,sf::BlendAlpha);
 					}
-					if(is_field_type(cen_x + q - 4,cen_y + r - 4, OBJECT_BLOCK)) {
+					if(is_field_type(cen_x + q - 4,cen_y + r - 4, fields::OBJECT_BLOCK)) {
 						from_rect = calc_rect(3,0);
 						rect_draw_some_item(fields_gworld,from_rect,mainPtr,destrec,sf::BlendAlpha);
 					}
-					if(is_field_type(cen_x + q - 4,cen_y + r - 4, BARRIER_CAGE)) {
+					if(is_field_type(cen_x + q - 4,cen_y + r - 4, fields::BARRIER_CAGE)) {
 						from_rect = calc_rect(0,0);
 						rect_draw_some_item(fields_gworld,from_rect,mainPtr,destrec,sf::BlendAlpha);
 					}
 					for(short i = 0; i < 8; i++) {
-						eFieldType sfx = eFieldType(SFX_SMALL_BLOOD + i);
+						fields::eFieldType sfx = fields::eFieldType(fields::SFX_SMALL_BLOOD + i);
 						if(is_field_type(cen_x + q - 4,cen_y + r - 4,sfx)) {
 							from_rect = calc_rect(i,3);
 							rect_draw_some_item(fields_gworld,from_rect,mainPtr,destrec,sf::BlendAlpha);
@@ -1564,7 +1564,7 @@ void sort_specials() {
 
 bool is_spot(short i,short j){
 	if(editing_town)
-		return is_field_type(i,j,SPECIAL_SPOT);
+		return is_field_type(i,j,fields::SPECIAL_SPOT);
 	else if(i >= 0 && i < 48 && j >= 0 && j < 48)
 		return current_terrain->special_spot[i][j];
 	return false;
@@ -1572,13 +1572,13 @@ bool is_spot(short i,short j){
 
 bool is_road(short i,short j){
 	if(editing_town)
-		return is_field_type(i,j,SPECIAL_ROAD);
+		return is_field_type(i,j,fields::SPECIAL_ROAD);
 	else if(i >= 0 && i < 48 && j >= 0 && j < 48)
 		return current_terrain->roads[i][j];
 	return false;
 }
 
-bool is_field_type(short i,short j,eFieldType field_type) {
+bool is_field_type(short i,short j,fields::eFieldType field_type) {
 	for(short k = 0; k < town->preset_fields.size(); k++)
 		if((town->preset_fields[k].type == field_type) &&
 			(town->preset_fields[k].loc.x == i) &&
@@ -1587,7 +1587,7 @@ bool is_field_type(short i,short j,eFieldType field_type) {
 	return false;
 }
 
-void make_field_type(short i,short j,eFieldType field_type) {
+void make_field_type(short i,short j,fields::eFieldType field_type) {
 	if(is_field_type(i,j,field_type))
 		return;
 	for(short k = 0; k < town->preset_fields.size(); k++)
@@ -1605,12 +1605,12 @@ void make_field_type(short i,short j,eFieldType field_type) {
 }
 
 
-void take_field_type(short i,short j,eFieldType field_type) {
+void take_field_type(short i,short j,fields::eFieldType field_type) {
 	for(short k = 0; k < town->preset_fields.size(); k++)
 		if((town->preset_fields[k].type == field_type) &&
 			(town->preset_fields[k].loc.x == i) &&
 			(town->preset_fields[k].loc.y == j)) {
-			town->preset_fields[k].type = FIELD_DISPEL;
+			town->preset_fields[k].type = fields::FIELD_DISPEL;
 			return;
 		}
 }
@@ -1620,9 +1620,9 @@ bool container_there(location l) {
 		return false;
 	if(scenario.ter_types[town->terrain(l.x,l.y)].special == eTerSpec::IS_A_CONTAINER)
 		return true;
-	if(is_field_type(l.x,l.y, OBJECT_BARREL))
+	if(is_field_type(l.x,l.y, fields::OBJECT_BARREL))
 		return true;
-	if(is_field_type(l.x,l.y, OBJECT_CRATE))
+	if(is_field_type(l.x,l.y, fields::OBJECT_CRATE))
 		return true;
 	return 0;
 }

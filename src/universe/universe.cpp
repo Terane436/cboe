@@ -19,6 +19,7 @@
 #include "mathutil.hpp"
 #include "fileio.hpp"
 #include "gfxsheets.hpp"
+#include "fieldInflicts.hpp"
 
 void cCurOut::import_legacy(legacy::out_info_type& old){
 	for(int i = 0; i < 96; i++)
@@ -97,74 +98,13 @@ void cCurTown::import_legacy(unsigned char(& old_sfx)[64][64], unsigned char(& o
 		}
 }
 
-void cCurTown::place_preset_fields() {
-	// Initialize barriers, etc. Note non-sfx gets forgotten if this is a town recently visited.
-	for(int i = 0; i < 64; i++)
-		for(int j = 0; j < 64; j++) {
-			fields[i][j] = 0;
-		}
-	for(size_t i = 0; i < record()->preset_fields.size(); i++) {
-		switch(record()->preset_fields[i].type){
-			case OBJECT_BLOCK:
-				setField<OBJECT_BLOCK>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case SPECIAL_SPOT:
-				setField<SPECIAL_SPOT>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case SPECIAL_ROAD:
-				setField<SPECIAL_ROAD>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case FIELD_WEB:
-				setField<FIELD_WEB>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case OBJECT_CRATE:
-				setField<OBJECT_CRATE>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case OBJECT_BARREL:
-				setField<OBJECT_BARREL>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case BARRIER_FIRE:
-				setField<BARRIER_FIRE>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case BARRIER_FORCE:
-				setField<BARRIER_FORCE>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case BARRIER_CAGE:
-				setField<BARRIER_CAGE>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case FIELD_QUICKFIRE:
-				setField<FIELD_QUICKFIRE>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case SFX_SMALL_BLOOD:
-				setField<SFX_SMALL_BLOOD>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case SFX_MEDIUM_BLOOD:
-				setField<SFX_MEDIUM_BLOOD>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case SFX_LARGE_BLOOD:
-				setField<SFX_LARGE_BLOOD>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case SFX_SMALL_SLIME:
-				setField<SFX_SMALL_SLIME>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case SFX_LARGE_SLIME:
-				setField<SFX_LARGE_SLIME>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case SFX_ASH:
-				setField<SFX_ASH>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case SFX_BONES:
-				setField<SFX_BONES>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-			case SFX_RUBBLE:
-				setField<SFX_RUBBLE>(record()->preset_fields[i].loc.x,record()->preset_fields[i].loc.y);
-				break;
-				// The rest can't be preset, but enumerate them in case a new field is added.
-			case FIELD_DISPEL: case FIELD_SMASH: case SPECIAL_EXPLORED: case CLOUD_SLEEP: case CLOUD_STINK:
-			case FIELD_ANTIMAGIC: case WALL_BLADES: case WALL_FIRE: case WALL_FORCE: case WALL_ICE:
-				break;
-		}
-	}
+void cCurTown::place_preset_fields()
+{ // Initialize barriers, etc. Note non-sfx gets forgotten if this is a town recently visited.
+    for(int i = 0; i < 64; i++)
+        for(int j = 0; j < 64; j++)
+            fields[i][j] = 0;
+    for(auto& preset : record()->preset_fields)
+        fields::PresettableFields::setSelectedField(*this,preset.type,preset.loc.x,preset.loc.y);
 }
 
 cSpeech& cCurTown::cur_talk() {

@@ -6,6 +6,9 @@
 
 extern long anim_ticks;
 
+namespace fields
+{
+
 struct BaseFieldGraphics
 {
     static constexpr int GraphicRectX = 0;
@@ -187,6 +190,8 @@ template<eFieldType Field, eFieldType... Fields> struct DrawFields<Field,Fields.
 typedef DrawFields<WALL_FORCE,WALL_FIRE,FIELD_ANTIMAGIC,CLOUD_STINK,WALL_ICE,WALL_BLADES,CLOUD_SLEEP,OBJECT_BLOCK,SPECIAL_SPOT,FIELD_WEB,OBJECT_CRATE,OBJECT_BARREL,FIELD_QUICKFIRE,SFX_SMALL_BLOOD,SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD,SFX_SMALL_SLIME,SFX_LARGE_SLIME,SFX_ASH,SFX_BONES,SFX_RUBBLE,BARRIER_CAGE> StandardFieldDrawing;
 
 typedef DrawFields<BARRIER_FORCE,BARRIER_FIRE> AnimatedFieldDrawing;
+
+}//End namespace fields
 
 #endif
 

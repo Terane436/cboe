@@ -378,8 +378,8 @@ void draw_fields(location where){
 			Draw_Some_Item(fields_gworld,calc_rect(4,0),terrain_screen_gworld,where_draw,1,0);
 		return;
 	}
-	StandardFieldDrawing::draw(univ.town,fields_gworld,terrain_screen_gworld,where,where_draw,1,0);
-	AnimatedFieldDrawing::draw(univ.town,*ResMgr::graphics.get("teranim"),terrain_screen_gworld,where,where_draw,1,0);
+	fields::StandardFieldDrawing::draw(univ.town,fields_gworld,terrain_screen_gworld,where,where_draw,1,0);
+	fields::AnimatedFieldDrawing::draw(univ.town,*ResMgr::graphics.get("teranim"),terrain_screen_gworld,where,where_draw,1,0);
 }
 
 void draw_party_symbol(location center) {
