@@ -1071,6 +1071,12 @@ void readTerrainFromXml(ticpp::Document&& data, cScenario& scenario) {
 							throw xMissingElem("object", *reqs.begin(), edit->Row(), edit->Column(), fname);
 					} else throw xBadNode(type, edit->Row(), edit->Column(), fname);
 				}
+			} else if(type == "tint") {
+                            ter->GetText(&the_ter.tint);
+			} else if(type == "overlay") {
+                            ter->GetText(&the_ter.overlayPic);
+			} else if(type == "overlayTint") {
+                            ter->GetText(&the_ter.overlayTint);
 			} else throw xBadNode(type, ter->Row(), ter->Column(), fname);
 		}
 		if(!reqs.empty())
@@ -1174,6 +1180,8 @@ void readItemsFromXml(ticpp::Document&& data, cScenario& scenario) {
 				}
 			} else if(type == "description") {
 				item->GetText(&the_item.desc, false);
+			} else if(type == "tint") {
+                            item->GetText(&the_item.tint);
 			} else throw xBadNode(type, item->Row(), item->Column(), fname);
 		}
 		if(!reqs.empty())
@@ -1509,6 +1517,8 @@ void readMonstersFromXml(ticpp::Document&& data, cScenario& scenario) {
 				}
 				if(!reqs.empty())
 					throw xMissingElem("loot", *reqs.begin(), monst->Row(), monst->Column(), fname);
+			} else if(type == "tint") {
+                            monst->GetText(&the_mon.tint);
 			} else throw xBadNode(type, monst->Row(), monst->Column(), fname);
 		}
 		if(!reqs.empty())

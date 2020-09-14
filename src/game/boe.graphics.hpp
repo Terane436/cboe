@@ -50,6 +50,7 @@ void put_dialog_graphic(short graphic_num,short spec_g,rectangle draw_rect);
 void draw_startup_stats();
 void draw_trim(short q,short r,short which_trim,ter_num_t ground_ter);
 sf::FloatRect compute_viewport(const sf::RenderWindow&, int mode, float ui_scale, float width, float height);
+bool locationSupressed(location loc);
 
 void draw_startup_anim(bool advance);
 

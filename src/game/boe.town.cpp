@@ -348,9 +348,9 @@ void start_town_mode(short which_town, short entry_dir) {
 		for(short k = 0; k < univ.town->max_dim; k++) {
 			loc.x = j; loc.y = k;
 			if(is_door(loc)) {
-				univ.town.clearFields<fields::FIELD_WEB,fields::OBJECT_CRATE,fields::OBJECT_BARREL,fields::BARRIER_FIRE,fields::BARRIER_FORCE,fields::FIELD_QUICKFIRE>(j,k);
+				univ.town.clearFields<fields::fieldgroups::FieldsNotOnDoors>(j,k);
 			}
-			if(univ.town.testField<fields::FIELD_QUICKFIRE>(j,k))
+			if(univ.town.testFields<fields::fieldgroups::SpreadingFields>(j,k))
 				univ.town.quickfire_present = true;
 		}
 	
@@ -419,7 +419,7 @@ void start_town_mode(short which_town, short entry_dir) {
 				item.property = preset.property;
 			item.contained = preset.contained;
 			int x = item.item_loc.x, y = item.item_loc.y;
-			if(item.contained && univ.town.testField<fields::OBJECT_BARREL,fields::OBJECT_CRATE>(x,y))
+			if(item.contained && univ.town.testFields<fields::fieldgroups::ContainerFields>(x,y))
 				item.held = true;
 			item.is_special = i + 1;
 		}
@@ -469,7 +469,7 @@ void start_town_mode(short which_town, short entry_dir) {
 	
 	
 	// clear entry space, and check exploration
-	univ.town.clearFields<fields::FIELD_WEB,fields::OBJECT_CRATE,fields::OBJECT_BARREL,fields::BARRIER_FIRE,fields::BARRIER_FORCE,fields::FIELD_QUICKFIRE>(univ.party.town_loc.x,univ.party.town_loc.y);
+	univ.town.clearFields<fields::fieldgroups::FieldsNotOnDoors>(univ.party.town_loc.x,univ.party.town_loc.y);
 	update_explored(univ.party.town_loc);
 	
 	// If a PC dead, drop his items

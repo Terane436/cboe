@@ -14,6 +14,7 @@
 
 #include "fileio.hpp"
 #include "render_shapes.hpp"
+#include "gfxsheets.hpp"
 
 sf::Shader maskShader;
 extern fs::path progDir;
@@ -111,5 +112,13 @@ void draw_splash(const sf::Texture& splash, sf::RenderWindow& targ, rectangle de
 	targ.clear(sf::Color::Black);
 	rect_draw_some_item(splash, from_rect, targ, dest_rect, sf::BlendNone, colorMod);
 	targ.display();
+}
+
+void rect_draw_tile(const sf::Texture& drawThis, rectangle src_rect, sf::RenderTarget& gtarget, location target, location offset, bool masked, uint32_t colorMod)
+{
+    rectangle dest = calc_rect(target.x,target.y);
+    dest.offset(offset);
+    if(masked) rect_draw_some_item(drawThis, src_rect, gtarget, dest, sf::BlendAlpha, colorMod);
+    else rect_draw_some_item(drawThis, src_rect, gtarget, dest, sf::BlendNone, colorMod);
 }
 

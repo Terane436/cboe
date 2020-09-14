@@ -27,9 +27,15 @@ public:
 template<unsigned long... Args> struct BuildMask
 {static constexpr uint64_t mask = 0;};
 template<unsigned long Arg> struct BuildMask<Arg>
-{static constexpr uint64_t mask = 1ULL << Arg;};
+{
+    static constexpr uint64_t mask = 1ULL << Arg;
+    static constexpr bool test(const unsigned long tval) {return Arg == tval;}
+};
 template<unsigned long Arg, unsigned long... Args> struct BuildMask<Arg,Args...>
-{static constexpr uint64_t mask = (1ULL << Arg) | BuildMask<Args...>::mask;};
+{
+    static constexpr uint64_t mask = (1ULL << Arg) | BuildMask<Args...>::mask;
+    static constexpr bool test(const unsigned long tval) {return (mask & (1ULL << tval));}
+};
 
 }
 

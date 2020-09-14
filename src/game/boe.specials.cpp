@@ -261,43 +261,10 @@ bool check_special_terrain(location where_check,eSpecCtx mode,cPlayer& which_pc,
 	if(!can_enter)
 		return false;
 	
-	if(!is_out()) {
+	if(!is_out())
+	{
 		check_fields(where_check,mode,which_pc);
 		fields::PushableObjects::template push<true,true>(from_loc,where_check,univ.town);
-#if 0
-		if(univ.town.testField<OBJECT_CRATE>(where_check.x,where_check.y)) {
-			add_string_to_buf("  You push the crate.");
-			to_loc = push_loc(from_loc,where_check);
-			executePush<OBJECT_CRATE>(to_loc,where_check,univ.town);
-			/*univ.town.clearFields<OBJECT_CRATE>(where_check.x,where_check.y);
-			if(to_loc.x > 0)
-				univ.town.setField<OBJECT_CRATE>(to_loc.x,to_loc.y);
-			for(short i = 0; i < univ.town.items.size(); i++)
-				if(univ.town.items[i].variety != eItemType::NO_ITEM && univ.town.items[i].item_loc == where_check
-				   && univ.town.items[i].contained && univ.town.items[i].held)
-					univ.town.items[i].item_loc = to_loc;*/
-		}
-		if(univ.town.testField<OBJECT_BARREL>(where_check.x,where_check.y)) {
-			add_string_to_buf("  You push the barrel.");
-			to_loc = push_loc(from_loc,where_check);
-			executePush<OBJECT_BARREL>(to_loc,where_check,univ.town);
-			/*univ.town.clearFields<OBJECT_BARREL>(where_check.x,where_check.y);
-			if(to_loc.x > 0)
-				univ.town.setField<OBJECT_BARREL>(to_loc.x,to_loc.y);
-			for(short i = 0; i < univ.town.items.size(); i++)
-				if(univ.town.items[i].variety != eItemType::NO_ITEM && univ.town.items[i].item_loc == where_check
-				   && univ.town.items[i].contained && univ.town.items[i].held)
-					univ.town.items[i].item_loc = to_loc;*/
-		}
-		if(univ.town.testField<OBJECT_BLOCK>(where_check.x,where_check.y)) {
-			add_string_to_buf("  You push the stone block.");
-			to_loc = push_loc(from_loc,where_check);
-			executePush<OBJECT_BLOCK>(to_loc,where_check,univ.town);
-			/*univ.town.clearFields<OBJECT_BLOCK>(where_check.x,where_check.y);
-			if(to_loc.x > 0)
-				univ.town.setField<OBJECT_BLOCK>(to_loc.x,to_loc.y);*/
-		}
-#endif
 	}
 	
 	switch(ter_special) {
@@ -1629,7 +1596,9 @@ void push_things() {
 			update_explored(l);
 			ter = univ.town->terrain(univ.party.town_loc.x,univ.party.town_loc.y);
 			draw_map(true);
-			if(univ.town.testField<fields::OBJECT_BARREL>(univ.party.town_loc.x,univ.party.town_loc.y)) {
+			if(fields::PushableObjects::crashContainer(univ.town,univ.party.town_loc))
+				hit_party(get_ran(1,1,6),eDamageType::WEAPON);
+			/*if(univ.town.testField<fields::OBJECT_BARREL>(univ.party.town_loc.x,univ.party.town_loc.y)) {
 				univ.town.clearFields<fields::OBJECT_BARREL>(univ.party.town_loc.x,univ.party.town_loc.y);
 				ASB("You smash the barrel.");
 			}
@@ -1644,7 +1613,7 @@ void push_things() {
 			for(short k = 0; k < univ.town.items.size(); k++)
 				if(univ.town.items[k].variety != eItemType::NO_ITEM && univ.town.items[k].held
 				   && (univ.town.items[k].item_loc == univ.party.town_loc))
-					univ.town.items[k].contained = univ.town.items[k].held = false;
+					univ.town.items[k].contained = univ.town.items[k].held = false;*/
 			redraw = true;
 		}
 	}
@@ -1667,7 +1636,10 @@ void push_things() {
 					univ.party[i].combat_pos = l;
 					update_explored(l);
 					draw_map(true);
-					if(univ.town.testField<fields::OBJECT_BARREL>(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y)) {
+		          	        if(fields::PushableObjects::crashContainer(univ.town,univ.party[i].combat_pos))
+				            damage_pc(univ.party[i],get_ran(1,1,6),eDamageType::WEAPON,eRace::UNKNOWN,0);
+
+					/*if(univ.town.testField<fields::OBJECT_BARREL>(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y)) {
 						univ.town.clearFields<fields::OBJECT_BARREL>(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y);
 						ASB("You smash the barrel.");
 					}
@@ -1682,7 +1654,7 @@ void push_things() {
 					for(short k = 0; k < univ.town.items.size(); k++)
 						if(univ.town.items[k].variety != eItemType::NO_ITEM && univ.town.items[k].held
 						   && (univ.town.items[k].item_loc == univ.party[i].combat_pos))
-							univ.town.items[k].contained = univ.town.items[k].held = false;
+							univ.town.items[k].contained = univ.town.items[k].held = false;*/
 					redraw = true;
 				}
 			}
@@ -3256,42 +3228,8 @@ void ifthen_spec(const runtime_state& ctx) {
 			} else {
 				int i = 0;
 				for(short j = spec.ex1b; j < min(spec.ex2b, univ.town->max_dim); j++)
-					for(short k = spec.ex1a; k < min(spec.ex2a, univ.town->max_dim); k++) {
-						switch(fields::eFieldType(spec.m1)) { //TODO: Migrate to field templates
-							// These values are not allowed
-							case fields::SPECIAL_EXPLORED: case fields::SPECIAL_SPOT: case fields::SPECIAL_ROAD:
-							case fields::FIELD_DISPEL: case fields::FIELD_SMASH:
-								break;
-							// Walls
-							case fields::WALL_FIRE: i += univ.town.testField<fields::WALL_FIRE>(i,j); break;
-							case fields::WALL_FORCE: i += univ.town.testField<fields::WALL_FORCE>(i,j); break;
-							case fields::WALL_ICE: i += univ.town.testField<fields::WALL_ICE>(i,j); break;
-							case fields::WALL_BLADES: i += univ.town.testField<fields::WALL_BLADES>(i,j); break;
-							// Clouds
-							case fields::CLOUD_STINK: i += univ.town.testField<fields::CLOUD_STINK>(i,j); break;
-							case fields::CLOUD_SLEEP: i += univ.town.testField<fields::CLOUD_SLEEP>(i,j); break;
-							// Advanced
-							case fields::FIELD_QUICKFIRE: i += univ.town.testField<fields::FIELD_QUICKFIRE>(i,j); break;
-							case fields::FIELD_ANTIMAGIC: i += univ.town.testField<fields::FIELD_ANTIMAGIC>(i,j); break;
-							case fields::BARRIER_FIRE: i += univ.town.testField<fields::BARRIER_FIRE>(i,j); break;
-							case fields::BARRIER_FORCE: i += univ.town.testField<fields::BARRIER_FORCE>(i,j); break;
-							case fields::BARRIER_CAGE: i += univ.town.testField<fields::BARRIER_CAGE>(i,j); break;
-							// Objects
-							case fields::FIELD_WEB: i += univ.town.testField<fields::FIELD_WEB>(i,j); break;
-							case fields::OBJECT_BARREL: i += univ.town.testField<fields::OBJECT_BARREL>(i,j); break;
-							case fields::OBJECT_CRATE: i += univ.town.testField<fields::OBJECT_CRATE>(i,j); break;
-							case fields::OBJECT_BLOCK: i += univ.town.testField<fields::OBJECT_BLOCK>(i,j); break;
-							// Sfx
-							case fields::SFX_SMALL_BLOOD: i += univ.town.testField<fields::SFX_SMALL_BLOOD>(i,j); break;
-							case fields::SFX_MEDIUM_BLOOD: i += univ.town.testField<fields::SFX_MEDIUM_BLOOD>(i,j); break;
-							case fields::SFX_LARGE_BLOOD: i += univ.town.testField<fields::SFX_LARGE_BLOOD>(i,j); break;
-							case fields::SFX_SMALL_SLIME: i += univ.town.testField<fields::SFX_SMALL_SLIME>(i,j); break;
-							case fields::SFX_LARGE_SLIME: i += univ.town.testField<fields::SFX_LARGE_SLIME>(i,j); break;
-							case fields::SFX_ASH: i += univ.town.testField<fields::SFX_ASH>(i,j); break;
-							case fields::SFX_BONES: i += univ.town.testField<fields::SFX_BONES>(i,j); break;
-							case fields::SFX_RUBBLE: i += univ.town.testField<fields::SFX_RUBBLE>(i,j); break;
-						}
-					}
+					for(short k = spec.ex1a; k < min(spec.ex2a, univ.town->max_dim); k++)
+						if(univ.town.testField(i,j,spec.m1)) i += 1;
 				if(i >= spec.sd1 && i <= spec.sd2)
 					ctx.next_spec = spec.m2;
 			}
@@ -4228,53 +4166,22 @@ void rect_spec(const runtime_state& ctx){
 				continue;
 			switch(cur_node.type) {
 				case eSpecType::RECT_PLACE_FIELD:
-					if(is_out())
-						return;
-					if(!isValidField(spec.sd2, true)) {
+					if(is_out()) return;
+					if(!isValidField(spec.sd2, true))
+					{
 						showError("Scenario tried to place an invalid field type (1...24)");
 						goto END; // Break out of the switch AND both loops, but still handle messages
 					}
 					if(spec.sd2 == fields::FIELD_DISPEL || get_ran(1,1,100) <= spec.sd1)
-						switch(fields::eFieldType(spec.sd2)) {
-							// These values are not allowed.
-							case fields::SPECIAL_EXPLORED: case fields::SPECIAL_SPOT: case fields::SPECIAL_ROAD: break;
-							// Walls
-							case fields::WALL_FIRE: univ.town.setField<fields::WALL_FIRE>(i,j); break;
-							case fields::WALL_FORCE: univ.town.setField<fields::WALL_FORCE>(i,j); break;
-							case fields::WALL_ICE: univ.town.setField<fields::WALL_ICE>(i,j); break;
-							case fields::WALL_BLADES: univ.town.setField<fields::WALL_BLADES>(i,j); break;
-							// Clouds
-							case fields::CLOUD_STINK: univ.town.setField<fields::CLOUD_STINK>(i,j); break;
-							case fields::CLOUD_SLEEP: univ.town.setField<fields::CLOUD_SLEEP>(i,j); break;
-							// Advanced
-							case fields::FIELD_QUICKFIRE: univ.town.setField<fields::FIELD_QUICKFIRE>(i,j); break;
-							case fields::FIELD_ANTIMAGIC: univ.town.setField<fields::FIELD_ANTIMAGIC>(i,j); break;
-							case fields::BARRIER_FIRE: univ.town.setField<fields::BARRIER_FIRE>(i,j); break;
-							case fields::BARRIER_FORCE: univ.town.setField<fields::BARRIER_FORCE>(i,j); break;
-							case fields::BARRIER_CAGE: univ.town.setField<fields::BARRIER_CAGE>(i,j); break;
-							// Cleanse
-							case fields::FIELD_DISPEL:
-								if(spec.sd1 == 0)
-									dispel_fields(i,j,1);
-								else dispel_fields(i,j,2);
-								break;
-							// Objects
-							case fields::FIELD_WEB: univ.town.setField<fields::FIELD_WEB>(i,j); break;
-							case fields::OBJECT_BARREL: univ.town.setField<fields::OBJECT_BARREL>(i,j); break;
-							case fields::OBJECT_CRATE: univ.town.setField<fields::OBJECT_CRATE>(i,j); break;
-							case fields::OBJECT_BLOCK: univ.town.setField<fields::OBJECT_BLOCK>(i,j); break;
-							// Sfx
-							case fields::SFX_SMALL_BLOOD: univ.town.setField<fields::SFX_SMALL_BLOOD>(i,j); break;
-							case fields::SFX_MEDIUM_BLOOD: univ.town.setField<fields::SFX_MEDIUM_BLOOD>(i,j); break;
-							case fields::SFX_LARGE_BLOOD: univ.town.setField<fields::SFX_LARGE_BLOOD>(i,j); break;
-							case fields::SFX_SMALL_SLIME: univ.town.setField<fields::SFX_SMALL_SLIME>(i,j); break;
-							case fields::SFX_LARGE_SLIME: univ.town.setField<fields::SFX_LARGE_SLIME>(i,j); break;
-							case fields::SFX_ASH: univ.town.setField<fields::SFX_ASH>(i,j); break;
-							case fields::SFX_BONES: univ.town.setField<fields::SFX_BONES>(i,j); break;
-							case fields::SFX_RUBBLE: univ.town.setField<fields::SFX_RUBBLE>(i,j); break;
-							// Special value: Move Mountains!
-							case fields::FIELD_SMASH: crumble_wall(loc(i,j)); break;
+					{
+						if(spec.sd2 == fields::FIELD_DISPEL)
+						{
+							if(spec.sd1 == 0) dispel_fields(i,j,1);
+							else dispel_fields(i,j,2);
 						}
+						else if(spec.sd2 == fields::FIELD_SMASH) crumble_wall(loc(i,j));
+						else fields::FieldRectSet::setSelectedField(univ.town,spec.sd2,i,j);
+					}
 					break;
 				case eSpecType::RECT_MOVE_ITEMS:
 					if(is_out())
@@ -4286,7 +4193,7 @@ void rect_spec(const runtime_state& ctx){
 							univ.town.items[k].item_loc.y = spec.sd2;
 							if(i && spec.m3) {
 								univ.town.items[k].contained = is_container(univ.town.items[k].item_loc);
-								if(univ.town.testField<fields::OBJECT_CRATE,fields::OBJECT_BARREL>(spec.sd1,spec.sd2))
+								if(univ.town.testFields<fields::fieldgroups::ContainerFields>(spec.sd1,spec.sd2))
 									univ.town.items[k].held = true;
 							}
 						}

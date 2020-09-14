@@ -18,18 +18,21 @@ template<> struct PushableObjectStrings<OBJECT_CRATE>
 {
     static void failToPush() {add_string_to_buf("  Can't push crate.");}
     static void pushed() {add_string_to_buf("  You push the crate.");}
+    static void crash() {add_string_to_buf("You smash the crate.");}
 };
 
 template<> struct PushableObjectStrings<OBJECT_BARREL>
 {
     static void failToPush() {add_string_to_buf("  Can't push barrel.");}
     static void pushed() {add_string_to_buf("  You push the barrel.");}
+    static void crash() {add_string_to_buf("You smash the barrel.");}
 };
 
 template<> struct PushableObjectStrings<OBJECT_BLOCK>
 {
     static void failToPush() {add_string_to_buf("  Can't push block.");}
     static void pushed() {add_string_to_buf("  You push the block.");}
+    static void crash() {add_string_to_buf("You crash into the block.");}
 };
 
 //TODO: Finish monster harmonization
@@ -46,7 +49,7 @@ template<eFieldType Type, bool IsPc, bool Moving, typename Source> bool executeP
         if(IsPc) PushableObjectStrings<Type>::pushed();
         source.template clearFields<Type>(where_check.x,where_check.y);
         if(to_loc.x > 0) source.template setField<Type>(to_loc.x,to_loc.y);
-        if(!fieldgroups::ContainerFields::template test<Type>()) return true;
+        if(!fieldgroups::ContainerFields::test(Type)) return true;
         source.template moveItems<true>(where_check,to_loc);
     }
     return true;
@@ -55,10 +58,9 @@ template<eFieldType Type, bool IsPc, bool Moving, typename Source> bool executeP
 template<eFieldType... Objects> struct PushObjects
 {
     template<bool IsPc, bool Moving, typename Source> static bool push(location from_loc, location where, Source& source)
-    {
-        return true;
-    }
-    template<typename Source> static void breakContainer(Source& source, location loc) {}
+    {return true;}
+    template<typename Source> static void breakContainer(Source&, location) {}
+    template<typename Source> static bool crashContainer(Source&, location) {return true;}
 };
 
 template<eFieldType Object, eFieldType... Objects> struct PushObjects<Object,Objects...>
@@ -71,11 +73,27 @@ template<eFieldType Object, eFieldType... Objects> struct PushObjects<Object,Obj
     }
     template<typename Source> static void breakContainer(Source& source, location loc)
     {
-        if(fieldgroups::ContainerFields::template test<Object>() && source.template testField<Object>(loc.x,loc.y))
+        if(fieldgroups::ContainerFields::test(Object) && source.template testField<Object>(loc.x,loc.y))
         {
             source.template clearFields<Object>(loc.x,loc.y);
             source.uncontainItems(loc);
         }
+	PushObjects<Objects...>::breakContainer(source,loc);
+    }
+    template<typename Source> static bool crashContainer(Source& source, location loc)
+    {
+        if(source.template testField<Object>(loc.x,loc.y))
+	{
+            PushableObjectStrings<Object>::crash();
+	    if(fieldgroups::ContainerFields::test(Object))
+	    {
+                source.template clearFields<Object>(loc.x,loc.y);
+		source.uncontainItems(loc);
+	    }
+	    else if(Object == OBJECT_BLOCK) return true;
+	    return false;
+	}
+        return PushObjects<Objects...>::crashContainer(source,loc);
     }
 };
 

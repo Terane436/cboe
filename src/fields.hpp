@@ -272,9 +272,10 @@ template<> struct FieldControls<SFX_RUBBLE> : public FieldControlsSfx
 
 namespace fieldgroups {
 typedef util::BuildMask<SPECIAL_SPOT,OBJECT_CRATE,OBJECT_BARREL,OBJECT_BLOCK,FIELD_QUICKFIRE,WALL_FORCE,WALL_FIRE,FIELD_ANTIMAGIC,CLOUD_STINK,WALL_ICE,WALL_BLADES,CLOUD_SLEEP> NonClearFields;
-typedef util::BuildMask<WALL_FORCE,WALL_FIRE,FIELD_ANTIMAGIC,CLOUD_STINK,CLOUD_SLEEP,WALL_ICE,WALL_BLADES> FadingFields;
-typedef util::TestInSet<eFieldType,OBJECT_CRATE,OBJECT_BARREL> ContainerFields;
+typedef util::BuildMask<OBJECT_CRATE,OBJECT_BARREL> ContainerFields;
 typedef util::BuildMask<FIELD_ANTIMAGIC> MageAvoidedFields;
+typedef util::BuildMask<FIELD_WEB,OBJECT_CRATE,OBJECT_BARREL,BARRIER_FIRE,BARRIER_FORCE,FIELD_QUICKFIRE> FieldsNotOnDoors;
+typedef util::BuildMask<FIELD_QUICKFIRE> SpreadingFields;
 }
 }
 

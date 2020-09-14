@@ -17,6 +17,7 @@
 #include "monster_abilities.hpp"
 #include "race.hpp"
 #include "location.hpp"
+#include <stdint.h>
 
 namespace legacy {
 	struct monster_record_type;
@@ -69,7 +70,8 @@ public:
 	pic_num_t picture_num;
 	snd_num_t ambient_sound; // has a chance of being played every move
 	spec_num_t see_spec;
-	
+	uint32_t tint{0};
+
 	std::map<eMonstAbil,uAbility>::iterator addAbil(eMonstAbilTemplate what, int param = 0);
 	int addAttack(unsigned short dice, unsigned short sides, eMonstMelee type = eMonstMelee::SWING);
 	

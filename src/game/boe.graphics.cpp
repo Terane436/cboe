@@ -678,6 +678,11 @@ bool is_nature(short x, short y, unsigned short ground_t) {
 std::vector<location> forcecage_locs;
 extern std::list<text_label_t> posted_labels;
 
+bool locationSupressed(location loc)
+{
+    return supressing_some_spaces && loc != ok_space[1] && loc != ok_space[2] && loc != ok_space[3] && loc != ok_space[4];
+}
+
 //mode ... if 1, don't place on screen after redoing
 // if 2, only redraw over active monst
 void draw_terrain(short	mode) {

@@ -19,6 +19,7 @@
 #include "fileio.hpp"
 #include "utility.hpp"
 
+//LEGACY IMPORT
 void cTown::import_legacy(legacy::town_record_type& old){
 	town_chop_time = old.town_chop_time;
 	town_chop_key = old.town_chop_key;
@@ -128,6 +129,7 @@ void cTown::init_start() {
 	in_town_rect.right = s - 4;
 }
 
+//LEGACY IMPORT
 void cTown::cWandering::import_legacy(legacy::wandering_type old){
 	monst[0] = old.monst[0];
 	monst[1] = old.monst[1];
@@ -135,6 +137,7 @@ void cTown::cWandering::import_legacy(legacy::wandering_type old){
 	monst[3] = old.monst[3];
 }
 
+//LEGACY IMPORT
 void cTown::cItem::import_legacy(legacy::preset_item_type old){
 	loc.x = old.item_loc.x;
 	loc.y = old.item_loc.y;
@@ -145,6 +148,7 @@ void cTown::cItem::import_legacy(legacy::preset_item_type old){
 	contained = old.contained;
 }
 
+//LEGACY IMPORT
 void cTown::cField::import_legacy(legacy::preset_field_type old){
 	loc.x = old.field_loc.x;
 	loc.y = old.field_loc.y;

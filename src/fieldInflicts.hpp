@@ -50,6 +50,8 @@ template<eFieldType... Fields> struct FieldApplication
     template<typename TestSource> static bool testGuts(const TestSource&, short, short, short, eFieldType) {return true;}
     template<typename Target, bool Reduce> static void inflictSelected(Target&, int) {}
     template<typename Source> static void setSelectedField(Source&, int, short, short) {}
+    template<typename Source> static void fadeFields(Source&, short, short) {}
+
 };
 
 template<eFieldType Field, eFieldType... Fields> struct FieldApplication<Field,Fields...>
@@ -97,6 +99,18 @@ template<eFieldType Field, eFieldType... Fields> struct FieldApplication<Field,F
         if(field == Field) source.template setField<Field>(x,y);
         else FieldApplication<Fields...>::setSelectedField(source,field,x,y);
     }
+    template<typename Source> static void fadeFields(Source& source, short x, short y)
+    {
+        if(FieldControls<Field>::FadeChance != 0)
+	{
+	    if(source.template testField<Field>(x,y))
+	    {
+                if(get_ran(1,1,fields::FieldControls<Field>::FadeChance) == 1)
+                source.template clearFields<Field>(x,y);
+	    }
+	}
+	FieldApplication<Fields...>::fadeFields(source,x,y);
+    }
 };
 
 //All field types with effects should be listed here
@@ -104,6 +118,10 @@ typedef FieldApplication<WALL_FORCE,WALL_FIRE,CLOUD_STINK,CLOUD_SLEEP,WALL_ICE,W
 //All presettable field types should be listed here
 typedef FieldApplication<OBJECT_BLOCK,SPECIAL_SPOT,SPECIAL_ROAD,FIELD_WEB,OBJECT_CRATE,OBJECT_BARREL,BARRIER_FIRE,BARRIER_FORCE,BARRIER_CAGE,FIELD_QUICKFIRE,
     SFX_SMALL_BLOOD,SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD,SFX_SMALL_SLIME,SFX_LARGE_SLIME,SFX_ASH,SFX_BONES,SFX_RUBBLE> PresettableFields;
+//All fadeable fields should be added here
+typedef FieldApplication<WALL_FORCE,WALL_FIRE,FIELD_ANTIMAGIC,CLOUD_STINK,CLOUD_SLEEP,WALL_ICE,WALL_BLADES> FadingFields;
+//All fields valid for field rect special
+typedef FieldApplication<WALL_FORCE,WALL_FIRE,WALL_ICE,WALL_BLADES,CLOUD_STINK,CLOUD_SLEEP,FIELD_QUICKFIRE,FIELD_ANTIMAGIC,BARRIER_FIRE,BARRIER_FORCE,BARRIER_CAGE,FIELD_WEB,OBJECT_BARREL,OBJECT_CRATE,OBJECT_BLOCK,SFX_SMALL_BLOOD,SFX_MEDIUM_BLOOD,SFX_LARGE_BLOOD,SFX_SMALL_SLIME,SFX_LARGE_SLIME,SFX_ASH,SFX_BONES,SFX_RUBBLE> FieldRectSet;
 
 template<typename Target, bool Init = std::is_same<Target,cPlayer>::value> void executeEffects(int effect, Target& target, short source)
 {

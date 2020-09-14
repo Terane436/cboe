@@ -15,6 +15,7 @@
 #include "pictypes.hpp"
 #include "location.hpp"
 #include "terrain_abilities.hpp"
+#include "stdint.h"
 
 namespace legacy { struct terrain_type_type; };
 
@@ -44,10 +45,13 @@ public:
 	location obj_size; // editor use only
 	pic_num_t map_pic = -1;
 	unsigned short i; // for temporary use in porting
-	
+	uint32_t tint{0};
+	pic_num_t overlayPic{0};
+	uint32_t overlayTint{0};
 	bool blocksMove() const;
 	void import_legacy(legacy::terrain_type_type& old);
 	void writeTo(std::ostream& file) const;
+	void draw(rectangle target) const;
 };
 
 #endif

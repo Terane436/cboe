@@ -40,6 +40,7 @@ short light_radius();
 bool pt_in_light(location from_where,location to_where) ;// Assumes, of course, in town or combat
 bool combat_pt_in_light(location to_where);
 bool party_sees_a_monst(); // Returns true is a hostile monster is in sight.
+bool party_can_see_rectangle(location loc, short xw, short yw);
 short party_can_see(location where);
 location push_loc(location from_where,location to_where);
 bool spot_impassable(short i,short  j);

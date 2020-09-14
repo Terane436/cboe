@@ -4125,88 +4125,18 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 	
 	// First actually make barriers, then draw them, then inflict damaging effects.
 	for(short i = minmax(0,univ.town->max_dim - 1,center.x - 4); i <= minmax(0,univ.town->max_dim - 1,center.x + 4); i++)
-		for(short j = minmax(0,univ.town->max_dim - 1,center.y - 4); j <= minmax(0,univ.town->max_dim - 1,center.y + 4); j++) {
+	{
+		for(short j = minmax(0,univ.town->max_dim - 1,center.y - 4); j <= minmax(0,univ.town->max_dim - 1,center.y + 4); j++)
+		{
 			effect = pat.pattern[i - center.x + 4][j - center.y + 4];
-			if(effect == fields::FIELD_SMASH || sight_obscurity(i,j) < 5) {
-				switch(effect) {
-					case fields::FIELD_WEB:
-						univ.town.setField<fields::FIELD_WEB>(i,j);
-						break;
-					case fields::BARRIER_FIRE:
-						univ.town.setField<fields::BARRIER_FIRE>(i,j);
-						break;
-					case fields::BARRIER_FORCE:
-						univ.town.setField<fields::BARRIER_FORCE>(i,j);
-						break;
-					case fields::WALL_FORCE:
-						univ.town.setField<fields::WALL_FORCE>(i, j);
-						break;
-					case fields::WALL_FIRE:
-						univ.town.setField<fields::WALL_FIRE>(i,j);
-						break;
-					case fields::FIELD_ANTIMAGIC:
-						univ.town.setField<fields::FIELD_ANTIMAGIC>(i,j);
-						break;
-					case fields::CLOUD_STINK:
-						univ.town.setField<fields::CLOUD_STINK>(i,j);
-						break;
-					case fields::WALL_ICE:
-						univ.town.setField<fields::WALL_ICE>(i,j);
-						break;
-					case fields::WALL_BLADES:
-						univ.town.setField<fields::WALL_BLADES>(i,j);
-						break;
-					case fields::FIELD_QUICKFIRE:
-						univ.town.setField<fields::FIELD_QUICKFIRE>(i,j);
-						break;
-					case fields::FIELD_DISPEL:
-						dispel_fields(i,j,0);
-						break;
-					case fields::CLOUD_SLEEP:
-						univ.town.setField<fields::CLOUD_SLEEP>(i,j);
-						break;
-					case fields::FIELD_SMASH:
-						crumble_wall(loc(i,j));
-						break;
-					case fields::OBJECT_CRATE:
-						univ.town.setField<fields::OBJECT_CRATE>(i,j);
-						break;
-					case fields::OBJECT_BARREL:
-						univ.town.setField<fields::OBJECT_BARREL>(i,j);
-						break;
-					case fields::OBJECT_BLOCK:
-						univ.town.setField<fields::OBJECT_BLOCK>(i,j);
-						break;
-					case fields::BARRIER_CAGE:
-						univ.town.setField<fields::BARRIER_CAGE>(i, j);
-						break;
-					case fields::SFX_SMALL_BLOOD:
-						univ.town.setField<fields::SFX_SMALL_BLOOD>(i,j);
-						break;
-					case fields::SFX_MEDIUM_BLOOD:
-						univ.town.setField<fields::SFX_MEDIUM_BLOOD>(i,j);
-						break;
-					case fields::SFX_LARGE_BLOOD:
-						univ.town.setField<fields::SFX_LARGE_BLOOD>(i,j);
-						break;
-					case fields::SFX_SMALL_SLIME:
-						univ.town.setField<fields::SFX_SMALL_SLIME>(i,j);
-						break;
-					case fields::SFX_LARGE_SLIME:
-						univ.town.setField<fields::SFX_LARGE_SLIME>(i,j);
-						break;
-					case fields::SFX_ASH:
-						univ.town.setField<fields::SFX_ASH>(i,j);
-						break;
-					case fields::SFX_BONES:
-						univ.town.setField<fields::SFX_BONES>(i,j);
-						break;
-					case fields::SFX_RUBBLE:
-						univ.town.setField<fields::SFX_RUBBLE>(i,j);
-						break;
-				}
+			if(effect == fields::FIELD_SMASH || sight_obscurity(i,j) < 5)
+			{
+				if(effect == fields::FIELD_DISPEL) dispel_fields(i,j,0);
+				else if(effect == fields::FIELD_SMASH) crumble_wall(loc(i,j));
+				else fields::FieldRectSet::setSelectedField(univ.town,effect,i,j);
 			}
 		}
+	}
 	draw_terrain(0);
 	if(is_town()) // now make things move faster if in town
 		fast_bang = 2;
@@ -5192,27 +5122,25 @@ void process_fields() {
 	}
 	if(!is_combat()) fields::FieldApplier::clearTriggeredFields(univ.town,univ.party.town_loc.x,univ.party.town_loc.y);
 	for(short i = 0; i < univ.town->max_dim; i++)
-		for(short j = 0; j < univ.town->max_dim; j++) {
-                        if(univ.town.testFields<fields::fieldgroups::FadingFields>(i,j)) {
-                            univ.town.fadeField<fields::WALL_FORCE>(i,j);
-                            univ.town.fadeField<fields::WALL_FIRE>(i,j);
-                            univ.town.fadeField<fields::FIELD_ANTIMAGIC>(i,j);
-                            univ.town.fadeField<fields::CLOUD_STINK>(i,j);
-                            univ.town.fadeField<fields::CLOUD_SLEEP>(i,j);
-                            univ.town.fadeField<fields::WALL_ICE>(i,j);
-                            univ.town.fadeField<fields::WALL_BLADES>(i,j);
-			}
-			if(univ.town.testField<fields::BARRIER_CAGE>(i,j)) { //LEAVING FORCECAGE HERE FOR NOW
+	{
+		for(short j = 0; j < univ.town->max_dim; j++)
+		{
+                        if(univ.town.testFields<fields::FadingFields>(i,j))
+			    fields::FadingFields::fadeFields(univ.town,i,j);
+			if(univ.town.testField<fields::BARRIER_CAGE>(i,j))\
+			{ //LEAVING FORCECAGE HERE FOR NOW
 				loc.x = i; loc.y = j;
 				short who = univ.get_target_i(*univ.target_there(loc));
 				process_force_cage(loc, who);
 				// If we got a PC, check the others too, in case they're on the same space
-				while(++who > 0 && who < 6 && univ.town.testField<fields::BARRIER_CAGE>(i,j)) {
+				while(++who > 0 && who < 6 && univ.town.testField<fields::BARRIER_CAGE>(i,j))
+				{
 					loc = univ.party[who].get_loc();
 					process_force_cage(loc, who);
 				}
 			}
 		}
+	}
 	
 	processing_fields = false;
 }

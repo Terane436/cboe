@@ -44,6 +44,11 @@ public:
 	fields::FieldBitmap savedFields(short x, short y) {return (fields[x][y]>>8) & 0x0FF;}
 	void zeroField(short x, short y) {fields[x][y] = 0;}
         void directSetFields(short x, short y, fields::FieldBitmap mask) {fields[x][y] |= mask;}
+	bool testField(short x, short y, int field) const
+	{
+            if(x > record()->max_dim || y > record()->max_dim) return false;
+            return fields[x][y] & (0x01ULL << field);
+	}
         template<typename Fields> bool testFields(short x, short y) const
         {
             if(x > record()->max_dim || y > record()->max_dim) return false;
@@ -80,6 +85,10 @@ public:
         {
             fields[x][y] &= ~util::BuildMask<Fields...>::mask;
         }
+	template<typename FieldSet> void clearFields(short x, short y)
+	{
+            fields[x][y] &= ~FieldSet::mask;
+	}
 	template<fields::eFieldType Field, bool Set = true> bool setField(short x, short y)
 	{
 	    if(Set)
@@ -100,13 +109,6 @@ public:
                 clearFields<Field>(x,y);
 		return true;
 	    }
-	}
-	template<fields::eFieldType Field> void fadeField(short x, short y)
-	{
-            if(fields::FieldControls<Field>::FadeChance == 0) return;
-	    if(!testField<Field>(x,y)) return;
-            if(get_ran(1,1,fields::FieldControls<Field>::FadeChance) == 1)
-                clearFields<Field>(x,y);
 	}
         template<bool RequireContained>
 	void moveItems(location from, location to)

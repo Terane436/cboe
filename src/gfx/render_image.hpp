@@ -17,12 +17,15 @@
 #include <SFML/Graphics.hpp>
 #include "location.hpp"
 #include "pictypes.hpp"
+#include <stdint.h>
 
 void init_shaders();
 void rect_draw_some_item(sf::RenderTarget& targ_gworld,rectangle targ_rect);
 void rect_draw_some_item(const sf::Texture& src_gworld,rectangle src_rect,sf::RenderTarget& targ_gworld,rectangle targ_rect,sf::BlendMode mode = sf::BlendNone, unsigned long colorMod = 0);
 void rect_draw_some_item(const sf::Texture& src_gworld,rectangle src_rect,const sf::Texture& mask_gworld,sf::RenderTarget& targ_gworld,rectangle targ_rect, unsigned long colorMod = 0);
 void draw_splash(const sf::Texture& splash, sf::RenderWindow& targ, rectangle dest_rect, unsigned long colorMod = 0);
+
+void rect_draw_tile(const sf::Texture& drawThis, rectangle src_rect, sf::RenderTarget& gtarget, location target, location offset, bool masked = true, uint32_t colorMod = 0);
 
 void setActiveRenderTarget(sf::RenderTarget& where);
 

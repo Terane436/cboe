@@ -377,6 +377,21 @@ bool party_can_see_monst(short m_num) {
 	return false;
 }
 
+bool party_can_see_rectangle(location loc, short xw, short yw)
+{
+    location destination;
+    for(short i = 0; i < xw; i++)
+    {
+        for(short j = 0; j < yw; j++)
+        {
+            destination.x = loc.x + i;
+            destination.y = loc.y + j;
+            if(party_can_see(destination) < 6) return true;
+        }
+    }
+    return false;
+}
+
 bool can_see_monst(location l,short m_num) {
 	location destination;
 	

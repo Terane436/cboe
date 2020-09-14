@@ -501,6 +501,7 @@ void set_up_terrain_buttons(bool reset) {
 	short pic,small_i;
 	rectangle ter_from,ter_from_base = {0,0,36,28}, ter_plus_from = {148,235,164,251};
 	rectangle tiny_from,tiny_to;
+	uint32_t tint = 0;
 	
 	rectangle palette_from,palette_to = palette_button_base;
 	int max;
@@ -532,17 +533,18 @@ void set_up_terrain_buttons(bool reset) {
 				}
 				ter_from = ter_from_base;
 				pic = scenario.ter_types[i].picture;
+				tint = scenario.ter_types[i].picture;
 				if(pic >= 1000) {
 					std::shared_ptr<const sf::Texture> source_gworld;
 					graf_pos_ref(source_gworld, ter_from) = spec_scen_g.find_graphic(pic % 1000);
-					rect_draw_some_item(*source_gworld, ter_from, mainPtr, draw_rect);
+					rect_draw_some_item(*source_gworld, ter_from, mainPtr, draw_rect, sf::BlendNone, tint);
 				}
 				else if(pic < 960)	{
 					pic = pic % 50;
 					ter_from.offset(28 * (pic % 10), 36 * (pic / 10));
 					int which_sheet = scenario.ter_types[i].picture / 50;
 					rect_draw_some_item(*ResMgr::graphics.get("ter" + std::to_string(1 + which_sheet)),
-						ter_from, mainPtr, draw_rect);
+						ter_from, mainPtr, draw_rect, sf::BlendNone, tint);
 				}
 				else {
 					pic = (pic - 560) % 50;
@@ -550,7 +552,7 @@ void set_up_terrain_buttons(bool reset) {
 					ter_from.right = ter_from.left + 28;
 					ter_from.top = 36 * (pic % 5);
 					ter_from.bottom = ter_from.top + 36;
-					rect_draw_some_item(*ResMgr::graphics.get("teranim"), ter_from, mainPtr, draw_rect);
+					rect_draw_some_item(*ResMgr::graphics.get("teranim"), ter_from, mainPtr, draw_rect, sf::BlendNone, tint);
 					
 				}
 				small_i = get_small_icon(i);
@@ -564,6 +566,7 @@ void set_up_terrain_buttons(bool reset) {
 				break;
 			case DRAW_MONST:
 				pic = scenario.scen_monsters[i].picture_num;
+				tint = scenario.scen_monsters[i].tint;
 				tiny_to = draw_rect;
 				frame_rect(mainPtr, tiny_to, sf::Color::Black);
 				if(pic >= 4000) {
@@ -572,19 +575,19 @@ void set_up_terrain_buttons(bool reset) {
 					tiny_to.height() = tiny_to.height() / 2;
 					std::shared_ptr<const sf::Texture> source_gworld;
 					graf_pos_ref(source_gworld, ter_from) = spec_scen_g.find_graphic(pic);
-					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 					pic++;
 					tiny_to.offset(tiny_to.width(), 0);
 					graf_pos_ref(source_gworld, ter_from) = spec_scen_g.find_graphic(pic);
-					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 					pic++;
 					tiny_to.offset(-tiny_to.width(), tiny_to.height());
 					graf_pos_ref(source_gworld, ter_from) = spec_scen_g.find_graphic(pic);
-					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 					pic++;
 					tiny_to.offset(tiny_to.width(), 0);
 					graf_pos_ref(source_gworld, ter_from) = spec_scen_g.find_graphic(pic);
-					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 				} else if(pic >= 3000) {
 					pic %= 1000;
 					tiny_to.width() = tiny_to.width() / 2;
@@ -592,11 +595,11 @@ void set_up_terrain_buttons(bool reset) {
 					tiny_to.offset(tiny_to.width() / 2, 0);
 					std::shared_ptr<const sf::Texture> source_gworld;
 					graf_pos_ref(source_gworld, ter_from) = spec_scen_g.find_graphic(pic);
-					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 					pic++;
 					tiny_to.offset(0, tiny_to.height());
 					graf_pos_ref(source_gworld, ter_from) = spec_scen_g.find_graphic(pic);
-					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 				} else if(pic >= 2000) {
 					pic %= 1000;
 					tiny_to.width() = tiny_to.width() / 2;
@@ -604,16 +607,16 @@ void set_up_terrain_buttons(bool reset) {
 					tiny_to.offset(0, tiny_to.height() / 2);
 					std::shared_ptr<const sf::Texture> source_gworld;
 					graf_pos_ref(source_gworld, ter_from) = spec_scen_g.find_graphic(pic);
-					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 					pic++;
 					tiny_to.offset(tiny_to.width(), 0);
 					graf_pos_ref(source_gworld, ter_from) = spec_scen_g.find_graphic(pic);
-					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 				} else if(pic >= 1000) {
 					pic %= 1000;
 					std::shared_ptr<const sf::Texture> source_gworld;
 					graf_pos_ref(source_gworld, ter_from) = spec_scen_g.find_graphic(pic);
-					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+					rect_draw_some_item(*source_gworld, ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 				} else {
 					auto pic_info = m_pic_index[pic];
 					pic = pic_info.i;
@@ -624,47 +627,48 @@ void set_up_terrain_buttons(bool reset) {
 						tiny_to.width() = tiny_to.width() / 2;
 						tiny_to.height() = tiny_to.height() / 2;
 						ter_from = calc_rect(2 * ((pic % 20) / 10), (pic % 20) % 10);
-						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 						pic++;
 						tiny_to.offset(tiny_to.width(), 0);
 						ter_from = calc_rect(2 * ((pic % 20) / 10), (pic % 20) % 10);
-						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 						pic++;
 						tiny_to.offset(-tiny_to.width(), tiny_to.height());
 						ter_from = calc_rect(2 * ((pic % 20) / 10), (pic % 20) % 10);
-						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 						pic++;
 						tiny_to.offset(tiny_to.width(), 0);
 						ter_from = calc_rect(2 * ((pic % 20) / 10), (pic % 20) % 10);
-						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 					} else if(pic_info.y == 2) {
 						tiny_to.width() = tiny_to.width() / 2;
 						tiny_to.height() = tiny_to.height() / 2;
 						tiny_to.offset(tiny_to.width() / 2, 0);
 						ter_from = calc_rect(2 * ((pic % 20) / 10), (pic % 20) % 10);
-						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 						pic++;
 						tiny_to.offset(0, tiny_to.height());
 						ter_from = calc_rect(2 * ((pic % 20) / 10), (pic % 20) % 10);
-						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 					} else if(pic_info.x == 2) {
 						tiny_to.width() = tiny_to.width() / 2;
 						tiny_to.height() = tiny_to.height() / 2;
 						tiny_to.offset(0, tiny_to.height() / 2);
 						ter_from = calc_rect(2 * ((pic % 20) / 10), (pic % 20) % 10);
-						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 						pic++;
 						tiny_to.offset(tiny_to.width(), 0);
 						ter_from = calc_rect(2 * ((pic % 20) / 10), (pic % 20) % 10);
-						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 					} else {
 						ter_from = calc_rect(2 * ((pic % 20) / 10), (pic % 20) % 10);
-						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha);
+						rect_draw_some_item(monst_gworld(pic / 20), ter_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 					}
 				}
 				break;
 			case DRAW_ITEM:
 				pic = scenario.scen_items[i].graphic_num;
+				tint = scenario.scen_items[i].tint;
 				tiny_to = draw_rect;
 				frame_rect(mainPtr, tiny_to, sf::Color::Black);
 				if(pic >= 1000) {
@@ -674,7 +678,7 @@ void set_up_terrain_buttons(bool reset) {
 				} else {
 					tiny_from = {0,0,18,18};
 					tiny_from.offset((pic % 10) * 18,(pic / 10) * 18);
-					rect_draw_some_item(*ResMgr::graphics.get("tinyobj"), tiny_from, mainPtr, tiny_to, sf::BlendAlpha);
+					rect_draw_some_item(*ResMgr::graphics.get("tinyobj"), tiny_from, mainPtr, tiny_to, sf::BlendAlpha, tint);
 				}
 				break;
 		}
@@ -995,40 +999,37 @@ void draw_monsts() {
 	rectangle source_rect;
 	location where_draw,store_loc;
 	
-	for(short i = 0; i < town->creatures.size(); i++)
-		if(town->creatures[i].number != 0) {
-			where_draw.x = town->creatures[i].start_loc.x - cen_x + 4;
-			where_draw.y = town->creatures[i].start_loc.y - cen_y + 4;
-			width = scenario.scen_monsters[town->creatures[i].number].x_width;
-			height = scenario.scen_monsters[town->creatures[i].number].y_width;
+	for(auto& cr : town->creatures)
+		if(cr.number != 0) {
+			where_draw.x = cr.start_loc.x - cen_x + 4;
+			where_draw.y = cr.start_loc.y - cen_y + 4;
+			auto& monst = scenario.scen_monsters[cr.number];
+			width = monst.x_width;
+			height = monst.y_width;
 			
 			for(short k = 0; k < width * height; k++) {
 				store_loc = where_draw;
-				if((where_draw.x == minmax(0,8,where_draw.x)) &&
-					(where_draw.y == minmax(0,8,where_draw.y)) &&
-					(scenario.scen_monsters[town->creatures[i].number].picture_num >= 1000)) {
-					graf_pos_ref(from_gworld, source_rect) = spec_scen_g.find_graphic((scenario.scen_monsters[town->creatures[i].number].picture_num + k) % 1000);
-					store_loc.x += k % width;
-					store_loc.y += k / width;
+				store_loc.x += k % width;
+				store_loc.y += k / width;
+				if(!store_loc.inTerrainWindow()) continue;
+				if(monst.picture_num >= 1000)
+				{
+					graf_pos_ref(from_gworld, source_rect) = spec_scen_g.find_graphic((monst.picture_num + k) % 1000);
 				}
-				else if(scenario.scen_monsters[town->creatures[i].number].picture_num < 1000) {
-					m_start_pic = m_pic_index[scenario.scen_monsters[town->creatures[i].number].picture_num].i + k;
+				else {
+					m_start_pic = m_pic_index[monst.picture_num].i + k;
 					int which_sheet = m_start_pic / 20;
 					from_gworld = &ResMgr::graphics.get("monst" + std::to_string(1 + which_sheet));
 					m_start_pic = m_start_pic % 20;
 					source_rect = calc_rect(2 * (m_start_pic / 10), m_start_pic % 10);
-					store_loc.x += k % width;
-					store_loc.y += k / width;
 				}
 				
-				if(store_loc.x < 0 || store_loc.x > 8 || store_loc.y < 0 || store_loc.y > 8)
-					continue;
-				
-				rectangle destrec;
-				destrec.left = 8 + BITMAP_WIDTH * store_loc.x;
+				rectangle destrec = calc_rect(store_loc.x,store_loc.y);
+				destrec.offset(8,8);
+				/*destrec.left = 8 + BITMAP_WIDTH * store_loc.x;
 				destrec.right = destrec.left + BITMAP_WIDTH;
 				destrec.top = 8 + BITMAP_HEIGHT * store_loc.y;
-				destrec.bottom = destrec.top + BITMAP_HEIGHT;
+				destrec.bottom = destrec.top + BITMAP_HEIGHT;*/
 				
 				destrec.left = destrec.right - (source_rect.right - source_rect.left);
 				destrec.top = destrec.bottom - (source_rect.bottom - source_rect.top);
@@ -1388,25 +1389,26 @@ void place_location() {
 		if(overall_mode == MODE_PLACE_CREATURE || overall_mode == MODE_PLACE_SAME_CREATURE) {
 			rectangle to_rect = draw_rect;
 			picture_wanted = scenario.scen_monsters[mode_count].picture_num;
+			uint32_t tint = scenario.scen_monsters[mode_count].tint;
 			if(picture_wanted >= 4000) {
 				picture_wanted %= 1000;
 				to_rect.width() = to_rect.width() / 2;
 				to_rect.height() = to_rect.height() / 2;
 				std::shared_ptr<const sf::Texture> source_gworld;
 				graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture_wanted);
-				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha);
+				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 				picture_wanted++;
 				to_rect.offset(to_rect.width(), 0);
 				graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture_wanted);
-				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha);
+				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 				picture_wanted++;
 				to_rect.offset(-to_rect.width(), to_rect.height());
 				graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture_wanted);
-				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha);
+				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 				picture_wanted++;
 				to_rect.offset(to_rect.width(), 0);
 				graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture_wanted);
-				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha);
+				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 			} else if(picture_wanted >= 3000) {
 				picture_wanted %= 1000;
 				to_rect.width() = to_rect.width() / 2;
@@ -1414,11 +1416,11 @@ void place_location() {
 				to_rect.offset(to_rect.width() / 2, 0);
 				std::shared_ptr<const sf::Texture> source_gworld;
 				graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture_wanted);
-				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha);
+				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 				picture_wanted++;
 				to_rect.offset(0, to_rect.height());
 				graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture_wanted);
-				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha);
+				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 			} else if(picture_wanted >= 2000) {
 				picture_wanted %= 1000;
 				to_rect.width() = to_rect.width() / 2;
@@ -1426,16 +1428,16 @@ void place_location() {
 				to_rect.offset(0, to_rect.height() / 2);
 				std::shared_ptr<const sf::Texture> source_gworld;
 				graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture_wanted);
-				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha);
+				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 				picture_wanted++;
 				to_rect.offset(to_rect.width(), 0);
 				graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture_wanted);
-				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha);
+				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 			} else if(picture_wanted >= 1000) {
 				picture_wanted %= 1000;
 				std::shared_ptr<const sf::Texture> source_gworld;
 				graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture_wanted);
-				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha);
+				rect_draw_some_item(*source_gworld, source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 			} else {
 				auto pic_info = m_pic_index[picture_wanted];
 				picture_wanted = pic_info.i;
@@ -1446,58 +1448,59 @@ void place_location() {
 					to_rect.width() = to_rect.width() / 2;
 					to_rect.height() = to_rect.height() / 2;
 					source_rect = calc_rect(2 * ((picture_wanted % 20) / 10), (picture_wanted % 20) % 10);
-					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha);
+					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 					picture_wanted++;
 					to_rect.offset(to_rect.width(), 0);
 					source_rect = calc_rect(2 * ((picture_wanted % 20) / 10), (picture_wanted % 20) % 10);
-					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha);
+					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 					picture_wanted++;
 					to_rect.offset(-to_rect.width(), to_rect.height());
 					source_rect = calc_rect(2 * ((picture_wanted % 20) / 10), (picture_wanted % 20) % 10);
-					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha);
+					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 					picture_wanted++;
 					to_rect.offset(to_rect.width(), 0);
 					source_rect = calc_rect(2 * ((picture_wanted % 20) / 10), (picture_wanted % 20) % 10);
-					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha);
+					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 				} else if(pic_info.y == 2) {
 					to_rect.width() = to_rect.width() / 2;
 					to_rect.height() = to_rect.height() / 2;
 					to_rect.offset(to_rect.width() / 2, 0);
 					source_rect = calc_rect(2 * ((picture_wanted % 20) / 10), (picture_wanted % 20) % 10);
-					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha);
+					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 					picture_wanted++;
 					to_rect.offset(0, to_rect.height());
 					source_rect = calc_rect(2 * ((picture_wanted % 20) / 10), (picture_wanted % 20) % 10);
-					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha);
+					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 				} else if(pic_info.x == 2) {
 					to_rect.width() = to_rect.width() / 2;
 					to_rect.height() = to_rect.height() / 2;
 					to_rect.offset(0, to_rect.height() / 2);
 					source_rect = calc_rect(2 * ((picture_wanted % 20) / 10), (picture_wanted % 20) % 10);
-					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha);
+					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 					picture_wanted++;
 					to_rect.offset(to_rect.width(), 0);
 					source_rect = calc_rect(2 * ((picture_wanted % 20) / 10), (picture_wanted % 20) % 10);
-					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha);
+					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 				} else {
 					source_rect = calc_rect(2 * ((picture_wanted % 20) / 10), (picture_wanted % 20) % 10);
-					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha);
+					rect_draw_some_item(monst_gworld(picture_wanted / 20), source_rect, mainPtr, to_rect, sf::BlendAlpha, tint);
 				}
 			}
 		} else if(overall_mode == MODE_PLACE_ITEM || overall_mode == MODE_PLACE_SAME_ITEM) {
 			picture_wanted = scenario.scen_items[mode_count].graphic_num;
+			uint32_t tint = scenario.scen_items[mode_count].tint;
 			if(picture_wanted >= 1000) {
 				std::shared_ptr<const sf::Texture> source_gworld;
 				graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture_wanted % 1000);
-				rect_draw_some_item(*source_gworld,source_rect,mainPtr,draw_rect,sf::BlendAlpha);
+				rect_draw_some_item(*source_gworld,source_rect,mainPtr,draw_rect,sf::BlendAlpha, tint);
 			} else if(picture_wanted < 55) {
 				source_rect = calc_rect(picture_wanted % 5,picture_wanted / 5);
-				rect_draw_some_item(*ResMgr::graphics.get("objects"),source_rect,mainPtr,draw_rect,sf::BlendAlpha);
+				rect_draw_some_item(*ResMgr::graphics.get("objects"),source_rect,mainPtr,draw_rect,sf::BlendAlpha, tint);
 			} else {
 				draw_rect.inset(5, 9);
 				rectangle tiny_from = {0,0,18,18};
 				tiny_from.offset((picture_wanted % 10) * 18,(picture_wanted / 10) * 18);
-				rect_draw_some_item(*ResMgr::graphics.get("tinyobj"),tiny_from,mainPtr,draw_rect,sf::BlendAlpha);
+				rect_draw_some_item(*ResMgr::graphics.get("tinyobj"),tiny_from,mainPtr,draw_rect,sf::BlendAlpha, tint);
 			}
 		} else if(overall_mode == MODE_TOGGLE_SPECIAL_DOT) {
 			draw_field = true;

@@ -17,6 +17,7 @@
 #include "item_variety.hpp"
 #include "skills_traits.hpp"
 #include "alchemy.hpp"
+#include <stdint.h>
 
 namespace legacy { struct item_record_type; };
 
@@ -60,6 +61,7 @@ public:
 	unsigned int treas_class;
 	bool ident, property, magic, contained, held, cursed, concealed, enchanted, unsellable;
 	std::string desc;
+	uint32_t tint{0};
 	unsigned char rec_treas_class() const;
 	short item_weight() const;
 	

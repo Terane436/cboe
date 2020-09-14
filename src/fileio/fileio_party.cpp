@@ -256,7 +256,7 @@ bool load_party_v1(fs::path file_to_load, cUniverse& real_univ, bool town_restor
 		if(town_restore) // Check items in crates/barrels
 			for(int i = 0; i < univ.town->max_dim; i++) {
 				for(int j = 0; j < univ.town->max_dim; j++) {
-					if(univ.town.testField<fields::OBJECT_CRATE,fields::OBJECT_BARREL>(i,j)) {
+					if(univ.town.testFields<fields::fieldgroups::ContainerFields>(i,j)) {
 						for(cItem item : univ.town.items) {
 							if(item.item_loc == loc(i,j) && item.contained)
 								item.held = true;

@@ -54,10 +54,15 @@ bool loc_compare::operator()(location a, location b) const {
 	return false;
 }
 
-bool location::in(rectangle r){
+bool location::in(const rectangle& r) const {
 	if(y >= r.top && y <= r.bottom && x >= r.left && x <= r.right)
 		return true;
 	return false;
+}
+
+bool location::inTerrainWindow() const
+{
+    return in(rectangle(0,0,8,8));
 }
 
 bool operator == (rectangle r1, rectangle r2) {

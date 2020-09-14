@@ -34,7 +34,8 @@ struct location {
 	location(int x, int y);
 	template<typename T>
 	location(sf::Vector2<T> other) : location(other.x, other.y) {}
-	bool in(rectangle r);
+	bool in(const rectangle& r) const;
+	bool inTerrainWindow() const;
 	template<typename T>
 	operator typename sf::template Vector2<T>() {
 		return sf::Vector2<T>(x,y);
