@@ -16,6 +16,7 @@
 #include "location.hpp"
 #include "terrain_abilities.hpp"
 #include "stdint.h"
+#include "render_image.hpp"
 
 namespace legacy { struct terrain_type_type; };
 
@@ -51,7 +52,7 @@ public:
 	bool blocksMove() const;
 	void import_legacy(legacy::terrain_type_type& old);
 	void writeTo(std::ostream& file) const;
-	void draw(rectangle target) const;
+	void draw(rectangle target, sf::RenderTarget& rtarget, unsigned long animTick = 1) const;
 };
 
 #endif

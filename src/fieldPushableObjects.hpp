@@ -60,7 +60,7 @@ template<eFieldType... Objects> struct PushObjects
     template<bool IsPc, bool Moving, typename Source> static bool push(location from_loc, location where, Source& source)
     {return true;}
     template<typename Source> static void breakContainer(Source&, location) {}
-    template<typename Source> static bool crashContainer(Source&, location) {return true;}
+    template<typename Source> static bool crashContainer(Source&, location) {return false;}
 };
 
 template<eFieldType Object, eFieldType... Objects> struct PushObjects<Object,Objects...>

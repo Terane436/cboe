@@ -37,6 +37,7 @@ template<> struct FieldEffects<BARRIER_FIRE> {
 };
 template<> struct FieldEffects<FIELD_QUICKFIRE> {
     template<typename Target, bool Init> static void applyFieldEffect(Target& target) {FieldDamager<Target>::damage(target,get_ran(2,1,8),eDamageType::FIRE);}
+    bool spread() {return get_ran(1,1,8) != 1;}
 };
 
 //MORE TEMPLATE SUPPORT FOR CONSISTENT FIELD EFFECT APPLICATION

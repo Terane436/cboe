@@ -531,30 +531,7 @@ void set_up_terrain_buttons(bool reset) {
 					rect_draw_some_item(editor_mixed, ter_plus_from, mainPtr, draw_rect);
 					break;
 				}
-				ter_from = ter_from_base;
-				pic = scenario.ter_types[i].picture;
-				tint = scenario.ter_types[i].picture;
-				if(pic >= 1000) {
-					std::shared_ptr<const sf::Texture> source_gworld;
-					graf_pos_ref(source_gworld, ter_from) = spec_scen_g.find_graphic(pic % 1000);
-					rect_draw_some_item(*source_gworld, ter_from, mainPtr, draw_rect, sf::BlendNone, tint);
-				}
-				else if(pic < 960)	{
-					pic = pic % 50;
-					ter_from.offset(28 * (pic % 10), 36 * (pic / 10));
-					int which_sheet = scenario.ter_types[i].picture / 50;
-					rect_draw_some_item(*ResMgr::graphics.get("ter" + std::to_string(1 + which_sheet)),
-						ter_from, mainPtr, draw_rect, sf::BlendNone, tint);
-				}
-				else {
-					pic = (pic - 560) % 50;
-					ter_from.left = 112 * (pic / 5);
-					ter_from.right = ter_from.left + 28;
-					ter_from.top = 36 * (pic % 5);
-					ter_from.bottom = ter_from.top + 36;
-					rect_draw_some_item(*ResMgr::graphics.get("teranim"), ter_from, mainPtr, draw_rect, sf::BlendNone, tint);
-					
-				}
+				scenario.ter_types[i].draw(draw_rect,mainPtr);
 				small_i = get_small_icon(i);
 				tiny_from = base_small_button_from;
 				tiny_from.offset(7 * (small_i % 30),7 * (small_i / 30));
@@ -1108,44 +1085,15 @@ void force_tiny_redraw() {
 }
 
 void draw_one_terrain_spot (short i,short j,ter_num_t terrain_to_draw) {
-	location where_draw;
-	rectangle source_rect;
-	short picture_wanted;
-	std::shared_ptr<const sf::Texture> source_gworld;
-	
-	if(i < 0 || i > 8 || j < 0 || j > 8)
-		return;
-	
-	picture_wanted = scenario.ter_types[terrain_to_draw].picture;
-	
-	where_draw.x = (char) i;
-	where_draw.y = (char) j;
-	
-	if(picture_wanted >= 1000 && spec_scen_g) {
-		graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture_wanted % 1000);
-	}
-	else if(picture_wanted >= 960)	{
-		source_gworld = &ResMgr::graphics.get("teranim");
-		picture_wanted -= 960;
-		source_rect.left = 112 * (picture_wanted / 5);
-		source_rect.right = source_rect.left + 28;
-		source_rect.top = 36 * (picture_wanted % 5);
-		source_rect.bottom = source_rect.top + 36;
-	}
-	else {
-		source_rect = get_template_rect(terrain_to_draw);
-		int which_sheet = picture_wanted / 50;
-		source_gworld = &ResMgr::graphics.get("ter" + std::to_string(1 + which_sheet));
-	}
-	
+	location where_draw(i,j);
+	if(!where_draw.inTerrainWindow()) return;
 	rectangle destrec;
 	destrec.left = 8 + BITMAP_WIDTH * where_draw.x;
 	destrec.right = destrec.left + BITMAP_WIDTH;
 	destrec.top = 8 + BITMAP_HEIGHT * where_draw.y;
 	destrec.bottom = destrec.top + BITMAP_HEIGHT;
 	destrec.offset(TER_RECT_UL_X,TER_RECT_UL_Y);
-	
-	rect_draw_some_item(*source_gworld, source_rect, mainPtr, destrec);
+        scenario.ter_types[terrain_to_draw].draw(destrec,mainPtr);
 }
 
 void draw_one_tiny_terrain_spot (short i,short j,ter_num_t terrain_to_draw,short size,bool road) {
@@ -1162,18 +1110,7 @@ void draw_one_tiny_terrain_spot (short i,short j,ter_num_t terrain_to_draw,short
 	
 	dest_rect.offset(8 + TER_RECT_UL_X + size * i, 8 + TER_RECT_UL_Y + size * j);
 	if(drawLargeIcon) {
-		if(picture_wanted >= 1000)	{
-			graf_pos_ref(source_gworld, from_rect) = spec_scen_g.find_graphic(picture_wanted % 1000);
-		} else if(picture_wanted >= 960) {
-			source_gworld = &ResMgr::graphics.get("teranim");
-			from_rect = calc_rect(4 * ((picture_wanted - 960) / 5),(picture_wanted - 960) % 5);
-		} else {
-			int which_sheet = picture_wanted / 50;
-			source_gworld = &ResMgr::graphics.get("ter" + std::to_string(1 + which_sheet));
-			picture_wanted %= 50;
-			from_rect = calc_rect(picture_wanted % 10, picture_wanted / 10);
-		}
-		rect_draw_some_item(*source_gworld, from_rect, mainPtr, dest_rect);
+		scenario.ter_types[terrain_to_draw].draw(dest_rect,mainPtr);
 	} else {
 		if(picture_wanted >= 1000) {
 			std::shared_ptr<const sf::Texture> from_gw;
@@ -1274,7 +1211,8 @@ void draw_frames() {
 }
 
 static void place_selected_terrain(ter_num_t ter, rectangle draw_rect) {
-	pic_num_t picture_wanted = scenario.ter_types[ter].picture;
+	scenario.ter_types[ter].draw(draw_rect,mainPtr);
+	/*pic_num_t picture_wanted = scenario.ter_types[ter].picture;
 	rectangle source_rect;
 	if(picture_wanted >= 1000)	{
 		std::shared_ptr<const sf::Texture> source_gworld;
@@ -1295,7 +1233,7 @@ static void place_selected_terrain(ter_num_t ter, rectangle draw_rect) {
 		sf::Texture& terrain_gworld = *ResMgr::graphics.get("ter" + std::to_string(1 + which_sheet));
 		rect_draw_some_item(terrain_gworld,source_rect,
 							mainPtr,draw_rect);
-	}
+	}*/
 	short small_i = get_small_icon(ter);
 	rectangle tiny_to = draw_rect;
 	tiny_to.top = tiny_to.bottom - 7;

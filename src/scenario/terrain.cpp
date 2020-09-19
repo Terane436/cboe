@@ -17,6 +17,9 @@
 #include "oldstructs.hpp"
 #include "gfxsheets.hpp" // for NO_PIC
 #include "damage.hpp"
+#include "res_image.hpp"
+
+extern cCustomGraphics spec_scen_g;
 
 void cTerrain::import_legacy(legacy::terrain_type_type& old){
 	static const std::set<int> archetypes = {
@@ -413,3 +416,48 @@ bool cTerrain::blocksMove() const {
 	int code = (int) blockage;
 	return code > 2;
 }
+
+void cTerrain::draw(rectangle target, sf::RenderTarget& rtarget, unsigned long animTick) const
+{
+    rectangle source_rect;
+    std::shared_ptr<const sf::Texture> source_gworld;
+    if(picture >= 2000) // custom
+        graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture - 2000 + (animTick % 4));
+    else if(picture >= 1000) // custom
+        graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture - 1000);
+    else if(picture >= 960)
+    { // animated
+        source_gworld = &ResMgr::graphics.get("teranim");
+        source_rect = calc_rect(4 * ((picture - 960) / 5) + (animTick % 4),(picture - 960) % 5);
+    }
+    else
+    {
+        int which_sheet = picture / 50;
+        source_gworld = &ResMgr::graphics.get("ter" + std::to_string(1 + which_sheet));
+	int ttd = picture % 50;
+        source_rect = calc_rect(ttd % 10, ttd / 10);
+    }
+    rect_draw_some_item(*source_gworld, source_rect, rtarget, target, sf::BlendNone, tint);
+    if(overlayPic == 0) return;
+    else if(overlayPic >= 10000)
+    {
+        int terrain_to_draw = overlayPic - 10000;
+        int overlayAnim = terrain_to_draw / 1000;
+	if(overlayAnim <= 0) overlayAnim = 1;
+        terrain_to_draw %= 1000;
+	graf_pos_ref(source_gworld,source_rect) = spec_scen_g.find_graphic(terrain_to_draw + (animTick % overlayAnim));
+    }
+    else if(overlayPic >= 5000)
+    {
+	source_gworld = &ResMgr::graphics.get("overlayAnim");
+        source_rect = calc_rect(4 * ((overlayPic - 5000) / 5) + (animTick % 4),(overlayPic - 5000) % 5);
+    }
+    else
+    {
+        int which_sheet = overlayPic / 50;
+        source_gworld = &ResMgr::graphics.get("overlay" + std::to_string(1 + which_sheet));
+        source_rect = calc_rect(overlayPic % 10, which_sheet / 10);
+    }
+    rect_draw_some_item(*source_gworld, source_rect, rtarget, target, sf::BlendAlpha, overlayTint);
+}
+

@@ -87,6 +87,11 @@ public:
 	StuffDone::type& getSdf(int x, int y) {return stuffDone_.sdf(x,y);}
 	void enterScenario(const cScenario& scenario, const std::string& name);
 	StuffDone& getStuffDone() {return stuffDone_;}
+	template<eStatus Status> bool hasStatus() const
+	{
+            for(auto& pc : adven) if(pc->main_status == eMainStatus::ALIVE && pc->status[Status] > 0) return true;
+	    return false;
+	}
 private:
 	StuffDone stuffDone_;
 public:

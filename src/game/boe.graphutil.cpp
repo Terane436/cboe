@@ -82,51 +82,7 @@ void draw_one_terrain_spot (short i,short j,short terrain_to_draw) {
 		anim_type = -1;
                 rect_draw_some_item(*source_gworld, source_rect, terrain_screen_gworld, where_draw, sf::BlendNone);
 	}
-	else univ.scenario.ter_types[terrain_to_draw].draw(where_draw);
-}
-
-void cTerrain::draw(rectangle target) const
-{
-    rectangle source_rect;
-    std::shared_ptr<const sf::Texture> source_gworld;
-    if(picture >= 2000) // custom
-        graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture - 2000 + (anim_ticks % 4));
-    else if(picture >= 1000) // custom
-        graf_pos_ref(source_gworld, source_rect) = spec_scen_g.find_graphic(picture - 1000);
-    else if(picture >= 960)
-    { // animated
-        source_gworld = &ResMgr::graphics.get("teranim");
-        source_rect = calc_rect(4 * ((picture - 960) / 5) + (anim_ticks % 4),(picture - 960) % 5);
-    }
-    else
-    {
-        int which_sheet = picture / 50;
-        source_gworld = &ResMgr::graphics.get("ter" + std::to_string(1 + which_sheet));
-	int ttd = picture % 50;
-        source_rect = calc_rect(ttd % 10, ttd / 10);
-    }
-    rect_draw_some_item(*source_gworld, source_rect, terrain_screen_gworld, target, sf::BlendNone, tint);
-    if(overlayPic == 0) return;
-    else if(overlayPic >= 10000)
-    {
-        int terrain_to_draw = overlayPic - 10000;
-        int overlayAnim = terrain_to_draw / 1000;
-	if(overlayAnim <= 0) overlayAnim = 1;
-        terrain_to_draw %= 1000;
-	graf_pos_ref(source_gworld,source_rect) = spec_scen_g.find_graphic(terrain_to_draw + (anim_ticks % overlayAnim));
-    }
-    else if(overlayPic >= 5000)
-    {
-	source_gworld = &ResMgr::graphics.get("overlayAnim");
-        source_rect = calc_rect(4 * ((overlayPic - 5000) / 5) + (anim_ticks % 4),(overlayPic - 5000) % 5);
-    }
-    else
-    {
-        int which_sheet = overlayPic / 50;
-        source_gworld = &ResMgr::graphics.get("overlay" + std::to_string(1 + which_sheet));
-        source_rect = calc_rect(picture % 10, picture / 10);
-    }
-    rect_draw_some_item(*source_gworld, source_rect, terrain_screen_gworld, target, sf::BlendAlpha, overlayTint);
+	else univ.scenario.ter_types[terrain_to_draw].draw(where_draw, terrain_screen_gworld, anim_ticks);
 }
 
 void draw_monsters() {

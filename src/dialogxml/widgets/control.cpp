@@ -655,10 +655,7 @@ void cControl::setTextToNum(long long what){
 }
 
 long long cControl::getTextAsNum(){
-	std::istringstream sin(getText());
-	long long n;
-	sin >> n;
-	return n;
+	return std::stoll(getText(),nullptr,0);
 }
 
 bool cControl::hasKey(){

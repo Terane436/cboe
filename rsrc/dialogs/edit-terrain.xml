@@ -14,96 +14,104 @@
 	<field name='pict' top='62'  left='141' height='16' width='52' />
 	<button name='pickpict' type='large' top='59' left='205'>Pick Picture</button>
 	<button name='pickanim' type='large' top='59' left='319'>Animated</button>
-	<text top='90' left='8' height='14' width='120'>Terrain blockage:</text>
+	<text top='90' left='9' height='14' width='120'>Overlay picture:</text>
+	<field name='opict' top='89'  left='141' height='16' width='52' />
+	<button name='pickopict' type='large' top='86' left='205'>Pick Picture</button>
+	<button name='pickoanim' type='large' top='86' left='319'>Animated</button>
+	<text top='117' left='8' height='14' width='120'>Terrain blockage:</text>
 	<group name='blockage'>
-		<led name='clear' top='90' left='132' state='off' width='120'>Clear</led>
-		<led name='curtain' top='107' left='132' state='off' width='120'>Walk through, opaque</led>
-		<led name='special' top='124' left='132' state='off' width='120'>Clear, special</led>
-		<led name='window' top='90' left='293' state='off' width='120'>Clear, blocked</led>
-		<led name='obstructed' top='107' left='293' state='off' width='120'>Blocked, obstructed</led>
-		<led name='opaque' top='124' left='293' state='off' width='120'>Blocked, opaque</led>
+		<led name='clear' top='117' left='132' state='off' width='120'>Clear</led>
+		<led name='curtain' top='134' left='132' state='off' width='120'>Walk through, opaque</led>
+		<led name='special' top='151' left='132' state='off' width='120'>Clear, special</led>
+		<led name='window' top='117' left='293' state='off' width='120'>Clear, blocked</led>
+		<led name='obstructed' top='134' left='293' state='off' width='120'>Blocked, obstructed</led>
+		<led name='opaque' top='151' left='293' state='off' width='120'>Blocked, opaque</led>
 	</group>
-	<led name='flight' top='150' left='26' state='off' width='120' font='bold'>Can fly over?</led>
-	<led name='boat' top='150' left='154' state='off' width='120' font='bold'>Can boat over?</led>
-	<led name='horse' top='150' left='307' state='off' width='120' font='bold'>Blocked to horses?</led>
-	<led name='arch' top='150' left='447' state='off' width='120' font='bold'>Archetype?</led>
-	<text top='165' left='8' height='14' width='91'>Step sound:</text>
+	<led name='flight' top='177' left='26' state='off' width='120' font='bold'>Can fly over?</led>
+	<led name='boat' top='177' left='154' state='off' width='120' font='bold'>Can boat over?</led>
+	<led name='horse' top='177' left='307' state='off' width='120' font='bold'>Blocked to horses?</led>
+	<led name='arch' top='177' left='447' state='off' width='120' font='bold'>Archetype?</led>
+	<text top='192' left='8' height='14' width='91'>Step sound:</text>
 	<group name='sound'>
-		<led name="step" top='167' left='102' state='off' width='60'>Footstep</led>
-		<led name="squish" top='167' left='186' state='off' width='60'>Squish</led>
-		<led name="crunch" top='167' left='282' state='off' width='60'>Crunch</led>
-		<led name="nosound" top='167' left='386' state='off' width='60'>Silence</led>
-		<led name="splash" top='167' left='497' state='off' width='60'>Big Splash</led>
+		<led name="step" top='194' left='102' state='off' width='60'>Footstep</led>
+		<led name="squish" top='194' left='186' state='off' width='60'>Squish</led>
+		<led name="crunch" top='194' left='282' state='off' width='60'>Crunch</led>
+		<led name="nosound" top='194' left='386' state='off' width='60'>Silence</led>
+		<led name="splash" top='194' left='497' state='off' width='60'>Big Splash</led>
 	</group>
-	<text top='194' left='8' height='14' width='91'>Shortcut key:</text>
-	<field name='key' top='193' left='109' height='16' width='52' />
-	<text top='194' left='171' height='14' width='91'>Light radius:</text>
-	<field name='light' top='193' left='271' height='16' width='52' />
-	<text top='193' left='333' height='14' width='128'>Transform to what?</text>
-	<field name='trans' top='193' left='467' height='16' width='52' />
-	<button name='picktrans' top='190' left='530' type='regular'>Choose</button>
+	<text top='221' left='8' height='14' width='91'>Shortcut key:</text>
+	<field name='key' top='220' left='109' height='16' width='52' />
+	<text top='221' left='171' height='14' width='91'>Light radius:</text>
+	<field name='light' top='220' left='271' height='16' width='52' />
+	<text top='220' left='333' height='14' width='128'>Transform to what?</text>
+	<field name='trans' top='220' left='467' height='16' width='52' />
+	<button name='picktrans' top='217' left='530' type='regular'>Choose</button>
 	
-	<text top='217' left='8' height='14' width='91'>Ground type:</text>
-	<field name='ground' top='216' left='109' height='16' width='52' />
-	<text top='217' left='171' height='14' width='91'>Trim terrain:</text>
-	<field name='trimter' top='216' left='271' height='16' width='52' />
-	<text top='217' left='333' height='14' width='128'>Trim type:</text>
-	<field name='trim' top='216' left='467' height='16' width='52' />
-	<button name='picktrim' top='213' left='530' type='regular'>Choose</button>
+	<text top='244' left='8' height='14' width='91'>Ground type:</text>
+	<field name='ground' top='243' left='109' height='16' width='52' />
+	<text top='244' left='171' height='14' width='91'>Trim terrain:</text>
+	<field name='trimter' top='243' left='271' height='16' width='52' />
+	<text top='244' left='333' height='14' width='128'>Trim type:</text>
+	<field name='trim' top='243' left='467' height='16' width='52' />
+	<button name='picktrim' top='240' left='530' type='regular'>Choose</button>
 	
-	<text size='large' top='238' left='8' height='14' width='175'>Special properties:</text>
+	<text size='large' top='265' left='8' height='14' width='175'>Special properties:</text>
 	<group name="prop">
-		<led name='prop0' top='254' left='8' state='off' width='124'>None</led>
-		<led name='prop1' top='269' left='8' state='off' width='124'>Change when step on</led>
-		<led name='prop2' top='284' left='8' state='off' width='124'>Damaging terrain</led>
-		<led name='prop3' top='299' left='8' state='off' width='124'>Is a bridge</led>
-		<led name='prop4' top='314' left='8' state='off' width='124'>Change while occupied</led>
-		<led name='prop5' top='329' left='8' state='off' width='124'>Dangerous terrain</led>
-		<led name='prop6' top='344' left='8' state='off' width='124'>Reserved</led>
-		<led name='prop7' top='359' left='8' state='off' width='124'>Crumbling terrain</led>
-		<led name='prop8' top='254' left='158' state='off' width='124'>Lockable terrain</led>
-		<led name='prop9' top='269' left='158' state='off' width='124'>Unlockable terrain</led>
-		<led name='prop10' top='284' left='158' state='off' width='124'>Reserved</led>
-		<led name='prop11' top='299' left='158' state='off' width='124'>Is a sign</led>
-		<led name='prop12' top='314' left='158' state='off' width='124'>Call special when step</led>
-		<led name='prop13' top='329' left='158' state='off' width='124'>Reserved</led>
-		<led name='prop14' top='344' left='158' state='off' width='124'>Is a container</led>
-		<led name='prop15' top='359' left='158' state='off' width='124'>Wilderness (Caves)</led>
-		<led name='prop16' top='254' left='308' state='off' width='124'>Wilderness (Surface)</led>
-		<led name='prop17' top='269' left='308' state='off' width='124'>Waterfall (Caves)</led>
-		<led name='prop18' top='284' left='308' state='off' width='124'>Waterfall (Surface)</led>
-		<led name='prop19' top='299' left='308' state='off' width='124'>Conveyor Belt</led>
-		<led name='prop20' top='314' left='308' state='off' width='124'>Blocked to monsters</led>
-		<led name='prop21' top='329' left='308' state='off' width='124'>Town entrance</led>
-		<led name='prop22' top='344' left='308' state='off' width='124'>Change when used</led>
-		<led name='prop23' top='359' left='308' state='off' width='124'>Call special when used</led>
+		<led name='prop0' top='281' left='8' state='off' width='124'>None</led>
+		<led name='prop1' top='296' left='8' state='off' width='124'>Change when step on</led>
+		<led name='prop2' top='311' left='8' state='off' width='124'>Damaging terrain</led>
+		<led name='prop3' top='326' left='8' state='off' width='124'>Is a bridge</led>
+		<led name='prop4' top='341' left='8' state='off' width='124'>Change while occupied</led>
+		<led name='prop5' top='356' left='8' state='off' width='124'>Dangerous terrain</led>
+		<led name='prop6' top='371' left='8' state='off' width='124'>Reserved</led>
+		<led name='prop7' top='386' left='8' state='off' width='124'>Crumbling terrain</led>
+		<led name='prop8' top='281' left='158' state='off' width='124'>Lockable terrain</led>
+		<led name='prop9' top='296' left='158' state='off' width='124'>Unlockable terrain</led>
+		<led name='prop10' top='311' left='158' state='off' width='124'>Reserved</led>
+		<led name='prop11' top='326' left='158' state='off' width='124'>Is a sign</led>
+		<led name='prop12' top='341' left='158' state='off' width='124'>Call special when step</led>
+		<led name='prop13' top='356' left='158' state='off' width='124'>Reserved</led>
+		<led name='prop14' top='371' left='158' state='off' width='124'>Is a container</led>
+		<led name='prop15' top='386' left='158' state='off' width='124'>Wilderness (Caves)</led>
+		<led name='prop16' top='281' left='308' state='off' width='124'>Wilderness (Surface)</led>
+		<led name='prop17' top='296' left='308' state='off' width='124'>Waterfall (Caves)</led>
+		<led name='prop18' top='311' left='308' state='off' width='124'>Waterfall (Surface)</led>
+		<led name='prop19' top='326' left='308' state='off' width='124'>Conveyor Belt</led>
+		<led name='prop20' top='341' left='308' state='off' width='124'>Blocked to monsters</led>
+		<led name='prop21' top='356' left='308' state='off' width='124'>Town entrance</led>
+		<led name='prop22' top='371' left='308' state='off' width='124'>Change when used</led>
+		<led name='prop23' top='386' left='308' state='off' width='124'>Call special when used</led>
 	</group>
-	<text top='385' left='9' height='14' width='91'>Extra values:</text>
-	<text name='flag1text' framed='true' top='385' left='109' height='14' width='209'>*flag1</text>
-	<field name='flag1' top='384' left='329' height='16' width='64' />
-	<button name='pickflag1' top='381' left='404' type='regular'>Choose</button>
-	<button name='editspec' top='381' left='404' type='large'>Create/Edit</button>
-	<text name='flag2text' framed='true' top='410' left='109' height='14' width='209'>*flag2</text>
-	<field name='flag2' top='409' left='329' height='16' width='64' />
-	<button name='pickflag2' top='406' left='404' type='regular'>Choose</button>
-	<text name='flag3text' framed='true' top='435' left='109' height='14' width='209'>*flag3</text>
-	<field name='flag3' top='434' left='329' height='16' width='64' />
-	<button name='pickflag3' top='431' left='404' type='regular'>Choose</button>
+	<text top='412' left='9' height='14' width='91'>Extra values:</text>
+	<text name='flag1text' framed='true' top='412' left='109' height='14' width='209'>*flag1</text>
+	<field name='flag1' top='411' left='329' height='16' width='64' />
+	<button name='pickflag1' top='408' left='404' type='regular'>Choose</button>
+	<button name='editspec' top='408' left='404' type='large'>Create/Edit</button>
+	<text name='flag2text' framed='true' top='437' left='109' height='14' width='209'>*flag2</text>
+	<field name='flag2' top='436' left='329' height='16' width='64' />
+	<button name='pickflag2' top='433' left='404' type='regular'>Choose</button>
+	<text name='flag3text' framed='true' top='462' left='109' height='14' width='209'>*flag3</text>
+	<field name='flag3' top='461' left='329' height='16' width='64' />
+	<button name='pickflag3' top='458' left='404' type='regular'>Choose</button>
 	
-	<text top='254' left='467' height='14' width='100'>Combat Arena:</text>
-	<field name='arena' top='275' left='467' height='16' width='64'/>
-	<button name='pickarena' type='regular' top='299' left='467'>Choose</button>
-	<button name='picktown' type='regular' top='299' left='532'>Custom</button>
-	<button name='object' top='344' left='467' type='large'>Object Detail</button>
-	<text top='63' left='430' width='60' height='14'>Map icon:</text>
-	<pict name='seemap' top='86' left='465' type='map' num='0'/>
-	<field name='map' top='62' left='495' width='80' height='16'/>
-	<button name='pickmap' type='regular' top='86' left='495'>Choose</button>
-	<text top='110' left='431' height='32' width='157'>(Enter -1 to scale down the large picture)</text>
-	<button name='done' type='regular' top='455' left='517'>OK</button>
-	<button name='cancel' type='regular' def-key='esc' top='455' left='451'>Cancel</button>
-	<button name='left' type='left' top='455' left='11'/>
-	<button name='right' type='right' top='455' left='74'/>
-	<text top='7' left='431' height='50' width='157'>Enter properties for this terrain type. For a detailed description of the fields, see the documentation.</text>
-	<button name='help' type='help' def-key='help' top='5' left='588'/>
+	<text top='281' left='494' height='14' width='100'>Combat Arena:</text>
+	<field name='arena' top='302' left='467' height='16' width='64'/>
+	<button name='pickarena' type='regular' top='326' left='467'>Choose</button>
+	<button name='picktown' type='regular' top='326' left='532'>Custom</button>
+	<button name='object' top='371' left='467' type='large'>Object Detail</button>
+	<text top='90' left='430' width='60' height='14'>Map icon:</text>
+	<pict name='seemap' top='113' left='465' type='map' num='0'/>
+	<field name='map' top='89' left='495' width='80' height='16'/>
+	<button name='pickmap' type='regular' top='113' left='495'>Choose</button>
+	<text top='137' left='431' height='32' width='157'>(Enter -1 to scale down the large picture)</text>
+	<text top='483' left='50' height='14' width='120'>Terrain Tint:</text>
+	<field name='tint' top='482'  left='141' height='16' width='150' />
+	<text top='510' left='50' height='14' width='120'>Overlay Tint:</text>
+	<field name='otint' top='509'  left='141' height='16' width='150' />
+	<button name='done' type='regular' top='537' left='517'>OK</button>
+	<button name='cancel' type='regular' def-key='esc' top='537' left='451'>Cancel</button>
+	<button name='left' type='left' top='537' left='11'/>
+	<button name='right' type='right' top='537' left='74'/>
+	<text top='34' left='431' height='50' width='157'>Enter properties for this terrain type. For a detailed description of the fields, see the documentation.</text>
+	<button name='help' type='help' def-key='help' top='32' left='588'/>
 </dialog>

@@ -4138,8 +4138,7 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 		}
 	}
 	draw_terrain(0);
-	if(is_town()) // now make things move faster if in town
-		fast_bang = 2;
+	if(is_town()) fast_bang = 2; // now make things move faster if in town
 	
 	// Damage to pcs
 	for(cPlayer& pc : univ.party)
@@ -4155,31 +4154,33 @@ static void place_spell_pattern(effect_pat_type pat,location center,unsigned sho
 				}
 			}
 	put_pc_screen();
-	
 	fast_bang = 0;
 	
 	// Damage to monsters
-	for(short k = 0; k < univ.town.monst.size(); k++)
-		if((univ.town.monst[k].active > 0) && (dist(center,univ.town.monst[k].cur_loc) <= 5)) {
+	for(auto& monst : univ.town.monst)
+        {
+		if((monst.active > 0) && (dist(center,monst.cur_loc) <= 5)) {
 			monster_hit = false;
 			// First actually make barriers, then draw them, then inflict damaging effects.
 			for(short i = minmax(0,univ.town->max_dim - 1,center.x - 4); i <= minmax(0,univ.town->max_dim - 1,center.x + 4); i++)
+                        {
 				for(short j = minmax(0,univ.town->max_dim - 1,center.y - 4); j <= minmax(0,univ.town->max_dim - 1,center.y + 4); j++) {
 					spot_hit.x = i;
 					spot_hit.y = j;
 					
-					if(!monster_hit && sight_obscurity(i,j) < 5 && univ.town.monst[k].on_space(spot_hit)) {
+					if(!monster_hit && sight_obscurity(i,j) < 5 && monst.on_space(spot_hit)) {
 						
 						if(pat.pattern[i - center.x + 4][j - center.y + 4] > 0)
 							monster_hit = true;
 						effect = pat.pattern[i - center.x + 4][j - center.y + 4];
-						which_m = &univ.town.monst[k];
-						if(which_m->abil[eMonstAbil::RADIATE].active && effect == which_m->abil[eMonstAbil::RADIATE].radiate.type)
+						if(monst.abil[eMonstAbil::RADIATE].active && effect == monst.abil[eMonstAbil::RADIATE].radiate.type)
 							continue;
-						fields::executeEffects<cCreature>(effect,univ.town.monst[k],who_hit);
+						fields::executeEffects<cCreature>(effect,monst,who_hit);
 					}
 				}
+                        }
 		}
+        }
 }
 
 void place_spell_pattern(effect_pat_type pat,location center,short who_hit) {
@@ -4311,20 +4312,19 @@ void hit_space(location target,short dam,eDamageType type,short report,short hit
 
 
 void do_poison() {
-	short r1 = 0;
-	bool some_poison = false;
+	//short r1 = 0;
+	//bool some_poison = false;
 	
-	for(cPlayer& pc : univ.party)
-		if(pc.main_status == eMainStatus::ALIVE)
-			if(pc.status[eStatus::POISON] > 0)
-				some_poison = true;
-	if(some_poison) {
+	//for(cPlayer& pc : univ.party)
+	//	if(pc.main_status == eMainStatus::ALIVE)
+	//		if(pc.status[eStatus::POISON] > 0)
+				//some_poison = true;
+	if(univ.party.hasStatus<eStatus::POISON>()) { //some_poison) {
 		add_string_to_buf("Poison:");
 		for(cPlayer& pc : univ.party)
 			if(pc.main_status == eMainStatus::ALIVE)
 				if(pc.status[eStatus::POISON] > 0) {
-					r1 = get_ran(pc.status[eStatus::POISON],1,6);
-					damage_pc(pc,r1,eDamageType::POISON,eRace::UNKNOWN,0);
+					damage_pc(pc,get_ran(pc.status[eStatus::POISON],1,6),eDamageType::POISON,eRace::UNKNOWN,0);
 					if(get_ran(1,0,8) < 6)
 						move_to_zero(pc.status[eStatus::POISON]);
 					if(get_ran(1,0,8) < 6)
@@ -4341,11 +4341,11 @@ void do_poison() {
 
 void handle_disease() {
 	short r1 = 0;
-	bool disease = std::any_of(univ.party.begin(), univ.party.end(), [](const cPlayer& pc) {
-		return pc.main_status == eMainStatus::ALIVE && pc.status[eStatus::DISEASE] > 0;
-	});
+	//bool disease = std::any_of(univ.party.begin(), univ.party.end(), [](const cPlayer& pc) {
+	//	return pc.main_status == eMainStatus::ALIVE && pc.status[eStatus::DISEASE] > 0;
+	//});
 	
-	if(disease) {
+	if(univ.party.hasStatus<eStatus::DISEASE>()) {
 		add_string_to_buf("Disease:");
 		for(cPlayer& pc : univ.party)
 			if(pc.main_status == eMainStatus::ALIVE)
@@ -4382,27 +4382,28 @@ void handle_disease() {
 	}
 }
 
-void handle_acid() {
-	short r1 = 0;
-	bool some_acid = false;
+void handle_acid()
+{
+    short r1 = 0;
+    bool some_acid = false;
 	
-	for(cPlayer& pc : univ.party)
-		if(pc.main_status == eMainStatus::ALIVE)
-			if(pc.status[eStatus::ACID] > 0)
-				some_acid = true;
-	
-	if(some_acid) {
-		add_string_to_buf("Acid:");
-		for(cPlayer& pc : univ.party)
-			if(pc.main_status == eMainStatus::ALIVE)
-				if(pc.status[eStatus::ACID] > 0) {
-					r1 = get_ran(pc.status[eStatus::ACID],1,6);
-					damage_pc(pc,r1,eDamageType::MAGIC,eRace::UNKNOWN,0);
-					move_to_zero(pc.status[eStatus::ACID]);
-				}
-		if(!is_combat())
-			boom_space(univ.party.out_loc,overall_mode,3,r1,8);
-	}
+    //for(cPlayer& pc : univ.party)
+    //    if(pc.main_status == eMainStatus::ALIVE)
+    //        if(pc.status[eStatus::ACID] > 0)
+    //            some_acid = true;
+    if(univ.party.hasStatus<eStatus::ACID>()) //some_acid)
+    {
+        add_string_to_buf("Acid:");
+        for(cPlayer& pc : univ.party)
+            if(pc.main_status == eMainStatus::ALIVE)
+                if(pc.status[eStatus::ACID] > 0)
+                {
+                    damage_pc(pc,get_ran(pc.status[eStatus::ACID],1,6),eDamageType::MAGIC,eRace::UNKNOWN,0);
+                    move_to_zero(pc.status[eStatus::ACID]);
+                }
+        if(!is_combat())
+            boom_space(univ.party.out_loc,overall_mode,3,r1,8);
+    }
 }
 
 bool hit_end_c_button() {
@@ -5145,28 +5146,6 @@ void process_fields() {
 	processing_fields = false;
 }
 
-void scloud_space(short m,short n) {
-	// TODO: Is it correct for these to not affect monsters?
-	location target;
-	
-	target.x = (char) m;
-	target.y = (char) n;
-	
-	univ.town.setField<fields::CLOUD_STINK>(m,n);
-	
-	if(is_combat()) {
-		for(cPlayer& pc : univ.party)
-			if(pc.main_status == eMainStatus::ALIVE)
-				if(pc.combat_pos == target) {
-					pc.curse(get_ran(1,1,2));
-				}
-	} else if(target == univ.party.town_loc) {
-		for(cPlayer& pc : univ.party)
-			if(pc.main_status == eMainStatus::ALIVE)
-				pc.curse(get_ran(1,1,2));
-	}
-}
-
 void web_space(short m,short n) {
 	location target(m, n);
 	
@@ -5183,22 +5162,6 @@ void web_space(short m,short n) {
 			pc.web(3);
 	}
 }
-void sleep_cloud_space(short m,short n) {
-	location target(m, n);
-	
-	univ.town.setField<fields::CLOUD_SLEEP>(m,n);
-	
-	if(is_combat()) {
-		for(cPlayer& pc : univ.party)
-			if(pc.main_status == eMainStatus::ALIVE)
-				if(pc.combat_pos == target) {
-					pc.sleep(eStatus::ASLEEP,3,0);
-				}
-	} else if(target == univ.party.town_loc) {
-		univ.party.sleep(eStatus::ASLEEP,3,0);
-	}
-}
-
 
 void take_m_ap(short num,cCreature *monst) {
 	monst->ap = max(0,monst->ap - num);

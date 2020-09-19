@@ -112,6 +112,10 @@ static bool save_ter_info(cDialog& me, cTerrain& ter) {
 	}
 	
 	ter.picture = me["pict"].getTextAsNum();
+	ter.overlayPic = me["opict"].getTextAsNum();
+	ter.tint = me["tint"].getTextAsNum();
+	ter.overlayTint = me["otint"].getTextAsNum();
+	printf("OTINT %d\n",ter.overlayTint);
 	// TODO: Should somehow verify the pict number is valid
 	
 	std::string blockage = dynamic_cast<cLedGroup&>(me["blockage"]).getSelected();
@@ -363,6 +367,9 @@ static void fill_ter_info(cDialog& me, short ter){
 		else
 			pic_ctrl.setPict(pic % 2000, PIC_CUSTOM_TER_ANIM);
 		me["pict"].setTextToNum(pic);
+		me["tint"].setTextToNum(ter_type.tint);
+		me["opict"].setTextToNum(ter_type.overlayPic);
+		me["otint"].setTextToNum(ter_type.overlayTint);
 	}{
 		cPict& pic_ctrl = dynamic_cast<cPict&>(me["seemap"]);
 		pic_num_t pic = ter_type.map_pic;
