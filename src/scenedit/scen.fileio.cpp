@@ -396,6 +396,9 @@ void writeTerrainToXml(ticpp::Printer&& data, cScenario& scenario) {
 		data.PushElement("ground", ter.ground_type);
 		data.PushElement("trim-for", ter.trim_ter);
 		data.PushElement("arena", ter.combat_arena);
+		if(ter.tint) data.PushElement("tint", ter.tint);
+		if(ter.overlayPic) data.PushElement("overlay",ter.overlayPic);
+		if(ter.overlayTint) data.PushElement("overlayTint",ter.overlayTint);
 		
 		data.OpenElement("special");
 		data.PushElement("type", ter.special);

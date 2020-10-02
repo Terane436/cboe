@@ -1291,8 +1291,6 @@ short damage_monst(cCreature& victim, short who_hit, short how_much, eDamageType
 	short r1,which_spot;
 	location where_put;
 	
-	//print_num(which_m,(short)univ.town.monst[which_m].m_loc.x,(short)univ.town.monst[which_m].m_loc.y);
-	
 	if(victim.active == 0) return false;
 	
 	if(sound_type == 0) {
@@ -1530,6 +1528,13 @@ void kill_monst(cCreature& which_m,short who_killed,eMainStatus type) {
 	which_m.active = 0;
 }
 
+location executePush(location loc)
+{
+    ter_num_t ter = univ.town->terrain(loc.x,loc.y);
+    if(univ.scenario.ter_types[ter].special != eTerSpec::CONVEYOR) return loc;
+    return loc.push(univ.scenario.ter_types[ter].flag1);
+}
+
 // Pushes party and monsters around by moving walls and conveyor belts.
 // This is very fragile, and only hands a few cases.
 void push_things() {
@@ -1542,92 +1547,46 @@ void push_things() {
 	if(!univ.town.belt_present)
 		return;
 	
-	for(short i = 0; i < univ.town.monst.size(); i++)
-		if(univ.town.monst[i].active > 0) {
-			l = univ.town.monst[i].cur_loc;
-			ter = univ.town->terrain(l.x,l.y);
-			switch(univ.scenario.ter_types[ter].flag1) { // TODO: Implement the other 4 possible directions
-				case DIR_N: l.y--; break;
-				case DIR_E: l.x++; break;
-				case DIR_S: l.y++; break;
-				case DIR_W: l.x--; break;
-			}
-			if(l != univ.town.monst[i].cur_loc) {
-				univ.town.monst[i].cur_loc = l;
-				if((point_onscreen(center,univ.town.monst[i].cur_loc)) ||
+	for(auto& monst : univ.town.monst)
+		if(monst.active > 0) {
+			l = executePush(monst.cur_loc);
+			if(l != monst.cur_loc) {
+				monst.cur_loc = l;
+				if((point_onscreen(center,monst.cur_loc)) ||
 					(point_onscreen(center,l)))
 					redraw = true;
 			}
 		}
-	for(short i = 0; i < univ.town.items.size(); i++)
-		if(univ.town.items[i].variety != eItemType::NO_ITEM) {
-			l = univ.town.items[i].item_loc;
-			ter = univ.town->terrain(l.x,l.y);
-			switch(univ.scenario.ter_types[ter].flag1) { // TODO: Implement the other 4 possible directions
-				case DIR_N: l.y--; break;
-				case DIR_E: l.x++; break;
-				case DIR_S: l.y++; break;
-				case DIR_W: l.x--; break;
-			}
-			if(l != univ.town.items[i].item_loc) {
-				univ.town.items[i].item_loc = l;
-				if((point_onscreen(center,univ.town.items[i].item_loc)) ||
+	for(auto& item : univ.town.items)
+		if(item.variety != eItemType::NO_ITEM) {
+			l = executePush(item.item_loc);
+			if(l != item.item_loc) {
+				item.item_loc = l;
+				if((point_onscreen(center,item.item_loc)) ||
 					(point_onscreen(center,l)))
 					redraw = true;
 			}
 		}
 	
 	if(is_town()) {
-		ter = univ.town->terrain(univ.party.town_loc.x,univ.party.town_loc.y);
-		l = univ.party.town_loc;
-		switch(univ.scenario.ter_types[ter].flag1) { // TODO: Implement the other 4 possible directions
-			case DIR_N: l.y--; break;
-			case DIR_E: l.x++; break;
-			case DIR_S: l.y++; break;
-			case DIR_W: l.x--; break;
-		}
+		l = executePush(univ.party.town_loc);
 		if(l != univ.party.town_loc) {
 			// TODO: Will this push you into a placed forcecage or barrier? Should it?
 			ASB("You get pushed.");
-			if(univ.scenario.ter_types[ter].special == eTerSpec::CONVEYOR)
-				draw_terrain(0);
+			draw_terrain(0);
 			center = l;
 			univ.party.town_loc = l;
 			update_explored(l);
-			ter = univ.town->terrain(univ.party.town_loc.x,univ.party.town_loc.y);
 			draw_map(true);
 			if(fields::PushableObjects::crashContainer(univ.town,univ.party.town_loc))
 				hit_party(get_ran(1,1,6),eDamageType::WEAPON);
-			/*if(univ.town.testField<fields::OBJECT_BARREL>(univ.party.town_loc.x,univ.party.town_loc.y)) {
-				univ.town.clearFields<fields::OBJECT_BARREL>(univ.party.town_loc.x,univ.party.town_loc.y);
-				ASB("You smash the barrel.");
-			}
-			if(univ.town.testField<fields::OBJECT_CRATE>(univ.party.town_loc.x,univ.party.town_loc.y)) {
-				univ.town.clearFields<fields::OBJECT_CRATE>(univ.party.town_loc.x,univ.party.town_loc.y);
-				ASB("You smash the crate.");
-			}
-			if(univ.town.testField<fields::OBJECT_BLOCK>(univ.party.town_loc.x,univ.party.town_loc.y)) {
-				ASB("You crash into the block.");
-				hit_party(get_ran(1, 1, 6), eDamageType::WEAPON);
-			}
-			for(short k = 0; k < univ.town.items.size(); k++)
-				if(univ.town.items[k].variety != eItemType::NO_ITEM && univ.town.items[k].held
-				   && (univ.town.items[k].item_loc == univ.party.town_loc))
-					univ.town.items[k].contained = univ.town.items[k].held = false;*/
 			redraw = true;
 		}
 	}
 	if(is_combat()) {
 		for(short i = 0; i < 6; i++)
 			if(univ.party[i].main_status == eMainStatus::ALIVE) {
-				ter = univ.town->terrain(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y);
-				l = univ.party[i].combat_pos;
-				switch(univ.scenario.ter_types[ter].flag1) { // TODO: Implement the other 4 possible directions
-					case DIR_N: l.y--; break;
-					case DIR_E: l.x++; break;
-					case DIR_S: l.y++; break;
-					case DIR_W: l.x--; break;
-				}
+				l = executePush(univ.party[i].combat_pos);
 				if(l != univ.party[i].combat_pos) {
 					ASB("Someone gets pushed.");
 					ter = univ.town->terrain(l.x,l.y);
@@ -1638,23 +1597,6 @@ void push_things() {
 					draw_map(true);
 		          	        if(fields::PushableObjects::crashContainer(univ.town,univ.party[i].combat_pos))
 				            damage_pc(univ.party[i],get_ran(1,1,6),eDamageType::WEAPON,eRace::UNKNOWN,0);
-
-					/*if(univ.town.testField<fields::OBJECT_BARREL>(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y)) {
-						univ.town.clearFields<fields::OBJECT_BARREL>(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y);
-						ASB("You smash the barrel.");
-					}
-					if(univ.town.testField<fields::OBJECT_CRATE>(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y)) {
-						univ.town.clearFields<fields::OBJECT_CRATE>(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y);
-						ASB("You smash the crate.");
-					}
-					if(univ.town.testField<fields::OBJECT_BLOCK>(univ.party[i].combat_pos.x,univ.party[i].combat_pos.y)) {
-						ASB("You crash into the block.");
-						damage_pc(univ.party[i],get_ran(1, 1, 6), eDamageType::WEAPON,eRace::UNKNOWN,0);
-					}
-					for(short k = 0; k < univ.town.items.size(); k++)
-						if(univ.town.items[k].variety != eItemType::NO_ITEM && univ.town.items[k].held
-						   && (univ.town.items[k].item_loc == univ.party[i].combat_pos))
-							univ.town.items[k].contained = univ.town.items[k].held = false;*/
 					redraw = true;
 				}
 			}
@@ -1698,12 +1640,9 @@ void special_increase_age(long length, bool queue) {
 					univ.party.job_banks.resize(bank + 1);
 				int add_anger = 1;
 				if(quest.flags % 10 == 1) {
-					if(quest.deadline < 20)
-						add_anger++;
-					if(quest.deadline < 10)
-						add_anger++;
-					if(quest.deadline < 5)
-						add_anger++;
+					if(quest.deadline < 20) add_anger++;
+					if(quest.deadline < 10) add_anger++;
+					if(quest.deadline < 5) add_anger++;
 				} else if(quest.deadline - p.second.start > 20)
 					add_anger++;
 				univ.party.job_banks[bank].anger += add_anger;

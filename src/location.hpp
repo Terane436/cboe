@@ -40,6 +40,21 @@ struct location {
 	operator typename sf::template Vector2<T>() {
 		return sf::Vector2<T>(x,y);
 	}
+	location& push(short dir)
+	{
+            switch(dir)
+            {
+            case DIR_N: y--; break;
+            case DIR_NE: y--; x++; break;
+            case DIR_E: x++; break;
+            case DIR_SE: y++; x++; break;
+            case DIR_S: y++; break;
+            case DIR_SW: y++; x--; break;
+            case DIR_W: x--; break;
+            case DIR_NW: x--; y--; break;
+            }
+            return *this;
+	}
 };
 
 struct loc_compare {

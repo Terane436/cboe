@@ -71,6 +71,28 @@ class cPlayer : public iLiving {
 	cInvenSlot find_item_matching(Fcn fcn);
 	static const int INVENTORY_SIZE = 24;
 public:
+	int getWeaponSkill(eSkill skillNum, const eSkill def = eSkill::EDGED_WEAPONS) const
+	{
+            if(skillNum == eSkill::INVALID) return skills[def];
+	    else if(skillNum == eSkill::MAX_HP)
+		return static_cast<int>(20.0 * static_cast<float>(cur_health) / static_cast<float>(max_health));
+	    else if(skillNum == eSkill::MAX_SP)
+		return static_cast<int>(20.0 * static_cast<float>(cur_sp) / static_cast<float>(max_sp));
+	    else return skill(skillNum);
+	}
+	template<bool SP = false, bool Reverse = false> short modDamageByHSP(short start) const
+	{
+	    double frac = double(SP ? cur_sp : cur_health) / double(SP ? max_sp : max_health);
+	    if(Reverse) frac = 1.0 - frac;
+	    return std::max<short>(1,double(start)*frac);
+	}
+	int pcEvasion() const
+	{
+		int r = 5 * stat_adj(eSkill::DEXTERITY);
+		r += get_prot_level(eItemAbil::EVASION);
+		if(parry < 100) r += 5 * parry;
+		return r;
+	}
 	// A nice convenient bitset with just the low 30 bits set, for initializing spells
 	static const uint32_t basic_spells;
 	static void(* give_help)(short,short);
