@@ -21,7 +21,10 @@
 #include "fileio.hpp"
 #include "sounds.hpp"
 
-extern short skill_bonus[21];
+// The index here is the skill's level, not the skill itself; thus 20 is the max index since no skill can go above 20.
+short skill_bonus[21] = {
+	-3,-3,-2,-1,0,0,1,1,1,2,
+	2,2,3,3,3,3,4,4,4,5,5};
 // A nice convenient bitset with just the low 30 bits set, for initializing spells
 const uint32_t cPlayer::basic_spells = std::numeric_limits<uint32_t>::max() >> 2;
 
@@ -324,6 +327,10 @@ void cPlayer::poison(int how_much) {
 		one_sound(17);
 		give_help(33,0);
 	}
+}
+
+short cPlayer::baseSkillBonus(eSkill which) const {
+    return skill_bonus[skills[which]];
 }
 
 short cPlayer::stat_adj(eSkill which) const {

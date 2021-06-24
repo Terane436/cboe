@@ -41,8 +41,6 @@
 #include "cursors.hpp"
 #include "render_shapes.hpp" // for colour constants
 
-extern short skill_bonus[21];
-
 // TODO: Use magic-names.txt instead of these arrays
 bool get_mage[30] = {1,1,1,1,1,1,0,1,1,0, 1,1,1,1,1,1,0,0,1,1, 1,1,1,1,1,0,0,0,1,1};
 bool get_priest[30] = {1,1,1,1,1,1,0,0,0,1, 1,1,1,1,1,0,0,0,1,1, 1,0,1,1,0,0,0,1,0,0};
@@ -336,8 +334,8 @@ void award_xp(short pc_num,short amt,bool force) {
 		std::string level = std::to_string(univ.party[pc_num].level);
 		add_string_to_buf("  " + univ.party[pc_num].name + " is level " + level + "!");
 		univ.party[pc_num].skill_pts += (univ.party[pc_num].level < 20) ? 5 : 4;
-		add_hp = (univ.party[pc_num].level < 26) ? get_ran(1,2,6) + skill_bonus[univ.party[pc_num].skills[eSkill::STRENGTH]]
-			: max (skill_bonus[univ.party[pc_num].skills[eSkill::STRENGTH]],0);
+		add_hp = (univ.party[pc_num].level < 26) ? get_ran(1,2,6) + univ.party[pc_num].baseSkillBonus(eSkill::STRENGTH)
+			: max (univ.party[pc_num].baseSkillBonus(eSkill::STRENGTH),0);
 		if(add_hp < 0)
 			add_hp = 0;
 		univ.party[pc_num].max_health += add_hp;

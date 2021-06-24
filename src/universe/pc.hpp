@@ -71,6 +71,7 @@ class cPlayer : public iLiving {
 	cInvenSlot find_item_matching(Fcn fcn);
 	static const int INVENTORY_SIZE = 24;
 public:
+	short baseSkillBonus(eSkill skill) const;
 	int getWeaponSkill(eSkill skillNum, const eSkill def = eSkill::EDGED_WEAPONS) const
 	{
             if(skillNum == eSkill::INVALID) return skills[def];
